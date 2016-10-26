@@ -5,7 +5,7 @@ CREATE TABLE node_content_type (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, lang
 
 CREATE TABLE story_nodes (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, date DATE NOT NULL, content TEXT, content_type_id INT, end_node BOOL NOT NULL DEFAULT FALSE, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id)) ENGINE=INNODB;
 
-CREATE TABLE story_prompts (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, content TEXT, content_type_id INT DEFAULT 1, start_date DATE NOT NULL, end_date DATE NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id)) ENGINE=INNODB;
+CREATE TABLE story_prompt (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, prompt TEXT, content_type_id INT DEFAULT 1, start_date DATE NOT NULL, end_date DATE NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id)) ENGINE=INNODB
 
 CREATE TABLE user_auth_type (id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, type VARCHAR(10) NOT NULL) ENGINE=INNODB;
 
