@@ -24,17 +24,17 @@ public class StoryPrompt {
     private Date endDate;
 
     @Column(name = "created_at")
-    private Timestamp createDate;
+    private Timestamp createTime;
 
     @Column(name = "updated_at")
-    private Timestamp updateDate;
+    private Timestamp updateTime;
 
     public StoryPrompt(String promptText, Date startDate, Date endDate) {
         this.prompt = promptText;
         this.startDate = startDate;
         this.endDate = endDate;
         update();
-        this.createDate = this.getUpdateDate();
+        this.createTime = this.getUpdateTime();
     }
 
     public StoryPrompt() {
@@ -72,23 +72,23 @@ public class StoryPrompt {
         this.endDate = endDate;
     }
 
-    public Timestamp getCreateDate() {
-        return createDate;
+    public Timestamp getCreateTime() {
+        return createTime;
     }
 
-    public void setCreateDate(Timestamp createDate) {
-        this.createDate = createDate;
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
     }
 
-    public Timestamp getUpdateDate() {
-        return updateDate;
+    public Timestamp getUpdateTime() {
+        return updateTime;
     }
 
-    public void setUpdateDate(Timestamp updateDate) {
-        this.updateDate = updateDate;
+    public void setUpdateTime(Timestamp updateTime) {
+        this.updateTime = updateTime;
     }
 
     public void update() {
-        this.updateDate = new Timestamp((new java.util.Date()).getTime());
+        this.updateTime = new Timestamp((new java.util.Date()).getTime());
     }
 }

@@ -53,7 +53,7 @@ public class StorySnippetServiceImpl implements StorySnippetService {
     @Override
     public void addUserVote(UserSnippetVote vote) {
         Timestamp currentTimestamp = new Timestamp((new Date()).getTime());
-        userSnippetVoteRepository.setUserVoteForSnippetAndPrompt(vote.getUserSnippetId().getUserId(),
+        userSnippetVoteRepository.setUserVoteForSnippet(vote.getUserSnippetId().getUserId(),
                 vote.getUserSnippetId().getSnippetId(), vote.getVote(), currentTimestamp);
     }
 }

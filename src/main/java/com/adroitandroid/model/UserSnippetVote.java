@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 public class UserSnippetVote {
 
     @EmbeddedId
-    UserSnippetId userSnippetId;
+    private UserSnippetId userSnippetId;
 
     private Integer vote;
 
