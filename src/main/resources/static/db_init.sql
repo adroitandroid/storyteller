@@ -3,9 +3,13 @@ USE storyteller;
 
 CREATE TABLE node_content_type (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, language_id INT NOT NULL, type VARCHAR(10) NOT NULL DEFAULT 'text') ENGINE=INNODB;
 
-CREATE TABLE story_nodes (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, date DATE NOT NULL, content TEXT, content_type_id INT, end_node BOOL NOT NULL DEFAULT FALSE, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id)) ENGINE=INNODB;
+--CREATE TABLE story_nodes (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, date DATE NOT NULL, content TEXT, content_type_id INT, end_node BOOL NOT NULL DEFAULT FALSE, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id)) ENGINE=INNODB;
 
-CREATE TABLE story_prompt (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, prompt TEXT, content_type_id INT DEFAULT 1, start_date DATE NOT NULL, end_date DATE NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id)) ENGINE=INNODB
+CREATE TABLE story_prompt (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, prompt TEXT CHARACTER SET utf8, content_type_id INT DEFAULT 1, start_date DATE NOT NULL, end_date DATE NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id)) ENGINE=INNODB
+
+CREATE TABLE story_snippet (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, story_prompt_id INT NOT NULL, parent_id INT NOT NULL, snippet TEXT CHARACTER SET utf8, content_type_id INT DEFAULT 1, creator_user_id INT NOT NULL, end_node BOOL NOT NULL DEFAULT FALSE, created_at DATETIME NOT NULL, FOREIGN KEY (content_type_id) REFERENCES node_content_type(id), FOREIGN KEY (story_prompt_id) REFERENCES story_prompt(id), FOREIGN KEY (creator_user_id) REFERENCES user(id)) ENGINE=INNODB
+
+CREATE TABLE user_snippet_vote (user_id INT NOT NULL, snippet_id INT NOT NULL, vote TINYINT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY (user_id, snippet_id)) ENGINE=INNODB;
 
 CREATE TABLE user_auth_type (id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, type VARCHAR(10) NOT NULL) ENGINE=INNODB;
 

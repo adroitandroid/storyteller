@@ -15,7 +15,6 @@ public class StoryPrompt {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    @Column(name = "content")
     private String prompt;
 
     @Column(name = "start_date")
