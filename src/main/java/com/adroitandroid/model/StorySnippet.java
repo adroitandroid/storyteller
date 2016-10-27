@@ -35,6 +35,8 @@ public class StorySnippet {
     @Column(name = "end_node")
     private Boolean isEnd;
 
+    private String traversal;
+
     public StorySnippet() {
     }
 
@@ -101,5 +103,13 @@ public class StorySnippet {
 
     public void setIsEnd(Boolean end) {
         isEnd = end;
+    }
+
+    public String getTraversal() {
+        return traversal;
+    }
+
+    public void setTraversal(String traversal) {
+        this.traversal = traversal;
     }
 }

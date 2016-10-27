@@ -47,6 +47,12 @@ public class StorySnippetServiceImpl implements StorySnippetService {
     @Override
     public StorySnippet addSnippet(StorySnippet snippet) {
         StorySnippet copySnippet = new StorySnippet(snippet);
+        Long parentId = copySnippet.getParentId();
+        if (parentId > 0) {
+            copySnippet.setTraversal(storySnippetRepository.findOne(parentId).getTraversal() + "-" + parentId);
+        } else {
+            copySnippet.setTraversal("0");
+        }
         return storySnippetRepository.save(copySnippet);
     }
 
