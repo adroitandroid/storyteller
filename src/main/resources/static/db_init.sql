@@ -11,6 +11,10 @@ CREATE TABLE story_snippet (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, story_pr
 
 CREATE TABLE user_snippet_vote (user_id INT NOT NULL, snippet_id INT NOT NULL, vote TINYINT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY (user_id, snippet_id)) ENGINE=INNODB;
 
+create table story (end_snippet_id INT NOT NULL, story_prompt_id INT NOT NULL, content_type_id INT DEFAULT 1, story MEDIUMTEXT CHARACTER SET utf8 NOT NULL, traversal TEXT CHARACTER SET utf8 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, FOREIGN KEY (story_prompt_id) REFERENCES story_prompt(id), FOREIGN KEY (content_type_id) REFERENCES node_content_type(id), PRIMARY KEY(end_snippet_id, content_type_id));
+
+create table snippet_relation (ancestor_id INT NOT NULL, descendent_id INT NOT NULL, PRIMARY KEY (ancestor_id, descendent_id));
+
 CREATE TABLE user_auth_type (id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, type VARCHAR(10) NOT NULL) ENGINE=INNODB;
 
 CREATE TABLE user (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30) NOT NULL, auth_type_id MEDIUMINT NOT NULL, auth_user_id VARCHAR(255) NOT NULL, last_login DATETIME NOT NULL, FOREIGN KEY (auth_type_id) REFERENCES user_auth_type(id)) ENGINE=INNODB;

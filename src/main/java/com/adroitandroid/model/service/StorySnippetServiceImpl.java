@@ -1,5 +1,7 @@
 package com.adroitandroid.model.service;
 
+import com.adroitandroid.model.SnippetRelation;
+import com.adroitandroid.model.Story;
 import com.adroitandroid.model.StorySnippet;
 import com.adroitandroid.model.UserSnippetVote;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by pv on 25/10/16.
@@ -19,11 +22,17 @@ public class StorySnippetServiceImpl implements StorySnippetService {
 
     private final StorySnippetRepository storySnippetRepository;
     private final UserSnippetVoteRepository userSnippetVoteRepository;
+    private final StoryRepository storyRepository;
+    private final SnippetRelationRepository snippetRelationRepository;
 
     public StorySnippetServiceImpl(StorySnippetRepository storySnippetRepository,
-                                   UserSnippetVoteRepository userSnippetVoteRepository) {
+                                   UserSnippetVoteRepository userSnippetVoteRepository,
+                                   StoryRepository storyRepository,
+                                   SnippetRelationRepository snippetRelationRepository) {
         this.storySnippetRepository = storySnippetRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
+        this.storyRepository = storyRepository;
+        this.snippetRelationRepository = snippetRelationRepository;
     }
 
     @Override
@@ -44,6 +53,7 @@ public class StorySnippetServiceImpl implements StorySnippetService {
         return arrayNode;
     }
 
+//    TODO: return completable future instead and in applyAsync run the insert into story table query
     @Override
     public StorySnippet addSnippet(StorySnippet snippet) {
         StorySnippet copySnippet = new StorySnippet(snippet);
@@ -53,7 +63,32 @@ public class StorySnippetServiceImpl implements StorySnippetService {
         } else {
             copySnippet.setTraversal("0");
         }
-        return storySnippetRepository.save(copySnippet);
+        StorySnippet savedSnippet = storySnippetRepository.save(copySnippet);
+        if (savedSnippet.getIsEnd()) {
+            List<StorySnippet> storySnippets = getAllAncestorSnippets(savedSnippet);
+            List<SnippetRelation> snippetRelations = storySnippets.stream().map(storySnippet
+                    -> new SnippetRelation(storySnippet.getId(), savedSnippet.getId())).collect(Collectors.toList());
+            snippetRelationRepository.save(snippetRelations);
+            storySnippets.add(savedSnippet);
+            Story story = new Story(storySnippets);
+            storyRepository.save(story);
+        }
+        return savedSnippet;
+    }
+
+    private List<StorySnippet> getAllAncestorSnippets(StorySnippet snippet) {
+        List<Long> ancestorIds = new ArrayList<>();
+        String[] ancestorIdsStrings = snippet.getTraversal().split("-");
+        for (int i = 1; i < ancestorIdsStrings.length; i++) {
+            ancestorIds.add(Long.parseLong(ancestorIdsStrings[i]));
+        }
+        Iterable<StorySnippet> ancestorSnippets = storySnippetRepository.findAll(ancestorIds);
+        List<StorySnippet> ancestorSnippetsList = new ArrayList<>();
+        for (StorySnippet storySnippet : ancestorSnippets) {
+            ancestorSnippetsList.add(storySnippet);
+        }
+        Collections.sort(ancestorSnippetsList);
+        return ancestorSnippetsList;
     }
 
     @Override

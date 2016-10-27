@@ -9,7 +9,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "story_snippet")
-public class StorySnippet {
+public class StorySnippet implements Comparable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -111,5 +111,10 @@ public class StorySnippet {
 
     public void setTraversal(String traversal) {
         this.traversal = traversal;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return getParentId().compareTo(((StorySnippet) o).getParentId());
     }
 }
