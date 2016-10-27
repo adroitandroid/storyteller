@@ -29,12 +29,17 @@ public class StoryPrompt {
     @Column(name = "updated_at")
     private Timestamp updateTime;
 
+    @Column(name = "soft_deleted")
+    private Boolean softDeleted;
+
     public StoryPrompt(String promptText, Date startDate, Date endDate) {
         this.prompt = promptText;
         this.startDate = startDate;
         this.endDate = endDate;
         update();
         this.createTime = this.getUpdateTime();
+//        TODO: this means that any new prompt added automatically will be soft_deleted initially and only on moderation become non-deleted
+        this.softDeleted = true;
     }
 
     public StoryPrompt() {
@@ -86,6 +91,14 @@ public class StoryPrompt {
 
     public void setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Boolean getSoftDeleted() {
+        return softDeleted;
+    }
+
+    public void setSoftDeleted(Boolean softDeleted) {
+        this.softDeleted = softDeleted;
     }
 
     public void update() {

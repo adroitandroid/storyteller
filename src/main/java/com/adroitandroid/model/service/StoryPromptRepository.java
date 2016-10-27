@@ -11,5 +11,5 @@ import java.util.List;
  */
 interface StoryPromptRepository extends CrudRepository<StoryPrompt, Long> {
 
-    List<StoryPrompt> findByStartDateBeforeAndEndDateAfterOrderByEndDateAsc(Date startDate, Date endDate);
+    List<StoryPrompt> findByStartDateBeforeAndEndDateAfterAndSoftDeletedOrderByEndDateAsc(Date startDate, Date endDate, Boolean softDeleted);
 }

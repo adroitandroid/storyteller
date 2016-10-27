@@ -35,7 +35,7 @@ public class StoryPromptServiceImpl implements StoryPromptService {
         calendar.setTime(date);
         calendar.add(GregorianCalendar.DATE, 1);
         Date dateTomorrow = new Date(calendar.getTime().getTime());
-        return storyPromptRepository.findByStartDateBeforeAndEndDateAfterOrderByEndDateAsc(dateTomorrow, dateYesterday);
+        return storyPromptRepository.findByStartDateBeforeAndEndDateAfterAndSoftDeletedOrderByEndDateAsc(dateTomorrow, dateYesterday, false);
     }
 
     @Override
@@ -58,10 +58,7 @@ public class StoryPromptServiceImpl implements StoryPromptService {
     @Override
     public StoryPrompt expire(long id) {
         StoryPrompt prompt = getPrompt(id);
-        Calendar calendar = GregorianCalendar.getInstance();
-        calendar.setTime(prompt.getStartDate());
-        calendar.add(GregorianCalendar.DATE, -1);
-        prompt.setEndDate(new Date(calendar.getTime().getTime()));
+        prompt.setSoftDeleted(true);
         prompt.update();
         return storyPromptRepository.save(prompt);
     }
@@ -78,6 +75,7 @@ public class StoryPromptServiceImpl implements StoryPromptService {
                 prompt.setPrompt(storyPrompt.getPrompt());
                 prompt.setStartDate(storyPrompt.getStartDate());
                 prompt.setEndDate(storyPrompt.getEndDate());
+                prompt.setSoftDeleted(storyPrompt.getSoftDeleted());
                 prompt.update();
                 return storyPromptRepository.save(prompt);
             } else {
