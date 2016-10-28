@@ -55,6 +55,7 @@ public class StoryPromptServiceImpl implements StoryPromptService {
         return storyPromptRepository.findOne(id);
     }
 
+//    TODO: can save the extra SELECT being made by using update query
     @Override
     public StoryPrompt expire(long id) {
         StoryPrompt prompt = getPrompt(id);
