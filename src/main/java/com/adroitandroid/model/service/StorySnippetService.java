@@ -11,6 +11,8 @@ public interface StorySnippetService {
 
     ArrayNode getAllSnippetsForPrompt(long promptId);
 
+    ArrayNode getAllSnippetsByUserOnActivePrompts(long userId);
+
     StorySnippet addSnippet(StorySnippet snippet);
 
     void addUserVote(UserSnippetVote vote);

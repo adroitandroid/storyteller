@@ -1,14 +1,14 @@
 package com.adroitandroid.model.service;
 
-import com.adroitandroid.model.SnippetRelation;
-import com.adroitandroid.model.Story;
-import com.adroitandroid.model.StorySnippet;
-import com.adroitandroid.model.UserSnippetVote;
+import com.adroitandroid.model.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,20 +37,86 @@ public class StorySnippetServiceImpl implements StorySnippetService {
 
     @Override
     public ArrayNode getAllSnippetsForPrompt(long promptId) {
-        List<Object[]> snippetsWithVoteCount = storySnippetRepository.getAllSnippetsWithVoteCountForPrompt(promptId);
+        List<SnippetSummaryWithPrompt> snippetSummaryList = storySnippetRepository.getAllSnippetsWithVoteCountForPrompt(promptId);
         final ObjectMapper mapper = new ObjectMapper();
-        ArrayNode arrayNode = mapper.createArrayNode();
-        for (Object[] objects : snippetsWithVoteCount) {
-            final Map<String, Object> map = new HashMap<>();
-            map.put("snippetId", objects[0]);
-            map.put("parentId", objects[1]);
-            map.put("snippetText", objects[2]);
-            map.put("isEnd", objects[3]);
-            map.put("userVotes", objects[4]);
-            arrayNode.add(mapper.valueToTree(map));
+        ArrayNode snippetsByPromptArray = mapper.createArrayNode();
+        ObjectNode objectNode = mapper.createObjectNode();
+
+        ArrayNode snippetsArray = objectNode.putArray("snippets");
+        for (SnippetSummaryWithPrompt snippetSummaryWithPrompt : snippetSummaryList) {
+            String promptJsonString;
+            try {
+                promptJsonString = mapper.writeValueAsString(snippetSummaryWithPrompt.getSnippetSummary());
+                JsonNode promptJsonNode = mapper.readTree(promptJsonString);
+                snippetsArray.add(promptJsonNode);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        return arrayNode;
+        SnippetSummaryWithPrompt snippetSummaryWithPrompt = snippetSummaryList.get(0);
+        if (snippetSummaryWithPrompt != null) {
+            StoryPrompt storyPrompt = snippetSummaryWithPrompt.getStoryPrompt();
+            try {
+                String promptJsonString = mapper.writeValueAsString(storyPrompt);
+                JsonNode promptJsonNode = mapper.readTree(promptJsonString);
+                objectNode.set("prompt", promptJsonNode);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        snippetsByPromptArray.add(objectNode);
+
+        return snippetsByPromptArray;
+    }
+
+    @Override
+    public ArrayNode getAllSnippetsByUserOnActivePrompts(long userId) {
+        List<SnippetSummaryWithPrompt> snippetsOnActivePrompts = storySnippetRepository
+                .getAllSnippetsWithVoteCountOnActivePromptsForUser(userId, new java.sql.Date((new Date()).getTime()));
+
+        final ObjectMapper mapper = new ObjectMapper();
+        ArrayNode snippetsByPromptArray = mapper.createArrayNode();
+
+        HashMap<StoryPrompt, List<SnippetSummary>> snippetPromptsMap = new HashMap<>();
+        for (SnippetSummaryWithPrompt snippetSummaryWithPrompt : snippetsOnActivePrompts) {
+            StoryPrompt storyPrompt = snippetSummaryWithPrompt.getStoryPrompt();
+            List<SnippetSummary> snippetSummaries = snippetPromptsMap.get(storyPrompt);
+            if (snippetSummaries == null) {
+                snippetSummaries = new ArrayList<>();
+            }
+            snippetSummaries.add(snippetSummaryWithPrompt.getSnippetSummary());
+            snippetPromptsMap.put(storyPrompt, snippetSummaries);
+        }
+
+        for (StoryPrompt storyPrompt : snippetPromptsMap.keySet()) {
+            ObjectNode objectNode = mapper.createObjectNode();
+
+            ArrayNode snippetsArray = objectNode.putArray("snippets");
+            for (SnippetSummary snippetSummary : snippetPromptsMap.get(storyPrompt)) {
+                String promptJsonString;
+                try {
+                    promptJsonString = mapper.writeValueAsString(snippetSummary);
+                    JsonNode promptJsonNode = mapper.readTree(promptJsonString);
+                    snippetsArray.add(promptJsonNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                String promptJsonString = mapper.writeValueAsString(storyPrompt);
+                JsonNode promptJsonNode = mapper.readTree(promptJsonString);
+                objectNode.set("prompt", promptJsonNode);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            snippetsByPromptArray.add(objectNode);
+        }
+
+        return snippetsByPromptArray;
     }
 
 //    TODO: return completable future instead and in applyAsync run the insert into story table query

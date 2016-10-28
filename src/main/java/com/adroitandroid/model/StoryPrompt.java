@@ -1,6 +1,7 @@
 package com.adroitandroid.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -9,7 +10,7 @@ import java.sql.Timestamp;
  */
 @Entity
 @Table(name = "story_prompt")
-public class StoryPrompt {
+public class StoryPrompt implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,6 +41,17 @@ public class StoryPrompt {
         this.createTime = this.getUpdateTime();
 //        TODO: this means that any new prompt added automatically will be soft_deleted initially and only on moderation become non-deleted
         this.softDeleted = true;
+    }
+
+    public StoryPrompt(Long id, String prompt, java.util.Date startDate, java.util.Date endDate,
+                       Timestamp createTime, Timestamp updateTime, Boolean softDeleted) {
+        this.id = id;
+        this.prompt = prompt;
+        this.startDate = new Date(startDate.getTime());
+        this.endDate = new Date(endDate.getTime());
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.softDeleted = softDeleted;
     }
 
     public StoryPrompt() {
