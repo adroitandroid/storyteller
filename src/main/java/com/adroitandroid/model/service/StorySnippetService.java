@@ -13,6 +13,8 @@ public interface StorySnippetService {
 
     ArrayNode getAllSnippetsByUserOnActivePrompts(long userId);
 
+    ArrayNode getAllSnippetsByUser(Long userId, boolean activePrompts);
+
     StorySnippet addSnippet(StorySnippet snippet);
 
     void addUserVote(UserSnippetVote vote);

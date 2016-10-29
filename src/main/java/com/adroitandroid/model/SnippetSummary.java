@@ -1,6 +1,7 @@
 package com.adroitandroid.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
 
 /**
  * Created by pv on 28/10/16.
@@ -11,6 +12,7 @@ public class SnippetSummary implements Serializable {
     private String snippetText;
     private Boolean isEnd;
     private Long userVotes;
+    private HashSet<Story> storiesFromSnippet;
 
     public SnippetSummary(Long id, Long parentId, String snippetText, Boolean isEnd, Long userVotes) {
         this.id = id;
@@ -58,5 +60,13 @@ public class SnippetSummary implements Serializable {
 
     public void setUserVotes(Long userVotes) {
         this.userVotes = userVotes;
+    }
+
+    public HashSet<Story> getStoriesFromSnippet() {
+        return storiesFromSnippet;
+    }
+
+    public void setStoriesFromSnippet(HashSet<Story> storiesFromSnippet) {
+        this.storiesFromSnippet = storiesFromSnippet;
     }
 }

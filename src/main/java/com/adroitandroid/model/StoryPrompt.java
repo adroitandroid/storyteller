@@ -57,6 +57,16 @@ public class StoryPrompt implements Serializable {
     public StoryPrompt() {
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof StoryPrompt && this.getId().equals(((StoryPrompt) obj).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Math.toIntExact(getId());
+    }
+
     public Long getId() {
         return id;
     }

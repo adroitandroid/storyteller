@@ -28,7 +28,7 @@ public class StorySnippetController {
         if (promptId != null) {
             return storySnippetService.getAllSnippetsForPrompt(promptId);
         } else if (userId != null) {
-            return storySnippetService.getAllSnippetsByUserOnActivePrompts(userId);
+            return storySnippetService.getAllSnippetsByUser(userId, activePrompts);
         } else {
             throw new IllegalArgumentException("prompt_id or user_id need to be specified");
         }
