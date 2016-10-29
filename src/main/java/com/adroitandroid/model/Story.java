@@ -37,10 +37,10 @@ public class Story {
     private Long likes;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private Timestamp createdTime;
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private Timestamp updatedTime;
 
     public Story() {
     }
@@ -49,8 +49,8 @@ public class Story {
         StorySnippet endSnippet = storySnippets.get(storySnippets.size() - 1);
         this.endSnippetId = endSnippet.getId();
         this.storyPromptId = storySnippets.get(0).getPrompt().getId();
-        this.createdAt = new Timestamp((new Date()).getTime());
-        this.updatedAt = getCreatedAt();
+        this.createdTime = new Timestamp((new Date()).getTime());
+        this.updatedTime = getCreatedTime();
 
         Gson gson = new Gson();
         List<String> snippetContentList = storySnippets.stream().map(StorySnippet::getSnippetText).collect(Collectors.toList());
@@ -105,19 +105,19 @@ public class Story {
         this.likes = likes;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
+    public Timestamp getCreatedTime() {
+        return createdTime;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedTime(Timestamp createdTime) {
+        this.createdTime = createdTime;
     }
 
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
+    public Timestamp getUpdatedTime() {
+        return updatedTime;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedTime(Timestamp updatedTime) {
+        this.updatedTime = updatedTime;
     }
 }

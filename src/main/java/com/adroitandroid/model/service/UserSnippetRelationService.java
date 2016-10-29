@@ -10,6 +10,9 @@ import java.util.List;
  */
 public interface UserSnippetRelationService {
 
+    String BOOKMARK = "bookmark";
+    String LIKE = "like";
+
     int insertOnDuplicateKeyUpdate(Long userId, Long snippetId, String relationType, Timestamp updateTime, boolean softDelete, Boolean incrementStoryLikes);
 
     List<UserSnippetRelation> getAllRelationsForUser(Long userId, String relationType);

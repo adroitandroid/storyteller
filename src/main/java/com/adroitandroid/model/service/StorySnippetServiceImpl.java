@@ -90,6 +90,26 @@ public class StorySnippetServiceImpl implements StorySnippetService {
             snippetSummaryWithPromptList = storySnippetRepository.getAllSnippetSummariesOnPastPromptsForUser(userId, currentDate);
         }
 
+        return enrichWithStoriesAndRespond(snippetSummaryWithPromptList);
+    }
+
+    @Override
+    public ArrayNode getAllSnippetsRelatedToUser(Long userId, boolean activePrompts, String relationType) {
+        java.sql.Date currentDate = new java.sql.Date((new Date()).getTime());
+
+        List<SnippetSummaryWithPrompt> snippetSummaryWithPromptList;
+        if (activePrompts) {
+            snippetSummaryWithPromptList =
+                    storySnippetRepository.getAllSnippetSummariesOnActivePromptsBookmarkedByUser(userId, currentDate, relationType);
+        } else {
+            snippetSummaryWithPromptList =
+                    storySnippetRepository.getAllSnippetSummariesOnPastPromptsBookmarkedByUser(userId, currentDate, relationType);
+        }
+
+        return enrichWithStoriesAndRespond(snippetSummaryWithPromptList);
+    }
+
+    private ArrayNode enrichWithStoriesAndRespond(List<SnippetSummaryWithPrompt> snippetSummaryWithPromptList) {
         final ObjectMapper mapper = new ObjectMapper();
         ArrayNode snippetsByPromptArray = mapper.createArrayNode();
 

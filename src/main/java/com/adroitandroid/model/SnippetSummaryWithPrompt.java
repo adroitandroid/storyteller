@@ -19,6 +19,13 @@ public class SnippetSummaryWithPrompt implements Serializable {
                 new Timestamp(promptCreateTime.getTime()), new Timestamp(promptUpdateTime.getTime()), false);
     }
 
+    public SnippetSummaryWithPrompt(Long id, Long parentId, String snippetText, Boolean isEnd, Long promptId, String prompt,
+                                    Date promptStartDate, Date promptEndDate, Date promptCreateTime, Date promptUpdateTime) {
+        this.snippetSummary = new SnippetSummary(id, parentId, snippetText, isEnd, null, null);
+        this.storyPrompt = new StoryPrompt(promptId, prompt, promptStartDate, promptEndDate,
+                new Timestamp(promptCreateTime.getTime()), new Timestamp(promptUpdateTime.getTime()), false);
+    }
+
     public StoryPrompt getStoryPrompt() {
         return storyPrompt;
     }

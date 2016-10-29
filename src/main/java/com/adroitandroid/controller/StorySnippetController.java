@@ -22,7 +22,7 @@ public class StorySnippetController {
     private StorySnippetService storySnippetService;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ArrayNode getAllSnippetsForPrompt(@RequestParam(name = "prompt_id", required = false) Long promptId,
+    public ArrayNode getAllSnippetsForPromptOrUser(@RequestParam(name = "prompt_id", required = false) Long promptId,
                                              @RequestParam(name = "user_id", required = false) Long userId,
                                              @RequestParam(name = "active", required = false, defaultValue = "true") boolean activePrompts) {
         if (promptId != null) {

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
 
@@ -21,4 +22,6 @@ interface StoryRepository extends CrudRepository<Story, Long> {
     @Modifying
     @Query(nativeQuery = true, value = "update story set likes = likes - 1 where end_snippet_id = ?1")
     int decrementLikes(Long endSnippetId);
+
+    List<Story> findByCreatedTimeAfterOrderByLikesDesc(Timestamp earliestCreateTime);
 }
