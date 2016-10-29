@@ -76,53 +76,6 @@ public class StorySnippetServiceImpl implements StorySnippetService {
     }
 
     @Override
-    public ArrayNode getAllSnippetsByUserOnActivePrompts(long userId) {
-        List<SnippetSummaryWithPrompt> snippetsOnActivePrompts = storySnippetRepository
-                .getAllSnippetSummariesOnActivePromptsForUser(userId, new java.sql.Date((new Date()).getTime()));
-
-        final ObjectMapper mapper = new ObjectMapper();
-        ArrayNode snippetsByPromptArray = mapper.createArrayNode();
-
-        HashMap<StoryPrompt, List<SnippetSummary>> snippetPromptsMap = new HashMap<>();
-        for (SnippetSummaryWithPrompt snippetSummaryWithPrompt : snippetsOnActivePrompts) {
-            StoryPrompt storyPrompt = snippetSummaryWithPrompt.getStoryPrompt();
-            List<SnippetSummary> snippetSummaries = snippetPromptsMap.get(storyPrompt);
-            if (snippetSummaries == null) {
-                snippetSummaries = new ArrayList<>();
-            }
-            snippetSummaries.add(snippetSummaryWithPrompt.getSnippetSummary());
-            snippetPromptsMap.put(storyPrompt, snippetSummaries);
-        }
-
-        for (StoryPrompt storyPrompt : snippetPromptsMap.keySet()) {
-            ObjectNode objectNode = mapper.createObjectNode();
-
-            ArrayNode snippetsArray = objectNode.putArray("snippets");
-            for (SnippetSummary snippetSummary : snippetPromptsMap.get(storyPrompt)) {
-                try {
-                    String snippetSummaryString = mapper.writeValueAsString(snippetSummary);
-                    JsonNode snippetSummaryNode = mapper.readTree(snippetSummaryString);
-                    snippetsArray.add(snippetSummaryNode);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            try {
-                String promptJsonString = mapper.writeValueAsString(storyPrompt);
-                JsonNode promptJsonNode = mapper.readTree(promptJsonString);
-                objectNode.set("prompt", promptJsonNode);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            snippetsByPromptArray.add(objectNode);
-        }
-
-        return snippetsByPromptArray;
-    }
-
-    @Override
     public ArrayNode getAllSnippetsByUser(Long userId, boolean activePrompts) {
         java.sql.Date currentDate = new java.sql.Date((new Date()).getTime());
         List<SnippetSummaryWithPrompt> snippetSummaryWithPromptList;

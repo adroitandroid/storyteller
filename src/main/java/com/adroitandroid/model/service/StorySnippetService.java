@@ -11,8 +11,6 @@ public interface StorySnippetService {
 
     ArrayNode getAllSnippetsForPrompt(long promptId);
 
-    ArrayNode getAllSnippetsByUserOnActivePrompts(long userId);
-
     ArrayNode getAllSnippetsByUser(Long userId, boolean activePrompts);
 
     StorySnippet addSnippet(StorySnippet snippet);

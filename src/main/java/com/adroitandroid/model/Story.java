@@ -34,6 +34,8 @@ public class Story {
 
     private String traversal;
 
+    private Long likes;
+
     @Column(name = "created_at")
     private Timestamp createdAt;
 
@@ -93,6 +95,14 @@ public class Story {
 
     public void setTraversal(String traversal) {
         this.traversal = traversal;
+    }
+
+    public Long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Long likes) {
+        this.likes = likes;
     }
 
     public Timestamp getCreatedAt() {

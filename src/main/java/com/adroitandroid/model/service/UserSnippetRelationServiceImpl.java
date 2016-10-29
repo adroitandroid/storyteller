@@ -15,13 +15,27 @@ import java.util.List;
 public class UserSnippetRelationServiceImpl implements UserSnippetRelationService {
 
     private final UserSnippetRelationRepository userSnippetRelationRepository;
+    private final StoryRepository storyRepository;
 
-    public UserSnippetRelationServiceImpl(UserSnippetRelationRepository userSnippetRelationRepository) {
+    public UserSnippetRelationServiceImpl(UserSnippetRelationRepository userSnippetRelationRepository, StoryRepository storyRepository) {
         this.userSnippetRelationRepository = userSnippetRelationRepository;
+        this.storyRepository = storyRepository;
     }
 
     @Override
-    public int insertOnDuplicateKeyUpdate(Long userId, Long snippetId, String relationType, Timestamp updateTime, boolean softDelete) {
+    public int insertOnDuplicateKeyUpdate(Long userId, Long snippetId, String relationType, Timestamp updateTime,
+                                          boolean softDelete, Boolean incrementStoryLikes) {
+        if (incrementStoryLikes != null) {
+            int likeOnEndSnippet;
+            if (incrementStoryLikes) {
+                likeOnEndSnippet = storyRepository.incrementLikes(snippetId);
+            } else {
+                likeOnEndSnippet = storyRepository.decrementLikes(snippetId);
+            }
+            if (likeOnEndSnippet == 0) {
+                throw new IllegalArgumentException("this snippet cannot be liked");
+            }
+        }
         return userSnippetRelationRepository.insertOnDuplicateKeyUpdate(userId, snippetId, relationType, updateTime, softDelete);
     }
 

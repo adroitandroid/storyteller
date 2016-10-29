@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface UserSnippetRelationService {
 
-    int insertOnDuplicateKeyUpdate(Long userId, Long snippetId, String relationType, Timestamp updateTime, boolean softDelete);
+    int insertOnDuplicateKeyUpdate(Long userId, Long snippetId, String relationType, Timestamp updateTime, boolean softDelete, Boolean incrementStoryLikes);
 
     List<UserSnippetRelation> getAllRelationsForUser(Long userId, String relationType);
 }
