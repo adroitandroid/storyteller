@@ -3,7 +3,6 @@ package com.adroitandroid.model.service;
 import com.adroitandroid.model.StoryPrompt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -40,7 +39,9 @@ public class StoryPromptServiceImpl implements StoryPromptService {
 
     @Override
     public StoryPrompt addPrompt(String promptText, Date startDate, int numActiveDays) throws UnsupportedEncodingException {
-        Assert.hasLength(promptText, "prompt text must not be empty");
+        if (promptText == null || promptText.isEmpty()) {
+            throw new IllegalArgumentException("prompt text cannot be empty");
+        }
         Calendar calendar = GregorianCalendar.getInstance();
         calendar.setTime(startDate);
         calendar.add(GregorianCalendar.DATE, numActiveDays);

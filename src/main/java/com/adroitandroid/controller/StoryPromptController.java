@@ -3,8 +3,11 @@ package com.adroitandroid.controller;
 import com.adroitandroid.model.StoryPrompt;
 import com.adroitandroid.model.service.StoryPromptService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.Date;
 import java.util.List;
@@ -31,11 +34,13 @@ public class StoryPromptController {
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public StoryPrompt addPrompt(@RequestParam(value = "prompt_text") String promptText,
                                  @RequestParam(value = "start_date", required = false) Date startDate,
-                                 @RequestParam(value = "validity", defaultValue = "7") int numActiveDays)
+                                 @RequestParam(value = "validity", required = false) Integer numActiveDays)
             throws UnsupportedEncodingException {
+
+//        When start date is not specified, just create a prompt with startDate = endDate = infinity
         if (startDate == null) {
-            long currentTime = (new java.util.Date()).getTime();
-            startDate = new Date(currentTime);
+            startDate = new Date(Long.MAX_VALUE);
+            numActiveDays = 0;
         }
         return storyPromptService.addPrompt(promptText, startDate, numActiveDays);
     }
@@ -53,5 +58,10 @@ public class StoryPromptController {
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
     public StoryPrompt updateStudent(@RequestBody StoryPrompt storyPrompt) throws Exception {
         return storyPromptService.updatePrompt(storyPrompt);
+    }
+
+    @ExceptionHandler
+    void handleIllegalArgumentException(IllegalArgumentException e, HttpServletResponse response) throws IOException {
+        response.sendError(HttpStatus.BAD_REQUEST.value());
     }
 }
