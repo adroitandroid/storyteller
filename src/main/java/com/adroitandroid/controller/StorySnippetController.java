@@ -1,7 +1,7 @@
 package com.adroitandroid.controller;
 
 import com.adroitandroid.model.StorySnippet;
-import com.adroitandroid.model.UserSnippetVote;
+import com.adroitandroid.model.UserVotesForSnippets;
 import com.adroitandroid.model.service.StorySnippetService;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +40,8 @@ public class StorySnippetController {
     }
 
     @RequestMapping(value = "/vote", method = RequestMethod.PUT)
-    public void addUserVoteForSnippet(@RequestBody UserSnippetVote vote) {
-        storySnippetService.addUserVote(vote);
+    public void addUserVoteForSnippet(@RequestBody UserVotesForSnippets voteForSnippets) {
+        storySnippetService.addUserVotesForSnippets(voteForSnippets);
     }
 
     @ExceptionHandler

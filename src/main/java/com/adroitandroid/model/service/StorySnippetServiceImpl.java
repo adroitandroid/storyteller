@@ -8,8 +8,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.*;
@@ -22,21 +26,22 @@ import java.util.stream.Collectors;
  */
 @Component("storySnippetService")
 @Transactional
+@Repository
 public class StorySnippetServiceImpl implements StorySnippetService {
 
     private final StorySnippetRepository storySnippetRepository;
-    private final UserSnippetVoteRepository userSnippetVoteRepository;
     private final StoryRepository storyRepository;
     private final SnippetRelationRepository snippetRelationRepository;
 
-    public StorySnippetServiceImpl(StorySnippetRepository storySnippetRepository,
-                                   UserSnippetVoteRepository userSnippetVoteRepository,
-                                   StoryRepository storyRepository,
-                                   SnippetRelationRepository snippetRelationRepository) {
+    @PersistenceContext
+    private EntityManager em;
+
+    public StorySnippetServiceImpl(StorySnippetRepository storySnippetRepository, StoryRepository storyRepository,
+                                   SnippetRelationRepository snippetRelationRepository, EntityManager entityManager) {
         this.storySnippetRepository = storySnippetRepository;
-        this.userSnippetVoteRepository = userSnippetVoteRepository;
         this.storyRepository = storyRepository;
         this.snippetRelationRepository = snippetRelationRepository;
+        this.em = entityManager;
     }
 
     @Override
@@ -95,12 +100,8 @@ public class StorySnippetServiceImpl implements StorySnippetService {
         List<Story> stories = storyRepository.findByStoryPromptIdIn(snippetIdPromptIdMap.keySet());
 
         for (StoryPrompt storyPrompt : snippetPromptsMap.keySet()) {
-            ArrayList<Story> storiesFromCurrentPrompt = new ArrayList<>();
-            for (Story story : stories) {
-                if (story.getStoryPromptId().equals(storyPrompt.getId())) {
-                    storiesFromCurrentPrompt.add(story);
-                }
-            }
+            ArrayList<Story> storiesFromCurrentPrompt = stories.stream().filter(story
+                    -> story.getStoryPromptId().equals(storyPrompt.getId())).collect(Collectors.toCollection(ArrayList::new));
 
             ObjectNode objectNode = mapper.createObjectNode();
 
@@ -199,10 +200,32 @@ public class StorySnippetServiceImpl implements StorySnippetService {
         return ancestorSnippetsList;
     }
 
+    @Transactional
     @Override
-    public void addUserVote(UserSnippetVote vote) {
+    public void addUserVotesForSnippets(UserVotesForSnippets votesForSnippets) {
         Timestamp currentTimestamp = new Timestamp((new Date()).getTime());
-        userSnippetVoteRepository.setUserVoteForSnippet(vote.getUserSnippetId().getUserId(),
-                vote.getUserSnippetId().getSnippetId(), vote.getVote(), currentTimestamp);
+        StringBuilder nativeQueryBuilder = new StringBuilder("INSERT INTO user_snippet_vote(user_id, snippet_id, vote, created_at, updated_at) VALUES ");
+
+        HashMap<Integer, Object> paramsMap = new HashMap<>();
+        paramsMap.put(1, votesForSnippets.getUserId());
+        paramsMap.put(2, currentTimestamp);
+
+        int snippetIdParamIndex = 3;
+        int voteParamIndex;
+        for (UserVotesForSnippets.StorySnippetVote vote : votesForSnippets.getVotes()) {
+            voteParamIndex = snippetIdParamIndex + 1;
+            nativeQueryBuilder.append("(?1, ?").append(snippetIdParamIndex).append(", ?").append(voteParamIndex).append(", ?2, ?2), ");
+            paramsMap.put(snippetIdParamIndex, vote.getSnippetId());
+            paramsMap.put(voteParamIndex, vote.getVoteValue());
+            snippetIdParamIndex = voteParamIndex + 1;
+        }
+        String nativeQueryString = nativeQueryBuilder.toString();
+        nativeQueryString = nativeQueryString.substring(0, nativeQueryString.length() - 2) + " ON DUPLICATE KEY UPDATE vote = VALUES(vote), updated_at = VALUES(updated_at)";
+
+        Query nativeQuery = em.createNativeQuery(nativeQueryString);
+        for (Integer paramIndex : paramsMap.keySet()) {
+            nativeQuery.setParameter(paramIndex, paramsMap.get(paramIndex));
+        }
+        nativeQuery.executeUpdate();
     }
 }

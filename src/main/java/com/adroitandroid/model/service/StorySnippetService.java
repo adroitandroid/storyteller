@@ -1,7 +1,7 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.StorySnippet;
-import com.adroitandroid.model.UserSnippetVote;
+import com.adroitandroid.model.UserVotesForSnippets;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 /**
@@ -15,5 +15,5 @@ public interface StorySnippetService {
 
     StorySnippet addSnippet(StorySnippet snippet);
 
-    void addUserVote(UserSnippetVote vote);
+    void addUserVotesForSnippets(UserVotesForSnippets votesForSnippets);
 }
