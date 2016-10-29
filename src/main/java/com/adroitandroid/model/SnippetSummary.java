@@ -11,15 +11,17 @@ public class SnippetSummary implements Serializable {
     private Long parentId;
     private String snippetText;
     private Boolean isEnd;
-    private Long userVotes;
+    private Long voteSum;
+    private Long voteCount;
     private HashSet<Story> storiesFromSnippet;
 
-    public SnippetSummary(Long id, Long parentId, String snippetText, Boolean isEnd, Long userVotes) {
+    public SnippetSummary(Long id, Long parentId, String snippetText, Boolean isEnd, Long voteSum, Long voteCount) {
         this.id = id;
         this.parentId = parentId;
         this.snippetText = snippetText;
         this.isEnd = isEnd;
-        this.userVotes = userVotes;
+        this.voteSum = voteSum;
+        this.voteCount = voteCount;
     }
 
     public Long getId() {
@@ -54,12 +56,20 @@ public class SnippetSummary implements Serializable {
         isEnd = end;
     }
 
-    public Long getUserVotes() {
-        return userVotes;
+    public Long getVoteSum() {
+        return voteSum;
     }
 
-    public void setUserVotes(Long userVotes) {
-        this.userVotes = userVotes;
+    public void setVoteSum(Long voteSum) {
+        this.voteSum = voteSum;
+    }
+
+    public Long getVoteCount() {
+        return voteCount;
+    }
+
+    public void setVoteCount(Long voteCount) {
+        this.voteCount = voteCount;
     }
 
     public HashSet<Story> getStoriesFromSnippet() {
