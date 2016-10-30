@@ -15,16 +15,24 @@ public class User {
 
     private String username;
 
-    @Column(name = "auth_type_id")
-    private Integer authenticationType;
+    @JoinColumn(name = "auth_type_id")
+    @ManyToOne(optional = false)
+    private AuthenticationType authType;
 
     @Column(name = "auth_user_id")
-    private String authenticationId;
+    private String authId;
 
     @Column(name = "last_login")
     private Timestamp lastLogin;
 
     public User() {
+    }
+
+    public User(String username, String authType, String authId, Timestamp lastLogin) {
+        this.username = username;
+        this.authType = AuthenticationType.getByType(authType);
+        this.authId = authId;
+        this.lastLogin = lastLogin;
     }
 
     public Long getId() {
@@ -43,20 +51,12 @@ public class User {
         this.username = username;
     }
 
-    public Integer getAuthenticationType() {
-        return authenticationType;
+    public AuthenticationType getAuthType() {
+        return authType;
     }
 
-    public void setAuthenticationType(Integer authenticationType) {
-        this.authenticationType = authenticationType;
-    }
-
-    public String getAuthenticationId() {
-        return authenticationId;
-    }
-
-    public void setAuthenticationId(String authenticationId) {
-        this.authenticationId = authenticationId;
+    public String getAuthId() {
+        return authId;
     }
 
     public Timestamp getLastLogin() {
