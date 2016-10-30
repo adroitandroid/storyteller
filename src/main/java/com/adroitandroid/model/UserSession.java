@@ -30,6 +30,7 @@ public class UserSession {
         this.sessionId = generateNewSessionId();
     }
 
+//    TODO: explore how JWT generates unique access token
     private String generateNewSessionId() throws NoSuchAlgorithmException {
         final byte[] sessionInBytes = new byte[256];
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");

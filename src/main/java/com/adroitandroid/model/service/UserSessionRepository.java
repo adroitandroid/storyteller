@@ -8,4 +8,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  */
 public interface UserSessionRepository extends MongoRepository<UserSession, String> {
     UserSession findByAuthTypeAndAuthUserIdAndAccessToken(String authenticationType, String userId, String accessToken);
+
+    UserSession findBySessionId(String sessionId);
 }

@@ -77,6 +77,11 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public UserSession getUserSessionForSessionId(String sessionId) {
+        return userSessionRepository.findBySessionId(sessionId);
+    }
+
     private UserDetails validateAndRespondWithUserDetails(String userIdFromFacebook, String temporaryUsername, UserLoginInfo userLoginInfo) {
         String authUserId = userLoginInfo.getUserId();
         if (userIdFromFacebook == null || !userIdFromFacebook.equals(authUserId)) {

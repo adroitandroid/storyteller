@@ -11,6 +11,15 @@ public class UserLoginInfo implements Serializable {
     private String authenticationType;
     private String accessToken;
 
+    public UserLoginInfo() {
+    }
+
+    public UserLoginInfo(String authType, String authUserId, String accessToken) {
+        this.userId = authUserId;
+        this.authenticationType = authType;
+        this.accessToken = accessToken;
+    }
+
     public String getUserId() {
         return userId;
     }
