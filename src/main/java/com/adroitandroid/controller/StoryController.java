@@ -21,7 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/stories")
-public class StoryController {
+public class StoryController extends AbstractController {
 
     @Autowired
     private UserSnippetRelationService userSnippetRelationService;
@@ -48,8 +48,8 @@ public class StoryController {
     }
 
     @RequestMapping(value = "/likes", method = RequestMethod.GET)
-    public List<UserSnippetRelation> getAllUserLikes(@RequestParam(name = "user_id") Long userId) {
-        return userSnippetRelationService.getAllRelationsForUser(userId, UserSnippetRelationService.LIKE);
+    public List<UserSnippetRelation> getAllUserLikes() {
+        return userSnippetRelationService.getAllRelationsForUser(getUserIdFromRequest(), UserSnippetRelationService.LIKE);
     }
 
     private HashMap<String, Integer> getSuccessStateResponse(int success) {

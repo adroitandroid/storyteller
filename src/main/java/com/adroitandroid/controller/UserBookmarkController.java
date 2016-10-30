@@ -19,7 +19,7 @@ import java.util.HashMap;
  */
 @RestController
 @RequestMapping(value = "/bookmarks")
-public class UserBookmarkController {
+public class UserBookmarkController extends AbstractController {
 
     @Autowired
     private UserSnippetRelationService userSnippetRelationService;
@@ -41,9 +41,8 @@ public class UserBookmarkController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ArrayNode getAllBookmarksForUser(@RequestParam(name = "user_id") Long userId,
-                                            @RequestParam(name = "active", required = false, defaultValue = "true") boolean activePrompts) {
-        return storySnippetService.getAllSnippetsRelatedToUser(userId, activePrompts, UserSnippetRelationService.BOOKMARK);
+    public ArrayNode getAllBookmarksForUser(@RequestParam(name = "active", required = false, defaultValue = "true") boolean activePrompts) {
+        return storySnippetService.getAllSnippetsRelatedToUser(getUserIdFromRequest(), activePrompts, UserSnippetRelationService.BOOKMARK);
     }
 
     private HashMap<String, Integer> getSuccessStateResponse(int success) {

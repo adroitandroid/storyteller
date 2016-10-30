@@ -16,21 +16,18 @@ import java.io.IOException;
  */
 @RestController
 @RequestMapping(value = "/snippets")
-public class StorySnippetController {
+public class StorySnippetController extends AbstractController {
 
     @Autowired
     private StorySnippetService storySnippetService;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ArrayNode getAllSnippetsForPromptOrUser(@RequestParam(name = "prompt_id", required = false) Long promptId,
-                                             @RequestParam(name = "user_id", required = false) Long userId,
                                              @RequestParam(name = "active", required = false, defaultValue = "true") boolean activePrompts) {
         if (promptId != null) {
             return storySnippetService.getAllSnippetsForPrompt(promptId);
-        } else if (userId != null) {
-            return storySnippetService.getAllSnippetsByUser(userId, activePrompts);
         } else {
-            throw new IllegalArgumentException("prompt_id or user_id need to be specified");
+            return storySnippetService.getAllSnippetsByUser(getUserIdFromRequest(), activePrompts);
         }
     }
 
