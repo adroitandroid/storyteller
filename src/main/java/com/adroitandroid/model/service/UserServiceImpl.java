@@ -97,6 +97,18 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public UserDetails changeUsernameFor(Long userId, String newUsername) throws JsonProcessingException {
+        UserSession userSession = userSessionRepository.findByUserId(userId);
+        String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());
+        int updateStatus = userRepository.updateUsername(userId, newUsername);
+        if (updateStatus == 0 || updateStatus == 1 || updateStatus == 2) {
+            return new UserDetails(userId, token, newUsername, true);
+        } else {
+            return new UserDetails(userId, token, null, false);
+        }
+    }
+
     private boolean withinSessionRecreationWindow(UserSession userSession, Date currentTime) {
         if (userSession == null) {
             return false;
@@ -125,7 +137,8 @@ public class UserServiceImpl implements UserService {
             try {
                 UserSession userSession = userSessionRepository.save(new UserSession(user.getId(), userLoginInfo.getAuthenticationType(),
                         userLoginInfo.getUserId(), userLoginInfo.getAccessToken(), new Date(currentTime.getTime())));
-                return new UserDetails(user.getId(), encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId()), user.getUsername(), !isNewUser);
+                String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());
+                return new UserDetails(user.getId(), token, user.getUsername(), isNewUser ? false : null);
             } catch (NoSuchAlgorithmException | JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -176,6 +189,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findOne(userId);
         user.setLastActive(new Timestamp(time));
         userRepository.save(user);
-        return new UserDetails(userId, userSession.getSessionId(), user.getUsername(), true);
+        try {
+            String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());
+            return new UserDetails(userId, token, user.getUsername(), null);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

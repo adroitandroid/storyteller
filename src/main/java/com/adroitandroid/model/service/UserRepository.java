@@ -20,4 +20,9 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Transactional
     @Query(nativeQuery = true, value = "update user set last_active = ?2 where id = ?1")
     void updateLastActiveTime(Long id, Timestamp currentTime);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "update user set username = ?2 where id = ?1")
+    int updateUsername(Long id, String username);
 }

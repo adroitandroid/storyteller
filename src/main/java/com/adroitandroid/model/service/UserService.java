@@ -3,6 +3,7 @@ package com.adroitandroid.model.service;
 import com.adroitandroid.model.UserDetails;
 import com.adroitandroid.model.UserLoginInfo;
 import com.adroitandroid.model.UserSession;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -21,4 +22,6 @@ public interface UserService {
     CompletableFuture<UserDetails> signIn(UserLoginInfo userLoginInfo) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
     UserSession getUserSessionForAuthToken(String sessionId) throws IOException;
+
+    UserDetails changeUsernameFor(Long userId, String newUsername) throws JsonProcessingException; //exception wouldn't be thrown actually
 }

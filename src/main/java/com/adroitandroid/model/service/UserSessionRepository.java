@@ -10,4 +10,6 @@ public interface UserSessionRepository extends MongoRepository<UserSession, Stri
     UserSession findByAuthTypeAndAuthUserIdAndAccessToken(String authenticationType, String userId, String accessToken);
 
     UserSession findBySessionId(String sessionId);
+
+    UserSession findByUserId(Long userId);
 }
