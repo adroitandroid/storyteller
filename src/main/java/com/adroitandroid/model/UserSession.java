@@ -1,6 +1,9 @@
 package com.adroitandroid.model;
 
+import com.adroitandroid.model.service.UserService;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -18,19 +21,21 @@ public class UserSession {
     private String authUserId;
     private String accessToken;
     private String sessionId;
-    private Date expiryTime;
 
-    public UserSession(Long userId, String authType, String authUserId, String accessToken, Date expiryTime)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Indexed(expireAfterSeconds = UserService.SESSION_EXPIRY_IN_SEC)
+    private Date creationTime;
+
+    public UserSession(Long userId, String authType, String authUserId, String accessToken, Date creationTime)
             throws NoSuchAlgorithmException {
         this.userId = userId;
         this.authType = authType;
         this.authUserId = authUserId;
         this.accessToken = accessToken;
-        this.expiryTime = expiryTime;
+        this.creationTime = creationTime;
         this.sessionId = generateNewSessionId();
     }
 
-//    TODO: explore how JWT generates unique access token
     private String generateNewSessionId() throws NoSuchAlgorithmException {
         final byte[] sessionInBytes = new byte[256];
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -46,47 +51,23 @@ public class UserSession {
         return userId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
     public String getAuthType() {
         return authType;
-    }
-
-    public void setAuthType(String authType) {
-        this.authType = authType;
     }
 
     public String getAuthUserId() {
         return authUserId;
     }
 
-    public void setAuthUserId(String authUserId) {
-        this.authUserId = authUserId;
-    }
-
     public String getAccessToken() {
         return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
     }
 
     public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    public Date getExpiryTime() {
-        return expiryTime;
-    }
-
-    public void setExpiryTime(Date expiryTime) {
-        this.expiryTime = expiryTime;
+    public Date getCreationTime() {
+        return creationTime;
     }
 }

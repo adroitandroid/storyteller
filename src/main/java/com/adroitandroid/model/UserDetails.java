@@ -7,13 +7,13 @@ import java.io.Serializable;
  */
 public class UserDetails implements Serializable {
     private final Long userId;
-    private final String sessionId;
+    private final String token;
     private final String username;
     private final Boolean usernameSet;
 
-    public UserDetails(Long userId, String sessionId, String username, Boolean usernameSet) {
+    public UserDetails(Long userId, String token, String username, Boolean usernameSet) {
         this.userId = userId;
-        this.sessionId = sessionId;
+        this.token = token;
         this.username = username;
         this.usernameSet = usernameSet;
     }
@@ -22,8 +22,8 @@ public class UserDetails implements Serializable {
         return userId;
     }
 
-    public String getSessionId() {
-        return sessionId;
+    public String getToken() {
+        return token;
     }
 
     public String getUsername() {

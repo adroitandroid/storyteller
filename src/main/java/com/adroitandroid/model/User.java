@@ -22,17 +22,17 @@ public class User {
     @Column(name = "auth_user_id")
     private String authId;
 
-    @Column(name = "last_login")
-    private Timestamp lastLogin;
+    @Column(name = "last_active")
+    private Timestamp lastActive;
 
     public User() {
     }
 
-    public User(String username, String authType, String authId, Timestamp lastLogin) {
+    public User(String username, String authType, String authId, Timestamp lastActive) {
         this.username = username;
         this.authType = AuthenticationType.getByType(authType);
         this.authId = authId;
-        this.lastLogin = lastLogin;
+        this.lastActive = lastActive;
     }
 
     public Long getId() {
@@ -59,11 +59,11 @@ public class User {
         return authId;
     }
 
-    public Timestamp getLastLogin() {
-        return lastLogin;
+    public Timestamp getLastActive() {
+        return lastActive;
     }
 
-    public void setLastLogin(Timestamp lastLogin) {
-        this.lastLogin = lastLogin;
+    public void setLastActive(Timestamp lastActive) {
+        this.lastActive = lastActive;
     }
 }
