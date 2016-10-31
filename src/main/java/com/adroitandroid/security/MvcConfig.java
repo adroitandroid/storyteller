@@ -18,5 +18,6 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/snippets");
         registry.addViewController("/bookmarks");
         registry.addViewController("/prompts");
+        registry.addViewController("/app");
     }
 }

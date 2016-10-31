@@ -23,6 +23,7 @@ import java.util.ArrayList;
 public class DemoAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String SIGN_IN = "/users/sign_in/";
+    private static final String APP_ENDPOINT_PREFIX = "/app";
     private static final String X_AUTHORIZATION_TOKEN_KEY = "X-Authorization";
     private static final String UNAUTHORIZED_EXCEPTION_MESSAGE = "invalid access";
     @Autowired
@@ -40,7 +41,7 @@ public class DemoAuthenticationFilter extends OncePerRequestFilter {
         }
 
         DemoAuthenticationToken auth;
-        if (!request.getRequestURI().equals(SIGN_IN)) {
+        if (!request.getRequestURI().equals(SIGN_IN) && !request.getRequestURI().startsWith(APP_ENDPOINT_PREFIX)) {
             String xAuth = request.getHeader(X_AUTHORIZATION_TOKEN_KEY);
             if (xAuth == null) {
                 throw new SecurityException(UNAUTHORIZED_EXCEPTION_MESSAGE);

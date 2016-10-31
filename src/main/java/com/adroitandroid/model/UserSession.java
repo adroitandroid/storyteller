@@ -3,8 +3,10 @@ package com.adroitandroid.model;
 import com.adroitandroid.model.service.UserService;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -13,7 +15,8 @@ import java.util.Date;
 /**
  * Created by pv on 29/10/16.
  */
-public class UserSession {
+@Document(collection = "userSessions")
+public class UserSession implements Serializable {
     @Id
     private String id;
     private Long userId;
