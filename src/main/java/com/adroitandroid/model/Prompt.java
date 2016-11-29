@@ -5,24 +5,16 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
- * Created by pv on 27/10/16.
+ * Created by pv on 29/11/16.
  */
 @Entity
-@Table(name = "user_snippet_relation")
-public class UserSnippetRelation implements Serializable {
+@Table(name = "prompt")
+public class Prompt implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
-
-    @JoinColumn(name = "snippet_id")
-    @ManyToOne(optional = false)
-    private StorySnippet storySnippet;
-
-    @Column(name = "relation_type")
-    private String relationType;
+    private String content;
 
     @Column(name = "created_at")
     private Timestamp createTime;
@@ -33,9 +25,6 @@ public class UserSnippetRelation implements Serializable {
     @Column(name = "soft_deleted")
     private Boolean softDeleted;
 
-    public UserSnippetRelation() {
-    }
-
     public Long getId() {
         return id;
     }
@@ -44,28 +33,12 @@ public class UserSnippetRelation implements Serializable {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getContent() {
+        return content;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public StorySnippet getStorySnippet() {
-        return storySnippet;
-    }
-
-    public void setStorySnippet(StorySnippet storySnippet) {
-        this.storySnippet = storySnippet;
-    }
-
-    public String getRelationType() {
-        return relationType;
-    }
-
-    public void setRelationType(String relationType) {
-        this.relationType = relationType;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Timestamp getCreateTime() {

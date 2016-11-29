@@ -32,3 +32,7 @@ INSERT INTO user_auth_type VALUES (DEFAULT, 'facebook'), (DEFAULT, 'google');
 INSERT INTO user_node_type VALUES (DEFAULT, 'contributi'), (DEFAULT, 'bookmark');
 
 INSERT INTO node_content_type VALUES (DEFAULT, 1, DEFAULT);
+
+------------------ for v_quora
+
+CREATE TABLE prompt (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, content TEXT CHARACTER SET utf8 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0);
