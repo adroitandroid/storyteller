@@ -5,7 +5,6 @@ import com.google.gson.FieldAttributes;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by pv on 30/11/16.
@@ -13,10 +12,10 @@ import java.util.Set;
 public class GsonExclusionStrategy implements ExclusionStrategy {
 
 
-    private final List<String> excludeInAnnotation;
+    private final List<String> includeInAnnotation;
 
-    public GsonExclusionStrategy(String... annotationValuesToExclude) {
-        this.excludeInAnnotation = Arrays.asList(annotationValuesToExclude);
+    public GsonExclusionStrategy(String... annotationValuesToInclude) {
+        this.includeInAnnotation = Arrays.asList(annotationValuesToInclude);
     }
 
     @Override
@@ -27,6 +26,6 @@ public class GsonExclusionStrategy implements ExclusionStrategy {
     @Override
     public boolean shouldSkipField(FieldAttributes f) {
         OptionalInGson annotation = f.getAnnotation(OptionalInGson.class);
-        return annotation != null && excludeInAnnotation != null && excludeInAnnotation.contains(annotation.exclude());
+        return annotation != null && includeInAnnotation != null && !includeInAnnotation.contains(annotation.exclude());
     }
 }

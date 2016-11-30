@@ -29,13 +29,13 @@ public class PromptController extends AbstractController {
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getAllActivePrompts() {
         List<Prompt> promptList = promptService.getAllActivePromptsSortedByUpdateTime();
-        return prepareResponseFrom(promptList, Prompt.SOFT_DELETED, Prompt.STORIES);
+        return prepareResponseFrom(promptList);
     }
 
     @RequestMapping(value = "/{promptId}", method = RequestMethod.GET, produces = "application/json")
     public Prompt getAllStoryChaptersForPrompt(@PathVariable long promptId) {
         Prompt prompt = promptService.getAllStoryChaptersForPromptId(promptId);
-        JsonElement jsonElement = prepareResponseFrom(prompt, Prompt.SOFT_DELETED, StorySummary.PROMPT, Chapter.CHAPTER_DETAIL, Chapter.STORY_SUMMARY);
+        JsonElement jsonElement = prepareResponseFrom(prompt, Prompt.STORIES, StorySummary.CHAPTERS);
         Prompt promptWithFetches = new Gson().fromJson(jsonElement, Prompt.class);
 
 //        Removing all unapproved chapters before returning
