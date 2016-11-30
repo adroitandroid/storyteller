@@ -17,4 +17,9 @@ public interface ChapterRepository extends CrudRepository<Chapter, Long> {
     @Transactional
     @Query(nativeQuery = true, value = "update chapter_summary set status = ?2, updated_at = ?3 where id = ?1")
     void updateStatus(Long chapterId, int newStatus, Timestamp currentTime);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "update chapter_summary set detail_id = ?2, updated_at = ?3 where id = ?1")
+    void putChapterDetailId(Long chapterId, Long detailId, Timestamp currentTime);
 }

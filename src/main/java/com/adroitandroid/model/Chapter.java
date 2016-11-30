@@ -58,7 +58,7 @@ public class Chapter implements Serializable {
     @OneToOne(fetch=FetchType.LAZY)
     @OptionalInGson(exclude = CHAPTER_DETAIL)
     @JoinColumn(name = "detail_id")
-    private ChapterDetail chapterDetail;
+    private ChapterDetail detail;
 
     @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name="story_chapters",

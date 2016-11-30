@@ -1,9 +1,6 @@
 package com.adroitandroid.model.service;
 
-import com.adroitandroid.model.Chapter;
-import com.adroitandroid.model.ChapterInput;
-import com.adroitandroid.model.Notification;
-import com.adroitandroid.model.StorySummary;
+import com.adroitandroid.model.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +16,16 @@ public class ChapterServiceImpl implements ChapterService {
     private final ChapterRepository chapterRepository;
     private final StorySummaryRepository storySummaryRepository;
     private final NotificationRepository notificationRepository;
+    private final ChapterDetailRepository chapterDetailRepository;
 
     public ChapterServiceImpl(ChapterRepository chapterRepository,
                               StorySummaryRepository storySummaryRepository,
-                              NotificationRepository notificationRepository) {
+                              NotificationRepository notificationRepository,
+                              ChapterDetailRepository chapterDetailRepository) {
         this.chapterRepository = chapterRepository;
         this.storySummaryRepository = storySummaryRepository;
         this.notificationRepository = notificationRepository;
+        this.chapterDetailRepository = chapterDetailRepository;
     }
 
     @Override
@@ -60,6 +60,19 @@ public class ChapterServiceImpl implements ChapterService {
         chapterRepository.updateStatus(
                 chapterId, approval ? Chapter.STATUS_APPROVED : Chapter.STATUS_REJECTED, currentTime);
         notificationRepository.updateReadStatus(notificationId, currentTime, true);
+    }
+
+    @Override
+    public void editChapter(ChapterDetail chapterDetail) {
+        chapterDetailRepository.update(chapterDetail.getId(), chapterDetail.getContent(), getCurrentTime());
+    }
+
+    @Override
+    public ChapterDetail addContent(ChapterContent chapterContent) {
+        ChapterDetail chapterDetail = new ChapterDetail(chapterContent.getContent());
+        ChapterDetail savedChapterDetail = chapterDetailRepository.save(chapterDetail);
+        chapterRepository.putChapterDetailId(chapterContent.getChapterId(), savedChapterDetail.getId(), getCurrentTime());
+        return savedChapterDetail;
     }
 
     private Timestamp getCurrentTime() {

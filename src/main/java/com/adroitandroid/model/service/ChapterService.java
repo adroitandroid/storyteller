@@ -1,6 +1,8 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.Chapter;
+import com.adroitandroid.model.ChapterContent;
+import com.adroitandroid.model.ChapterDetail;
 import com.adroitandroid.model.ChapterInput;
 
 /**
@@ -12,4 +14,8 @@ public interface ChapterService {
     Chapter addChapter(ChapterInput chapterInput);
 
     void addChapterApproval(Long chapterId, Long notificationId, Boolean approval);
+
+    void editChapter(ChapterDetail chapterDetail);
+
+    ChapterDetail addContent(ChapterContent chapterContent);
 }

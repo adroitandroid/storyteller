@@ -1,8 +1,6 @@
 package com.adroitandroid.controller;
 
-import com.adroitandroid.model.Chapter;
-import com.adroitandroid.model.ChapterApproval;
-import com.adroitandroid.model.ChapterInput;
+import com.adroitandroid.model.*;
 import com.adroitandroid.model.service.ChapterService;
 import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +29,16 @@ public class ChapterController extends AbstractController {
     @RequestMapping(value = "/approve", method = RequestMethod.PATCH)
     public void approveChapter(@RequestBody ChapterApproval chapterApproval) {
         chapterService.addChapterApproval(chapterApproval.chapterId, chapterApproval.notificationId, chapterApproval.approval);
+    }
+
+    @RequestMapping(value = "/add_content", method = RequestMethod.PUT)
+    public JsonElement addChapterContent(@RequestBody ChapterContent chapterContent) {
+        return prepareResponseFrom(chapterService.addContent(chapterContent));
+    }
+
+    @RequestMapping(value = "/edit_content", method = RequestMethod.PATCH)
+    public void editChapterContent(@RequestBody ChapterDetail chapterDetail) {
+        chapterService.editChapter(chapterDetail);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
