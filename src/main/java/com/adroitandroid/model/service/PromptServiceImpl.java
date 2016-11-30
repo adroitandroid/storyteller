@@ -23,4 +23,9 @@ public class PromptServiceImpl implements PromptService {
     public List<Prompt> getAllActivePromptsSortedByUpdateTime() {
         return promptRepository.findBySoftDeletedFalseOrderByUpdateTimeDesc();
     }
+
+    @Override
+    public Prompt getAllStoryChaptersForPromptId(long promptId) {
+        return promptRepository.findByIdWithEagerFetch(promptId);
+    }
 }

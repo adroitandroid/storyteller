@@ -36,3 +36,13 @@ INSERT INTO node_content_type VALUES (DEFAULT, 1, DEFAULT);
 ------------------ for v_quora
 
 CREATE TABLE prompt (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, content TEXT CHARACTER SET utf8 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0);
+
+CREATE TABLE story_summary (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, title TEXT CHARACTER SET utf8 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL);
+
+CREATE TABLE prompt_stories (story_id INT NOT NULL, prompt_id INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (prompt_id) REFERENCES prompt(id));
+
+CREATE TABLE chapter_detail (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, content MEDIUMTEXT CHARACTER SET utf8 NOT NULL);
+
+CREATE TABLE chapter_summary (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, parent_id INT, detail_id INT, title TEXT CHARACTER SET utf8 NOT NULL, description TEXT CHARACTER SET utf8 NOT NULL, ends_story TINYINT, status TINYINT(4), author_user_id INT NOT NULL,  created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0, FOREIGN KEY (author_user_id) REFERENCES user(id), FOREIGN KEY (detail_id) REFERENCES chapter_detail(id));
+
+CREATE TABLE story_chapters (story_id INT NOT NULL, chapter_id INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (chapter_id) REFERENCES `chapter_summary`(id));

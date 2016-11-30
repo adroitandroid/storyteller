@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface PromptService {
     List<Prompt> getAllActivePromptsSortedByUpdateTime();
+
+    Prompt getAllStoryChaptersForPromptId(long promptId);
 }

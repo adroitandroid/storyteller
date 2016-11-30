@@ -1,8 +1,11 @@
 package com.adroitandroid.model;
 
+import com.adroitandroid.OptionalInGson;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * Created by pv on 30/11/16.
@@ -10,11 +13,28 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "story_summary")
 public class StorySummary implements Serializable {
+    public static final String CHAPTERS = "chapters_in_story_summary";
+    public static final String PROMPT = "prompt_in_story_summary";
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String title;
+
+    @OneToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="story_chapters",
+            joinColumns={@JoinColumn(name="story_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="chapter_id", referencedColumnName="id")})
+    @OptionalInGson(exclude = CHAPTERS)
+    private List<Chapter> chapters;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinTable(name="prompt_stories",
+            joinColumns={@JoinColumn(name="story_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="prompt_id", referencedColumnName="id")})
+    @OptionalInGson(exclude = PROMPT)
+    private Prompt prompt;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
@@ -22,35 +42,7 @@ public class StorySummary implements Serializable {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
+    public List<Chapter> getChapters() {
+        return chapters;
     }
 }

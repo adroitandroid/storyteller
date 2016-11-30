@@ -1,5 +1,7 @@
 package com.adroitandroid.model;
 
+import com.adroitandroid.OptionalInGson;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -10,6 +12,14 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "chapter_summary")
 public class Chapter implements Serializable {
+    public static final String CHAPTER_DETAIL = "chapter_detail_in_chapter_summary";
+    public static final String STORY_SUMMARY = "story_summary_in_chapter_summary";
+
+    public static final int STATUS_APPROVED = 1;
+    public static final int STATUS_AUTO_APPROVED = 2;
+    public static final int STATUS_UNAPPROVED = 0;
+    public static final int STATUS_REJECTED = -1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -23,6 +33,18 @@ public class Chapter implements Serializable {
     private Boolean endsStory;
     private Integer status;
 
+    @OneToOne(fetch=FetchType.LAZY)
+    @OptionalInGson(exclude = CHAPTER_DETAIL)
+    @JoinColumn(name = "detail_id")
+    private ChapterDetail chapterDetail;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinTable(name="story_chapters",
+            joinColumns={@JoinColumn(name="chapter_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="story_id", referencedColumnName="id")})
+    @OptionalInGson(exclude = STORY_SUMMARY)
+    private StorySummary storySummary;
+
     @Column(name = "author_user_id")
     private Long authorUserId;
 
@@ -35,83 +57,7 @@ public class Chapter implements Serializable {
     @Column(name = "soft_deleted")
     private Boolean softDeleted;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getParentChapterId() {
-        return parentChapterId;
-    }
-
-    public void setParentChapterId(Long parentChapterId) {
-        this.parentChapterId = parentChapterId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Boolean getEndsStory() {
-        return endsStory;
-    }
-
-    public void setEndsStory(Boolean endsStory) {
-        this.endsStory = endsStory;
-    }
-
     public Integer getStatus() {
         return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getAuthorUserId() {
-        return authorUserId;
-    }
-
-    public void setAuthorUserId(Long authorUserId) {
-        this.authorUserId = authorUserId;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Boolean getSoftDeleted() {
-        return softDeleted;
-    }
-
-    public void setSoftDeleted(Boolean softDeleted) {
-        this.softDeleted = softDeleted;
     }
 }

@@ -14,8 +14,8 @@ import java.util.List;
 @Table(name = "prompt")
 public class Prompt implements Serializable {
 
-    public static final String STORIES = "stories";
-    public static final String SOFT_DELETED = "soft_deleted";
+    public static final String STORIES = "stories_in_prompt";
+    public static final String SOFT_DELETED = "soft_deleted_in_prompt";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,51 +40,7 @@ public class Prompt implements Serializable {
     @OptionalInGson(exclude = SOFT_DELETED)
     private Boolean softDeleted;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Timestamp getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Timestamp createTime) {
-        this.createTime = createTime;
-    }
-
-    public Timestamp getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Timestamp updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Boolean getSoftDeleted() {
-        return softDeleted;
-    }
-
-    public void setSoftDeleted(Boolean softDeleted) {
-        this.softDeleted = softDeleted;
-    }
-
     public List<StorySummary> getStories() {
         return stories;
-    }
-
-    public void setStories(List<StorySummary> stories) {
-        this.stories = stories;
     }
 }
