@@ -82,4 +82,8 @@ public class Chapter implements Serializable {
     public Integer getStatus() {
         return status;
     }
+
+    public Long getAuthorUserId() {
+        return authorUserId;
+    }
 }

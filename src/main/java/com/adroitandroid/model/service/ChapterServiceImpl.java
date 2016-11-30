@@ -2,6 +2,7 @@ package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.Chapter;
 import com.adroitandroid.model.ChapterInput;
+import com.adroitandroid.model.Notification;
 import com.adroitandroid.model.StorySummary;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,10 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChapterServiceImpl implements ChapterService {
     private final ChapterRepository chapterRepository;
     private final StorySummaryRepository storySummaryRepository;
+    private final NotificationRepository notificationRepository;
 
-    public ChapterServiceImpl(ChapterRepository chapterRepository, StorySummaryRepository storySummaryRepository) {
+    public ChapterServiceImpl(ChapterRepository chapterRepository,
+                              StorySummaryRepository storySummaryRepository,
+                              NotificationRepository notificationRepository) {
         this.chapterRepository = chapterRepository;
         this.storySummaryRepository = storySummaryRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @Override
@@ -38,7 +43,12 @@ public class ChapterServiceImpl implements ChapterService {
         StorySummary storySummary = storySummaryRepository.findOne(chapterInput.storyId);
         Chapter newChapter = new Chapter(chapterInput.chapterTitle, chapterInput.chapterPlot,
                 chapterInput.previousChapterId, chapterInput.userId, storySummary);
-        return chapterRepository.save(newChapter);
+        Chapter chapter = chapterRepository.save(newChapter);
+        Chapter prevChapter = chapterRepository.findOne(chapterInput.previousChapterId);
+        Notification newNotification = new Notification(prevChapter, chapter, Notification.TYPE_APPROVAL_REQUEST);
+        notificationRepository.save(newNotification);
+//        TODO: send notification as well, TBD
+        return chapter;
     }
 
     private boolean isEmpty(String input) {

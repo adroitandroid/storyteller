@@ -3,13 +3,16 @@ package com.adroitandroid.model;
 import com.adroitandroid.OptionalInGson;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Created by pv on 30/11/16.
  */
+
+//TODO: Serializable can break things... because gson seems to be taking variable name and coverting to underscorecase
 @Entity
 @Table(name = "story_stats")
-public class StoryStats {
+public class StoryStats implements Serializable {
     public static final String STORY = "story_in_story_stats";
 
     @Id
