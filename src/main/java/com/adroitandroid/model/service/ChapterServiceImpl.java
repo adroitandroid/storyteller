@@ -1,11 +1,16 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by pv on 30/11/16.
@@ -43,11 +48,30 @@ public class ChapterServiceImpl implements ChapterService {
 
     @Override
     public Chapter addChapter(ChapterInput chapterInput) {
-        StorySummary storySummary = storySummaryRepository.findOne(chapterInput.storyId);
-        Chapter newChapter = new Chapter(chapterInput.chapterTitle, chapterInput.chapterPlot,
-                chapterInput.previousChapterId, chapterInput.userId, storySummary);
-        Chapter chapter = chapterRepository.save(newChapter);
         Chapter prevChapter = chapterRepository.findOne(chapterInput.previousChapterId);
+        StorySummary storySummary;
+        String traversal;
+        if (prevChapter != null) {
+            storySummary = prevChapter.getStorySummary();
+            String prevChapterTraversal = prevChapter.getTraversal();
+            List<Long> traversedChapterIds;
+            if (prevChapterTraversal == null || prevChapterTraversal.isEmpty()) {
+                traversedChapterIds = new ArrayList<>();
+            } else {
+                Type collectionType = new TypeToken<List<Long>>() {
+                }.getType();
+                Gson gson = new Gson();
+                traversedChapterIds = gson.fromJson(prevChapterTraversal, collectionType);
+            }
+            traversedChapterIds.add(prevChapter.getId());
+            traversal = new Gson().toJson(traversedChapterIds);
+        } else {
+            storySummary = storySummaryRepository.findOne(chapterInput.storyId);
+            traversal = "";
+        }
+        Chapter newChapter = new Chapter(chapterInput.chapterTitle, chapterInput.chapterPlot,
+                chapterInput.previousChapterId, chapterInput.userId, storySummary, traversal);
+        Chapter chapter = chapterRepository.save(newChapter);
         Notification newNotification = new Notification(prevChapter, chapter, Notification.TYPE_APPROVAL_REQUEST);
         notificationRepository.save(newNotification);
 //        TODO: send notification as well, TBD

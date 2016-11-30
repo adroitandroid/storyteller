@@ -26,7 +26,8 @@ public class Chapter implements Serializable {
 //        default constructor required by hibernate
     }
 
-    public Chapter(String chapterTitle, String chapterPlot, Long previousChapterId, Long userId, StorySummary storySummary) {
+    public Chapter(String chapterTitle, String chapterPlot, Long previousChapterId, Long userId,
+                   StorySummary storySummary, String traversal) {
         this.title = chapterTitle;
         this.description = chapterPlot;
         this.authorUserId = userId;
@@ -34,6 +35,7 @@ public class Chapter implements Serializable {
         this.softDeleted = false;
         this.status = STATUS_UNAPPROVED;
         this.storySummary = storySummary;
+        this.traversal = traversal;
         updateCreatedAndUpdatedTime();
     }
 
@@ -70,6 +72,8 @@ public class Chapter implements Serializable {
     @Column(name = "author_user_id")
     private Long authorUserId;
 
+    private String traversal;
+
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
@@ -85,5 +89,17 @@ public class Chapter implements Serializable {
 
     public Long getAuthorUserId() {
         return authorUserId;
+    }
+
+    public StorySummary getStorySummary() {
+        return storySummary;
+    }
+
+    public String getTraversal() {
+        return traversal;
+    }
+
+    public Long getId() {
+        return id;
     }
 }
