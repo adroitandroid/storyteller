@@ -10,4 +10,6 @@ public interface ChapterService {
     void validateAddChapterInput(ChapterInput input);
 
     Chapter addChapter(ChapterInput chapterInput);
+
+    void addChapterApproval(Long chapterId, Long notificationId, Boolean approval);
 }

@@ -1,6 +1,7 @@
 package com.adroitandroid.controller;
 
 import com.adroitandroid.model.Chapter;
+import com.adroitandroid.model.ChapterApproval;
 import com.adroitandroid.model.ChapterInput;
 import com.adroitandroid.model.service.ChapterService;
 import com.google.gson.JsonElement;
@@ -25,6 +26,11 @@ public class ChapterController extends AbstractController {
         chapterService.validateAddChapterInput(chapterInput);
         Chapter chapter = chapterService.addChapter(chapterInput);
         return prepareResponseFrom(chapter);
+    }
+
+    @RequestMapping(value = "/approve", method = RequestMethod.PATCH)
+    public void approveChapter(@RequestBody ChapterApproval chapterApproval) {
+        chapterService.addChapterApproval(chapterApproval.chapterId, chapterApproval.notificationId, chapterApproval.approval);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

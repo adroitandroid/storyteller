@@ -7,6 +7,9 @@ import com.adroitandroid.model.StorySummary;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 /**
  * Created by pv on 30/11/16.
  */
@@ -49,6 +52,18 @@ public class ChapterServiceImpl implements ChapterService {
         notificationRepository.save(newNotification);
 //        TODO: send notification as well, TBD
         return chapter;
+    }
+
+    @Override
+    public void addChapterApproval(Long chapterId, Long notificationId, Boolean approval) {
+        Timestamp currentTime = getCurrentTime();
+        chapterRepository.updateStatus(
+                chapterId, approval ? Chapter.STATUS_APPROVED : Chapter.STATUS_REJECTED, currentTime);
+        notificationRepository.updateReadStatus(notificationId, currentTime, true);
+    }
+
+    private Timestamp getCurrentTime() {
+        return new Timestamp((new Date()).getTime());
     }
 
     private boolean isEmpty(String input) {
