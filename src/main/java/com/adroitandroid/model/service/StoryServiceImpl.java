@@ -24,4 +24,8 @@ public class StoryServiceImpl implements StoryService {
         return storySummaryRepository.findCompleted();
     }
 
+    @Override
+    public StorySummary getCompleteStoryById(long id) {
+        return storySummaryRepository.findOne(id);
+    }
 }

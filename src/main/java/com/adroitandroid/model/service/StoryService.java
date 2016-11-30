@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface StoryService {
     List<StorySummary> getAllCompletedStories();
+
+    StorySummary getCompleteStoryById(long id);
 }

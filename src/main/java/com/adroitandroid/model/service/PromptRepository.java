@@ -14,6 +14,12 @@ interface PromptRepository extends CrudRepository<Prompt, Long> {
     List<Prompt> findBySoftDeletedFalseOrderByUpdateTimeDesc();
 
 //    TODO: think about using named entity graph instead later, to make lesser queries
+
+    /**
+     * Returns all chapters, irrespective of status, for now
+     * @param promptId
+     * @return
+     */
     @Query("SELECT p FROM Prompt p JOIN FETCH p.stories WHERE p.id = (:id)")
     Prompt findByIdWithEagerFetch(@Param("id")long promptId);
 }

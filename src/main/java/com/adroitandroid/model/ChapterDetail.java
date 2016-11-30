@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Table(name = "chapter_detail")
 public class ChapterDetail implements Serializable {
     @Id
-    @Column(name = "chapter_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String content;
