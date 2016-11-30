@@ -35,6 +35,10 @@ INSERT INTO node_content_type VALUES (DEFAULT, 1, DEFAULT);
 
 ------------------ for v_quora
 
+CREATE TABLE user (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30), auth_type_id MEDIUMINT NOT NULL, auth_user_id VARCHAR(255) NOT NULL, last_login DATETIME NOT NULL, FOREIGN KEY (auth_type_id) REFERENCES user_auth_type(id)) ENGINE=INNODB;
+
+INSERT INTO user_auth_type VALUES (DEFAULT, 'facebook'), (DEFAULT, 'google');
+
 CREATE TABLE prompt (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, content TEXT CHARACTER SET utf8 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0);
 
 CREATE TABLE story_summary (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, title TEXT CHARACTER SET utf8 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL);
@@ -46,3 +50,9 @@ CREATE TABLE chapter_detail (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, content
 CREATE TABLE chapter_summary (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, parent_id INT, detail_id INT, title TEXT CHARACTER SET utf8 NOT NULL, description TEXT CHARACTER SET utf8 NOT NULL, ends_story TINYINT, status TINYINT(4), author_user_id INT NOT NULL,  created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0, FOREIGN KEY (author_user_id) REFERENCES user(id), FOREIGN KEY (detail_id) REFERENCES chapter_detail(id));
 
 CREATE TABLE story_chapters (story_id INT NOT NULL, chapter_id INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (chapter_id) REFERENCES `chapter_summary`(id));
+
+CREATE TABLE story_stats (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, story_id INT NOT NULL, num_completed INT NOT NULL DEFAULT 0, num_likes INT NOT NULL DEFAULT 0, num_reads INT NOT NULL DEFAULT 0, FOREIGN KEY (story_id) REFERENCES story_summary(id));
+
+CREATE TABLE genre (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_name VARCHAR(30) NOT NULL);
+
+CREATE TABLE story_genres (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_id INT NOT NULL, story_id INT NOT NULL, count_completed INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (genre_id) REFERENCES genre(id));

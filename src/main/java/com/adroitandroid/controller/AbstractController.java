@@ -1,6 +1,7 @@
 package com.adroitandroid.controller;
 
 import com.adroitandroid.GsonExclusionStrategy;
+import com.adroitandroid.HibernateProxyTypeAdapter;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
@@ -9,7 +10,9 @@ import com.google.gson.JsonElement;
  */
 public class AbstractController {
 
-    protected JsonElement prepareResponseFrom(Object src, String... excludeAnnotations) {
-        return new GsonBuilder().setExclusionStrategies(new GsonExclusionStrategy(excludeAnnotations)).create().toJsonTree(src);
+    protected JsonElement prepareResponseFrom(Object src, String... includeAnnotated) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
+        return builder.setExclusionStrategies(new GsonExclusionStrategy(includeAnnotated)).create().toJsonTree(src);
     }
 }

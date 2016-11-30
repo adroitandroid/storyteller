@@ -15,6 +15,8 @@ import java.util.List;
 public class StorySummary implements Serializable {
     public static final String CHAPTERS = "chapters_in_story_summary";
     public static final String PROMPT = "prompt_in_story_summary";
+    public static final String STORY_GENRES = "story_genres_in_story_summary";
+    public static final String STORY_STATS = "story_stats_in_story_summary";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,6 +37,14 @@ public class StorySummary implements Serializable {
             inverseJoinColumns={@JoinColumn(name="prompt_id", referencedColumnName="id")})
     @OptionalInGson(exclude = PROMPT)
     private Prompt prompt;
+
+    @OptionalInGson(exclude = STORY_GENRES)
+    @OneToMany(mappedBy="story", fetch=FetchType.LAZY)
+    private List<StoryGenres> storyGenres;
+
+    @OptionalInGson(exclude = STORY_STATS)
+    @OneToOne(mappedBy="story", fetch=FetchType.LAZY)
+    private StoryStats storyStats;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
