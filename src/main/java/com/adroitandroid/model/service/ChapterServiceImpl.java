@@ -132,7 +132,8 @@ public class ChapterServiceImpl implements ChapterService {
     }
 
     @Override
-    public void updateSummaryAndChapterGenres(Chapter chapter, boolean endsStory, int statusPublished, List<String> genreNames) {
+    public Chapter updateSummaryAndGenresForChapterAndStory(Chapter chapter, boolean endsStory,
+                                                            int statusPublished, List<String> genreNames) {
         List<Genre> genres = genreRepository.findByNameIn(genreNames);
         List<ChapterGenre> chapterGenres = new ArrayList<>();
         for (Genre genre : genres) {
@@ -142,13 +143,15 @@ public class ChapterServiceImpl implements ChapterService {
 
         if (endsStory) {
             chapterRepository.updateStatusAndEndFlag(chapter.getId(), statusPublished, true, getCurrentTime());
-            updateStoryGenresCount(chapter.getStorySummary());
+            return updateStoryGenresCount(chapter.getStorySummary(), chapter.getId());
         } else {
             chapterRepository.updateStatus(chapter.getId(), statusPublished, getCurrentTime());
+            return null;
         }
     }
 
-    private void updateStoryGenresCount(StorySummary storySummary) {
+    private Chapter updateStoryGenresCount(StorySummary storySummary, Long currentChapterId) {
+        Chapter chapterToReturn = null;
         List<Chapter> endingChapters
                 = chapterRepository.findByStorySummaryAndEndsStoryTrueAndStatusAndSoftDeletedFalse(
                 storySummary, Chapter.STATUS_PUBLISHED);
@@ -159,6 +162,10 @@ public class ChapterServiceImpl implements ChapterService {
                 chaptersInCompletedStory.addAll(getChapterIdListFromTraversalString(endChapterTraversal));
             }
             chaptersInCompletedStory.add(chapter.getId());
+
+            if (chapter.getId().equals(currentChapterId)) {
+                chapterToReturn = chapter;
+            }
         }
         List<ChapterGenre> chapterGenreList = chapterGenreRepository.findByChapterIdIn(chaptersInCompletedStory);
         Map<Genre, Integer> genreCount = new HashMap<>();
@@ -174,6 +181,7 @@ public class ChapterServiceImpl implements ChapterService {
         for (Genre genre : genreCount.keySet()) {
             storyGenreRepository.insertOnDuplicateKeyUpdate(storySummary.getId(), genre.getId(), genreCount.get(genre));
         }
+        return chapterToReturn;
     }
 
     private Timestamp getCurrentTime() {

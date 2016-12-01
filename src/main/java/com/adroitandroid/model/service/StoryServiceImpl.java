@@ -14,9 +14,12 @@ import java.util.List;
 public class StoryServiceImpl implements StoryService {
 
     private final StorySummaryRepository storySummaryRepository;
+    private final StoryStatsRepository storyStatsRepository;
 
-    public StoryServiceImpl(StorySummaryRepository storySummaryRepository) {
+    public StoryServiceImpl(StorySummaryRepository storySummaryRepository,
+                            StoryStatsRepository storyStatsRepository) {
         this.storySummaryRepository = storySummaryRepository;
+        this.storyStatsRepository = storyStatsRepository;
     }
 
     @Override
@@ -27,5 +30,10 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public StorySummary getCompleteStoryById(long id) {
         return storySummaryRepository.findOne(id);
+    }
+
+    @Override
+    public void incrementStoryCompletedCount(Long storyId) {
+        storyStatsRepository.incrementCompletedCount(storyId);
     }
 }

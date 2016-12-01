@@ -2,6 +2,7 @@ package com.adroitandroid.controller;
 
 import com.adroitandroid.model.*;
 import com.adroitandroid.model.service.ChapterService;
+import com.adroitandroid.model.service.StoryService;
 import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import java.io.IOException;
 public class ChapterController extends AbstractController {
     @Autowired
     private ChapterService chapterService;
+    @Autowired
+    private StoryService storyService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public JsonElement addNewChapter(@RequestBody ChapterInput chapterInput) {
@@ -51,8 +54,11 @@ public class ChapterController extends AbstractController {
             chapterDetail.setContent(contentToPublish.getContent());
             chapterService.editChapter(chapterDetail);
         }
-        chapterService.updateSummaryAndChapterGenres(chapter, contentToPublish.isEndsStory(),
-                Chapter.STATUS_PUBLISHED, contentToPublish.getGenreNames());
+        Chapter chapterFromDb = chapterService.updateSummaryAndGenresForChapterAndStory(
+                chapter, contentToPublish.isEndsStory(), Chapter.STATUS_PUBLISHED, contentToPublish.getGenreNames());
+        if (chapterFromDb != null) { //implies that the chapter completed the story
+            storyService.incrementStoryCompletedCount(chapterFromDb.getStorySummary().getId());
+        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

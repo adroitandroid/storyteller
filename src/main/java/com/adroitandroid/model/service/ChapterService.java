@@ -20,5 +20,5 @@ public interface ChapterService {
 
     Chapter validatePublishChapterInput(ChapterContentToPublish contentToPublish);
 
-    void updateSummaryAndChapterGenres(Chapter chapter, boolean endsStory, int statusPublished, List<String> genreNames);
+    Chapter updateSummaryAndGenresForChapterAndStory(Chapter chapter, boolean endsStory, int statusPublished, List<String> genreNames);
 }

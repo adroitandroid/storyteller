@@ -11,4 +11,6 @@ public interface StoryService {
     List<StorySummary> getAllCompletedStories();
 
     StorySummary getCompleteStoryById(long id);
+
+    void incrementStoryCompletedCount(Long storyId);
 }
