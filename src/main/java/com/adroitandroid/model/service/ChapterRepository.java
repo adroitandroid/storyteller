@@ -31,4 +31,12 @@ interface ChapterRepository extends CrudRepository<Chapter, Long> {
     void updateStatusAndEndFlag(Long chapterId, int newStatus, boolean newEndFlag, Timestamp currentTime);
 
     List<Chapter> findByStorySummaryAndEndsStoryTrueAndStatusAndSoftDeletedFalse(StorySummary storySummary, int status);
+
+    List<Chapter> findByAuthorUserIdAndStatusOrderByUpdatedAtDesc(Long userId, Integer status);
+
+    List<Chapter> findByAuthorUserIdAndStatusInOrderByUpdatedAtDesc(Long userId, List<Integer> statusList);
+
+    List<Chapter> findByAuthorUserIdAndStatusAndSoftDeletedFalseOrderByUpdatedAtDesc(Long userId, Integer status);
+
+    List<Chapter> findByAuthorUserIdAndStatusInAndSoftDeletedFalseOrderByUpdatedAtDesc(Long userId, List<Integer> statusList);
 }

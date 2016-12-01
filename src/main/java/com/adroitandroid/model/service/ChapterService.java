@@ -23,4 +23,6 @@ public interface ChapterService {
     Chapter updateSummaryAndGenresForChapterAndStory(Chapter chapter, boolean endsStory, int statusPublished, List<String> genreNames);
 
     void markNotificationReadForReceiverChapter(Chapter chapter);
+
+    List<Chapter> findAllChaptersByAuthorIdWithStatus(Long userId, boolean includeSoftDeleted, Integer... status);
 }

@@ -140,6 +140,23 @@ public class ChapterServiceImpl implements ChapterService {
     }
 
     @Override
+    public List<Chapter> findAllChaptersByAuthorIdWithStatus(Long userId, boolean includeSoftDeleted, Integer... status) {
+        if (includeSoftDeleted) {
+            if (status.length == 1) {
+                return chapterRepository.findByAuthorUserIdAndStatusOrderByUpdatedAtDesc(userId, status[0]);
+            } else {
+                return chapterRepository.findByAuthorUserIdAndStatusInOrderByUpdatedAtDesc(userId, Arrays.asList(status));
+            }
+        } else {
+            if (status.length == 1) {
+                return chapterRepository.findByAuthorUserIdAndStatusAndSoftDeletedFalseOrderByUpdatedAtDesc(userId, status[0]);
+            } else {
+                return chapterRepository.findByAuthorUserIdAndStatusInAndSoftDeletedFalseOrderByUpdatedAtDesc(userId, Arrays.asList(status));
+            }
+        }
+    }
+
+    @Override
     public Chapter validatePublishChapterInput(ChapterContentToPublish contentToPublish) {
         if (isEmpty(contentToPublish.getContent())) {
             throw new IllegalArgumentException("Empty chapter cannot be published");

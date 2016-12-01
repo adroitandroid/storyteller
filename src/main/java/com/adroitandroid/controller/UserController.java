@@ -1,6 +1,8 @@
 package com.adroitandroid.controller;
 
+import com.adroitandroid.model.Chapter;
 import com.adroitandroid.model.Notification;
+import com.adroitandroid.model.service.ChapterService;
 import com.adroitandroid.model.service.NotificationService;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,6 +21,8 @@ public class UserController extends AbstractController {
 
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private ChapterService chapterService;
 
     @RequestMapping(value = "/message", method = RequestMethod.GET, produces = "application/json")
     public JsonObject isAnyUnreadMessage(@RequestParam(value = "user_id") Long userId) {
@@ -31,5 +35,17 @@ public class UserController extends AbstractController {
     public JsonElement getAllMessagesFor(@RequestParam(value = "user_id") Long userId) {
         return prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByMruFor(userId),
                 Notification.RECEIVER_CHAPTER, Notification.SENDER_CHAPTER, Notification.SENDER_USER);
+    }
+
+    @RequestMapping(value = "/drafts", method = RequestMethod.GET, produces = "application/json")
+    public JsonElement getAllDraftsFor(@RequestParam(value = "user_id") Long userId) {
+        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(userId, true,
+                Chapter.STATUS_APPROVED, Chapter.STATUS_AUTO_APPROVED), Chapter.STORY_SUMMARY);
+    }
+
+    @RequestMapping(value = "/published", method = RequestMethod.GET, produces = "application/json")
+    public JsonElement getAllPublishedFor(@RequestParam(value = "user_id") Long userId) {
+        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(userId, true,
+                Chapter.STATUS_PUBLISHED), Chapter.STORY_SUMMARY);
     }
 }
