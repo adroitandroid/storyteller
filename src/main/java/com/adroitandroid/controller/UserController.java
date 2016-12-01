@@ -1,6 +1,8 @@
 package com.adroitandroid.controller;
 
+import com.adroitandroid.model.Notification;
 import com.adroitandroid.model.service.NotificationService;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,5 +25,11 @@ public class UserController extends AbstractController {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("unreads", notificationService.anyUnreadNotificationForUserId(userId));
         return jsonObject;
+    }
+
+    @RequestMapping(value = "/message/list", method = RequestMethod.GET, produces = "application/json")
+    public JsonElement getAllMessagesFor(@RequestParam(value = "user_id") Long userId) {
+        return prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByMruFor(userId),
+                Notification.RECEIVER_CHAPTER, Notification.SENDER_CHAPTER, Notification.SENDER_USER);
     }
 }

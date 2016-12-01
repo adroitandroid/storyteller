@@ -1,5 +1,7 @@
 package com.adroitandroid.model;
 
+import com.adroitandroid.OptionalInGson;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -14,13 +16,18 @@ public class Notification {
     public static final Integer TYPE_APPROVAL_REQUEST = 1;
     public static final Integer TYPE_APPROVED_NOTIFICATION = 2;
 
+    public static final String RECEIVER_CHAPTER = "receiver_chapter_in_notifications";
+    public static final String SENDER_CHAPTER = "sender_chapter_in_notifications";
+    public static final String RECEIVER_USER = "receiver_user_in_notifications";
+    public static final String SENDER_USER = "sender_user_in_notifications";
+
     public Notification(Chapter receiverChapter, Chapter senderChapter, Integer type) {
         this.notificationType = type;
         this.readStatus = false;
         this.receiverChapter = receiverChapter;
         this.senderChapter = senderChapter;
-        this.receiverUserId = receiverChapter.getAuthorUserId();
-        this.senderUserId = senderChapter.getAuthorUserId();
+        this.receiverUser = new User(receiverChapter.getAuthorUserId());
+        this.senderUser = new User(senderChapter.getAuthorUserId());
         updateCreatedAndUpdatedTime();
     }
 
@@ -32,17 +39,23 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "receiver_user_id")
-    private Long receiverUserId;
+    @OptionalInGson(exclude = RECEIVER_USER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_user_id")
+    public User receiverUser;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OptionalInGson(exclude = RECEIVER_CHAPTER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_chapter_id")
     public Chapter receiverChapter;
 
-    @Column(name = "sender_user_id")
-    private Long senderUserId;
+    @OptionalInGson(exclude = SENDER_USER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_user_id")
+    public User senderUser;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OptionalInGson(exclude = SENDER_CHAPTER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_chapter_id")
     public Chapter senderChapter;
 
