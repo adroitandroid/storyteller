@@ -1,5 +1,6 @@
 package com.adroitandroid.model.service;
 
+import com.adroitandroid.model.UserChapterRelation;
 import com.adroitandroid.model.UserStoryRelation;
 
 import java.util.List;
@@ -21,4 +22,10 @@ public interface UserService {
     int removeFromReadLater(Long userId, Long storyId);
 
     List<UserStoryRelation> getUserReadLaterSortedByRecentFirst(Long userId);
+
+    int setBookmark(Long userId, Long chapterId);
+
+    int removeBookmark(Long userId, Long chapterId);
+
+    List<UserChapterRelation> getUserBookmarksSortedByRecentFirst(Long userId);
 }

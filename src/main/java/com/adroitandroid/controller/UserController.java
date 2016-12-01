@@ -94,4 +94,23 @@ public class UserController extends AbstractController {
         return prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(userId), UserStoryRelation.STORY_SUMMARY,
                 StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
+
+    @RequestMapping(value = "/bookmark", method = RequestMethod.POST, produces = "application/json")
+    public JsonObject bookmarkChapter(@RequestBody UserChapterPair userChapterPair) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.setBookmark(userChapterPair.getUserId(), userChapterPair.getChapterId()));
+        return jsonObject;
+    }
+
+    @RequestMapping(value = "/bookmark", method = RequestMethod.DELETE, produces = "application/json")
+    public JsonObject unbookmarkChapter(@RequestBody UserChapterPair userChapterPair) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.removeBookmark(userChapterPair.getUserId(), userChapterPair.getChapterId()));
+        return jsonObject;
+    }
+
+    @RequestMapping(value = "/bookmark", method = RequestMethod.GET, produces = "application/json")
+    public JsonElement getBookmarks(@RequestParam(value = "user_id") Long userId) {
+        return prepareResponseFrom(userService.getUserBookmarksSortedByRecentFirst(userId), UserChapterRelation.CHAPTER_SUMMARY, Chapter.STORY_SUMMARY);
+    }
 }

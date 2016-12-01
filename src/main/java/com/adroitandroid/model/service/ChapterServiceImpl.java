@@ -24,6 +24,7 @@ public class ChapterServiceImpl implements ChapterService {
     private final GenreRepository genreRepository;
     private final ChapterGenreRepository chapterGenreRepository;
     private final StoryGenreRepository storyGenreRepository;
+    private final ChapterStatsRepository chapterStatsRepository;
 
     public ChapterServiceImpl(ChapterRepository chapterRepository,
                               StorySummaryRepository storySummaryRepository,
@@ -31,7 +32,8 @@ public class ChapterServiceImpl implements ChapterService {
                               ChapterDetailRepository chapterDetailRepository,
                               GenreRepository genreRepository,
                               ChapterGenreRepository chapterGenreRepository,
-                              StoryGenreRepository storyGenreRepository) {
+                              StoryGenreRepository storyGenreRepository,
+                              ChapterStatsRepository chapterStatsRepository) {
         this.chapterRepository = chapterRepository;
         this.storySummaryRepository = storySummaryRepository;
         this.notificationRepository = notificationRepository;
@@ -39,6 +41,7 @@ public class ChapterServiceImpl implements ChapterService {
         this.genreRepository = genreRepository;
         this.chapterGenreRepository = chapterGenreRepository;
         this.storyGenreRepository = storyGenreRepository;
+        this.chapterStatsRepository = chapterStatsRepository;
     }
 
     @Override
@@ -154,6 +157,11 @@ public class ChapterServiceImpl implements ChapterService {
                 return chapterRepository.findByAuthorUserIdAndStatusInAndSoftDeletedFalseOrderByUpdatedAtDesc(userId, Arrays.asList(status));
             }
         }
+    }
+
+    @Override
+    public void insertChapterStats(Long chapterId) {
+        chapterStatsRepository.save(chapterId);
     }
 
     @Override

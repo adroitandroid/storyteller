@@ -35,7 +35,7 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public void incrementStoryCompletedCount(Long storyId) {
-        storyStatsRepository.insertCompletedCountOnDuplicateKeyIncrement(storyId);
+        storyStatsRepository.incrementCompleted(storyId);
     }
 
     @Override
@@ -48,6 +48,11 @@ public class StoryServiceImpl implements StoryService {
         if (isEmpty(storyInput.storyTitle) || storyInput.promptId == null) {
             throw new IllegalArgumentException("Story cannot be created due to missing title or prompt id");
         }
+    }
+
+    @Override
+    public void insertStoryStats(Long storySummaryId) {
+        storyStatsRepository.save(storySummaryId);
     }
 
     private boolean isEmpty(String input) {

@@ -25,4 +25,6 @@ public interface ChapterService {
     void markNotificationReadForReceiverChapter(Chapter chapter);
 
     List<Chapter> findAllChaptersByAuthorIdWithStatus(Long userId, boolean includeSoftDeleted, Integer... status);
+
+    void insertChapterStats(Long chapterId);
 }

@@ -31,4 +31,12 @@ public class StoryStats implements Serializable {
 
     @Column(name = "num_reads")
     private Long numReads;
+
+    public StoryStats() {
+//        Empty constructor required by hibernate
+    }
+
+    public StoryStats(Long storyId) {
+        this.story = new StorySummary(storyId);
+    }
 }

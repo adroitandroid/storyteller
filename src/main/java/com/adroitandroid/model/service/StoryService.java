@@ -18,4 +18,6 @@ public interface StoryService {
     StorySummary add(Long promptId, String storyTitle);
 
     void validateInputForNewStory(StoryWithChapterInput storyInput);
+
+    void insertStoryStats(Long storySummaryId);
 }

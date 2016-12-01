@@ -42,6 +42,7 @@ public class StoryController extends ChapterCreateUpdateController {
     public JsonElement addNewStory(@RequestBody StoryWithChapterInput storyInput) {
         validateInputForNewStory(storyInput);
         StorySummary storySummary = addNewStorySummary(storyInput);
+        getStoryService().insertStoryStats(storySummary.getId());
         Chapter chapter = validateAndAddNewChapter(new ChapterInput(storySummary.getId(), null,
                 storyInput.chapterTitle, storyInput.chapterPlot, storyInput.userId), false);
         if (storyInput.genreNames == null) { //genre names are the only mandatory thing extra required for publishing

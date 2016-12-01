@@ -31,6 +31,7 @@ abstract class ChapterCreateUpdateController extends AbstractController {
             chapterDetail.setContent(contentToPublish.getContent());
             getChapterService().editChapter(chapterDetail);
         }
+        getChapterService().insertChapterStats(contentToPublish.getChapterId());
         Chapter chapterFromDb = getChapterService().updateSummaryAndGenresForChapterAndStory(
                 chapter, contentToPublish.isEndsStory(), Chapter.STATUS_PUBLISHED, contentToPublish.getGenreNames());
         if (chapterFromDb != null) { //implies that the chapter completed the story
