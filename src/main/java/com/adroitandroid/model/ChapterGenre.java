@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class ChapterGenre {
 
     public ChapterGenre(Chapter chapter, Genre genres) {
-        this.genre = genres;
+        this.genreId = genres;
         this.chapter = chapter;
     }
 
@@ -26,15 +26,15 @@ public class ChapterGenre {
     @JoinColumn(name = "chapter_id")
     private Chapter chapter;
 
-    private Genre genre;
-
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id", nullable = false)
-    public Genre getGenre() {
-        return genre;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Genre genreId;
+
+    public Genre getGenreId() {
+        return genreId;
     }
 
-    public void setGenres(Genre genres) {
-        this.genre = genres;
+    public void setGenreId(Genre genreId) {
+        this.genreId = genreId;
     }
 }

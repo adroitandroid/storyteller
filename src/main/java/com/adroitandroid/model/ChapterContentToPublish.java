@@ -24,6 +24,6 @@ public class ChapterContentToPublish {
     }
 
     public boolean isEndsStory() {
-        return endsStory;
+        return endsStory != null && endsStory;
     }
 }

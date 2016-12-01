@@ -18,32 +18,29 @@ public class StorySummary implements Serializable {
     public static final String STORY_GENRES = "story_genres_in_story_summary";
     public static final String STORY_STATS = "story_stats_in_story_summary";
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
     private String title;
 
-    @OneToMany(fetch=FetchType.LAZY)
-    @JoinTable(name="story_chapters",
-            joinColumns={@JoinColumn(name="story_id", referencedColumnName="id")},
-            inverseJoinColumns={@JoinColumn(name="chapter_id", referencedColumnName="id")})
     @OptionalInGson(exclude = CHAPTERS)
     private List<Chapter> chapters;
 
-    @ManyToOne(fetch=FetchType.LAZY)
     @JoinTable(name="prompt_stories",
             joinColumns={@JoinColumn(name="story_id", referencedColumnName="id")},
             inverseJoinColumns={@JoinColumn(name="prompt_id", referencedColumnName="id")})
     @OptionalInGson(exclude = PROMPT)
+    @ManyToOne(fetch=FetchType.LAZY)
+    @Access(value = AccessType.FIELD)
     private Prompt prompt;
 
     @OptionalInGson(exclude = STORY_GENRES)
     @OneToMany(mappedBy="story", fetch=FetchType.LAZY)
+    @Access(value = AccessType.FIELD)
     private List<StoryGenre> storyGenres;
 
     @OptionalInGson(exclude = STORY_STATS)
     @OneToOne(mappedBy="story", fetch=FetchType.LAZY)
+    @Access(value = AccessType.FIELD)
     private StoryStats storyStats;
 
     @Column(name = "created_at")
@@ -52,7 +49,49 @@ public class StorySummary implements Serializable {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @OneToMany(fetch=FetchType.LAZY)
+    @JoinTable(name="story_chapters",
+            joinColumns={@JoinColumn(name="story_id", referencedColumnName="id")},
+            inverseJoinColumns={@JoinColumn(name="chapter_id", referencedColumnName="id")})
     public List<Chapter> getChapters() {
         return chapters;
+    }
+
+    public void setChapters(List<Chapter> chapters) {
+        this.chapters = chapters;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

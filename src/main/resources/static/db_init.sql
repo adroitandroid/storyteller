@@ -55,4 +55,4 @@ CREATE TABLE story_stats (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, story_id I
 
 CREATE TABLE genre (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_name VARCHAR(30) NOT NULL);
 
-CREATE TABLE story_genres (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_id INT NOT NULL, story_id INT NOT NULL, count_completed INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (genre_id) REFERENCES genre(id));
+CREATE TABLE story_genres (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_id INT NOT NULL, story_id INT NOT NULL, count_completed INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (genre_id) REFERENCES genre(id), UNIQUE KEY `story_genre_key`(story_id, genre_id)));

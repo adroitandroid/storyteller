@@ -54,7 +54,7 @@ public class Chapter implements Serializable {
     private String description;
 
     @Column(name = "ends_story")
-    private Boolean endsStory;
+    public Boolean endsStory;
     private Integer status;
 
     @OneToOne(fetch=FetchType.LAZY)

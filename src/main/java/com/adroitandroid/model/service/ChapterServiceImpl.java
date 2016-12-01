@@ -51,6 +51,11 @@ public class ChapterServiceImpl implements ChapterService {
         if (isEmpty(input.chapterPlot) || isEmpty(input.chapterTitle)) {
             throw new IllegalArgumentException("Chapter information missing");
         }
+        Chapter previousChapter = chapterRepository.findOne(input.previousChapterId);
+        if (previousChapter.getStatus() != Chapter.STATUS_PUBLISHED
+                || (previousChapter.endsStory != null && previousChapter.endsStory)) {
+            throw new IllegalArgumentException("Illegal state for a previous chapter");
+        }
     }
 
     @Override
@@ -136,8 +141,8 @@ public class ChapterServiceImpl implements ChapterService {
         chapterGenreRepository.save(chapterGenres);
 
         if (endsStory) {
-            updateStoryGenresCount(chapter.getStorySummary());
             chapterRepository.updateStatusAndEndFlag(chapter.getId(), statusPublished, true, getCurrentTime());
+            updateStoryGenresCount(chapter.getStorySummary());
         } else {
             chapterRepository.updateStatus(chapter.getId(), statusPublished, getCurrentTime());
         }
@@ -149,12 +154,16 @@ public class ChapterServiceImpl implements ChapterService {
                 storySummary, Chapter.STATUS_PUBLISHED);
         Set<Long> chaptersInCompletedStory = new HashSet<>();
         for (Chapter chapter : endingChapters) {
-            chaptersInCompletedStory.addAll(getChapterIdListFromTraversalString(chapter.getTraversal()));
+            String endChapterTraversal = chapter.getTraversal();
+            if (endChapterTraversal != null) {
+                chaptersInCompletedStory.addAll(getChapterIdListFromTraversalString(endChapterTraversal));
+            }
+            chaptersInCompletedStory.add(chapter.getId());
         }
         List<ChapterGenre> chapterGenreList = chapterGenreRepository.findByChapterIdIn(chaptersInCompletedStory);
         Map<Genre, Integer> genreCount = new HashMap<>();
         for (ChapterGenre chapterGenre : chapterGenreList) {
-            Genre genre = chapterGenre.getGenre();
+            Genre genre = chapterGenre.getGenreId();
             Integer count = genreCount.get(genre);
             if (count == null) {
                 genreCount.put(genre, 1);
@@ -163,7 +172,7 @@ public class ChapterServiceImpl implements ChapterService {
             }
         }
         for (Genre genre : genreCount.keySet()) {
-            storyGenreRepository.insertOnDuplicateKeyUpdate(storySummary.id, genre.getId(), genreCount.get(genre));
+            storyGenreRepository.insertOnDuplicateKeyUpdate(storySummary.getId(), genre.getId(), genreCount.get(genre));
         }
     }
 
