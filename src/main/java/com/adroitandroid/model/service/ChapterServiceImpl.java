@@ -88,8 +88,8 @@ public class ChapterServiceImpl implements ChapterService {
         if (prevChapter != null) {
             Notification newNotification = new Notification(prevChapter, chapter, Notification.TYPE_APPROVAL_REQUEST);
             notificationRepository.save(newNotification);
-        }
 //        TODO: send notification as well, TBD
+        }
         return chapter;
     }
 
@@ -106,7 +106,17 @@ public class ChapterServiceImpl implements ChapterService {
         Timestamp currentTime = getCurrentTime();
         chapterRepository.updateStatus(
                 chapterId, approval ? Chapter.STATUS_APPROVED : Chapter.STATUS_REJECTED, currentTime);
-        notificationRepository.updateReadStatus(notificationId, currentTime, true);
+        Notification notificationForApproval = notificationRepository.findOne(notificationId);
+        markNotificationAsRead(notificationForApproval);
+        notificationRepository.save(new Notification(notificationForApproval.senderChapter,
+                notificationForApproval.receiverChapter, Notification.TYPE_APPROVED_NOTIFICATION));
+//        TODO: send notification as well, TBD
+    }
+
+    private void markNotificationAsRead(Notification notification) {
+        notification.setReadStatusTrue();
+        notification.updateUpdatedTime();
+        notificationRepository.save(notification);
     }
 
     @Override
@@ -119,7 +129,14 @@ public class ChapterServiceImpl implements ChapterService {
         ChapterDetail chapterDetail = new ChapterDetail(chapterContent.getContent());
         ChapterDetail savedChapterDetail = chapterDetailRepository.save(chapterDetail);
         chapterRepository.putChapterDetailId(chapterContent.getChapterId(), savedChapterDetail.getId(), getCurrentTime());
+        Chapter senderChapter = chapterRepository.findOne(chapterContent.getChapterId());
+        markNotificationReadForReceiverChapter(senderChapter);
         return savedChapterDetail;
+    }
+
+    public void markNotificationReadForReceiverChapter(Chapter receiverChapter) {
+        Notification notification = notificationRepository.findByReceiverChapter(receiverChapter);
+        markNotificationAsRead(notification);
     }
 
     @Override

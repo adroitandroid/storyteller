@@ -14,13 +14,13 @@ public class Notification {
     public static final Integer TYPE_APPROVAL_REQUEST = 1;
     public static final Integer TYPE_APPROVED_NOTIFICATION = 2;
 
-    public Notification(Chapter prevChapter, Chapter newChapter, Integer type) {
+    public Notification(Chapter receiverChapter, Chapter senderChapter, Integer type) {
         this.notificationType = type;
         this.readStatus = false;
-        this.receiverChapter = prevChapter;
-        this.senderChapter = newChapter;
-        this.receiverUserId = prevChapter.getAuthorUserId();
-        this.senderUserId = newChapter.getAuthorUserId();
+        this.receiverChapter = receiverChapter;
+        this.senderChapter = senderChapter;
+        this.receiverUserId = receiverChapter.getAuthorUserId();
+        this.senderUserId = senderChapter.getAuthorUserId();
         updateCreatedAndUpdatedTime();
     }
 
@@ -37,14 +37,14 @@ public class Notification {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_chapter_id")
-    private Chapter receiverChapter;
+    public Chapter receiverChapter;
 
     @Column(name = "sender_user_id")
     private Long senderUserId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_chapter_id")
-    private Chapter senderChapter;
+    public Chapter senderChapter;
 
     @Column(name = "notification_type")
     private Integer notificationType;
@@ -61,5 +61,13 @@ public class Notification {
     private void updateCreatedAndUpdatedTime() {
         this.createdAt = new Timestamp((new Date()).getTime());
         this.updatedAt = this.createdAt;
+    }
+
+    public void updateUpdatedTime() {
+        this.updatedAt = new Timestamp((new Date()).getTime());
+    }
+
+    public void setReadStatusTrue() {
+        this.readStatus = true;
     }
 }
