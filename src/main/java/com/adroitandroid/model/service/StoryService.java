@@ -20,4 +20,6 @@ public interface StoryService {
     void validateInputForNewStory(StoryWithChapterInput storyInput);
 
     void insertStoryStats(Long storySummaryId);
+
+    void incrementReadsFor(StorySummary storySummary);
 }

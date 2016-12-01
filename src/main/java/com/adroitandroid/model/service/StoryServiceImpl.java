@@ -55,6 +55,11 @@ public class StoryServiceImpl implements StoryService {
         storyStatsRepository.save(storySummaryId);
     }
 
+    @Override
+    public void incrementReadsFor(StorySummary storySummary) {
+        storyStatsRepository.incrementReads(storySummary.getId());
+    }
+
     private boolean isEmpty(String input) {
         return input == null || input.isEmpty();
     }

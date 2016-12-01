@@ -27,4 +27,6 @@ public interface ChapterService {
     List<Chapter> findAllChaptersByAuthorIdWithStatus(Long userId, boolean includeSoftDeleted, Integer... status);
 
     void insertChapterStats(Long chapterId);
+
+    void incrementReadsFor(Chapter chapter);
 }

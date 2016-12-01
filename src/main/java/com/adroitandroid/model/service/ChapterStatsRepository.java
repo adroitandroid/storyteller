@@ -20,4 +20,8 @@ interface ChapterStatsRepository extends CrudRepository<ChapterStats, Long> {
     @Modifying
     @Query(nativeQuery = true, value = "insert into chapter_stats(chapter_id) values(?1)")
     void save(Long chapterId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = "update chapter_stats set num_reads = num_reads + 1 where chapter_id = ?1")
+    void incrementReads(Long chapterId);
 }

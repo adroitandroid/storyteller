@@ -69,6 +69,11 @@ public class ChapterController extends ChapterCreateUpdateController {
         publishChapter(contentToPublish);
     }
 
+    @RequestMapping(value = "/read", method = RequestMethod.PUT)
+    public void chapterRead(@RequestBody Chapter chapter) {
+        chapterService.incrementReadsFor(chapter);
+    }
+
     @Override
     StoryService getStoryService() {
         return storyService;

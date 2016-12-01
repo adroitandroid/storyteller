@@ -53,6 +53,11 @@ public class StoryController extends ChapterCreateUpdateController {
         return prepareResponseFrom(storySummary, StorySummary.CHAPTERS, StorySummary.PROMPT);
     }
 
+    @RequestMapping(value = "/read", method = RequestMethod.PUT)
+    public void chapterRead(@RequestBody StorySummary storySummary) {
+        storyService.incrementReadsFor(storySummary);
+    }
+
     private void validateInputForNewStory(StoryWithChapterInput storyInput) {
         storyService.validateInputForNewStory(storyInput);
     }

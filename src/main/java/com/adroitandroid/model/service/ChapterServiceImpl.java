@@ -165,6 +165,11 @@ public class ChapterServiceImpl implements ChapterService {
     }
 
     @Override
+    public void incrementReadsFor(Chapter chapter) {
+        chapterStatsRepository.incrementReads(chapter.getId());
+    }
+
+    @Override
     public Chapter validatePublishChapterInput(ChapterContentToPublish contentToPublish) {
         if (isEmpty(contentToPublish.getContent())) {
             throw new IllegalArgumentException("Empty chapter cannot be published");
