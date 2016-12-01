@@ -10,4 +10,6 @@ import org.springframework.data.repository.CrudRepository;
 interface NotificationRepository extends CrudRepository<Notification, Long> {
 
     Notification findByReceiverChapter(Chapter receiverChapter);
+
+    long countByReceiverUserIdAndReadStatusFalse(Long userId);
 }
