@@ -1,8 +1,6 @@
 package com.adroitandroid.controller;
 
-import com.adroitandroid.model.Chapter;
-import com.adroitandroid.model.Notification;
-import com.adroitandroid.model.User;
+import com.adroitandroid.model.*;
 import com.adroitandroid.model.service.ChapterService;
 import com.adroitandroid.model.service.NotificationService;
 import com.adroitandroid.model.service.UserService;
@@ -55,5 +53,25 @@ public class UserController extends AbstractController {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("success", userService.setUsername(user.getId(), user.username));
         return jsonObject;
+    }
+
+    @RequestMapping(value = "/like", method = RequestMethod.POST, produces = "application/json")
+    public JsonObject likeStory(@RequestBody UserStoryPair userStoryPair) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.setLiked(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        return jsonObject;
+    }
+
+    @RequestMapping(value = "/like", method = RequestMethod.DELETE, produces = "application/json")
+    public JsonObject unlikeStory(@RequestBody UserStoryPair userStoryPair) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.unsetLiked(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        return jsonObject;
+    }
+
+    @RequestMapping(value = "/like", method = RequestMethod.GET, produces = "application/json")
+    public JsonElement getLikes(@RequestParam(value = "user_id") Long userId) {
+        return prepareResponseFrom(userService.getUserLikesSortedByRecentFirst(userId), UserStoryRelation.STORY_SUMMARY,
+                StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
 }

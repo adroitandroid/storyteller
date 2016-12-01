@@ -60,6 +60,10 @@ public class StorySummary implements Serializable {
         updateCreatedAndUpdatedTime();
     }
 
+    public StorySummary(Long storySummaryId) {
+        this.id = storySummaryId;
+    }
+
     @OneToMany(fetch=FetchType.LAZY)
     @JoinTable(name="story_chapters",
             joinColumns={@JoinColumn(name="story_id", referencedColumnName="id")},

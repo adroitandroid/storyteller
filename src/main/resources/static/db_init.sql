@@ -58,3 +58,5 @@ CREATE TABLE story_stats (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, story_id I
 CREATE TABLE genre (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_name VARCHAR(30) NOT NULL);
 
 CREATE TABLE story_genres (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_id INT NOT NULL, story_id INT NOT NULL, count_completed INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (genre_id) REFERENCES genre(id), UNIQUE KEY `story_genre_key`(story_id, genre_id)));
+
+CREATE TABLE user_story_relation (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, story_id INT NOT NULL, relation_id INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (user_id) REFERENCES user(id), UNIQUE KEY `user_story_relation_key`(story_id, user_id, relation_id));
