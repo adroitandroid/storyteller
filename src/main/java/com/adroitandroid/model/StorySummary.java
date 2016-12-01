@@ -5,6 +5,7 @@ import com.adroitandroid.OptionalInGson;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,6 +49,16 @@ public class StorySummary implements Serializable {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    public StorySummary() {
+//        default contructor required by hibernate
+    }
+
+    public StorySummary(String storyTitle, Long promptId) {
+        this.title = storyTitle;
+        this.prompt = new Prompt(promptId);
+        updateCreatedAndUpdatedTime();
+    }
 
     @OneToMany(fetch=FetchType.LAZY)
     @JoinTable(name="story_chapters",
@@ -93,5 +104,10 @@ public class StorySummary implements Serializable {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    private void updateCreatedAndUpdatedTime() {
+        this.createdAt = new Timestamp((new Date()).getTime());
+        this.updatedAt = this.createdAt;
     }
 }

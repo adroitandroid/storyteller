@@ -27,13 +27,13 @@ public class Chapter implements Serializable {
     }
 
     public Chapter(String chapterTitle, String chapterPlot, Long previousChapterId, Long userId,
-                   StorySummary storySummary, String traversal) {
+                   StorySummary storySummary, String traversal, Integer chapterStatus) {
         this.title = chapterTitle;
         this.description = chapterPlot;
         this.authorUserId = userId;
         this.parentChapterId = previousChapterId;
         this.softDeleted = false;
-        this.status = STATUS_UNAPPROVED;
+        this.status = chapterStatus;
         this.storySummary = storySummary;
         this.traversal = traversal;
         updateCreatedAndUpdatedTime();

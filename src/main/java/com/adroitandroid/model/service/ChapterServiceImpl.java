@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by pv on 30/11/16.
@@ -41,29 +42,32 @@ public class ChapterServiceImpl implements ChapterService {
     }
 
     @Override
-    public void validateAddChapterInput(ChapterInput input) {
+    public void validateAddChapterInput(ChapterInput input, boolean prevChapterRequired) {
         if (input.userId == null) {
             throw new IllegalArgumentException("User id unspecified");
         }
-        if (input.storyId == null || input.previousChapterId == null) {
+        if (input.storyId == null || (input.previousChapterId == null && prevChapterRequired)) {
             throw new IllegalArgumentException("Story information missing");
         }
         if (isEmpty(input.chapterPlot) || isEmpty(input.chapterTitle)) {
             throw new IllegalArgumentException("Chapter information missing");
         }
-        Chapter previousChapter = chapterRepository.findOne(input.previousChapterId);
-        if (previousChapter.getStatus() != Chapter.STATUS_PUBLISHED
-                || (previousChapter.endsStory != null && previousChapter.endsStory)) {
-            throw new IllegalArgumentException("Illegal state for a previous chapter");
+        if (prevChapterRequired) {
+            Chapter previousChapter = chapterRepository.findOne(input.previousChapterId);
+            if (previousChapter.getStatus() != Chapter.STATUS_PUBLISHED
+                    || (previousChapter.endsStory != null && previousChapter.endsStory)) {
+                throw new IllegalArgumentException("Illegal state for a previous chapter");
+            }
         }
     }
 
     @Override
     public Chapter addChapter(ChapterInput chapterInput) {
-        Chapter prevChapter = chapterRepository.findOne(chapterInput.previousChapterId);
         StorySummary storySummary;
-        String traversal;
-        if (prevChapter != null) {
+        String traversal = null;
+        Chapter prevChapter = null;
+        if (chapterInput.previousChapterId != null) {
+            prevChapter = chapterRepository.findOne(chapterInput.previousChapterId);
             storySummary = prevChapter.getStorySummary();
             String prevChapterTraversal = prevChapter.getTraversal();
             List<Long> traversedChapterIds;
@@ -76,13 +80,15 @@ public class ChapterServiceImpl implements ChapterService {
             traversal = new Gson().toJson(traversedChapterIds);
         } else {
             storySummary = storySummaryRepository.findOne(chapterInput.storyId);
-            traversal = "";
         }
         Chapter newChapter = new Chapter(chapterInput.chapterTitle, chapterInput.chapterPlot,
-                chapterInput.previousChapterId, chapterInput.userId, storySummary, traversal);
+                chapterInput.previousChapterId, chapterInput.userId, storySummary, traversal,
+                chapterInput.previousChapterId == null ? Chapter.STATUS_AUTO_APPROVED : Chapter.STATUS_UNAPPROVED);
         Chapter chapter = chapterRepository.save(newChapter);
-        Notification newNotification = new Notification(prevChapter, chapter, Notification.TYPE_APPROVAL_REQUEST);
-        notificationRepository.save(newNotification);
+        if (prevChapter != null) {
+            Notification newNotification = new Notification(prevChapter, chapter, Notification.TYPE_APPROVAL_REQUEST);
+            notificationRepository.save(newNotification);
+        }
 //        TODO: send notification as well, TBD
         return chapter;
     }
@@ -135,10 +141,7 @@ public class ChapterServiceImpl implements ChapterService {
     public Chapter updateSummaryAndGenresForChapterAndStory(Chapter chapter, boolean endsStory,
                                                             int statusPublished, List<String> genreNames) {
         List<Genre> genres = genreRepository.findByNameIn(genreNames);
-        List<ChapterGenre> chapterGenres = new ArrayList<>();
-        for (Genre genre : genres) {
-            chapterGenres.add(new ChapterGenre(chapter, genre));
-        }
+        List<ChapterGenre> chapterGenres = genres.stream().map(genre -> new ChapterGenre(chapter, genre)).collect(Collectors.toList());
         chapterGenreRepository.save(chapterGenres);
 
         if (endsStory) {

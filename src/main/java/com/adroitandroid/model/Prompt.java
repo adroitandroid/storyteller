@@ -5,6 +5,7 @@ import com.adroitandroid.OptionalInGson;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,6 +40,20 @@ public class Prompt implements Serializable {
     @Column(name = "soft_deleted")
     @OptionalInGson(exclude = SOFT_DELETED)
     private Boolean softDeleted;
+
+    public Prompt() {
+//        empty constructor required by hibernate
+    }
+
+    public Prompt(Long promptId) {
+        this.id = promptId;
+        updateCreatedAndUpdatedTime();
+    }
+
+    private void updateCreatedAndUpdatedTime() {
+        this.createTime = new Timestamp((new Date()).getTime());
+        this.updateTime = this.createTime;
+    }
 
     public List<StorySummary> getStories() {
         return stories;

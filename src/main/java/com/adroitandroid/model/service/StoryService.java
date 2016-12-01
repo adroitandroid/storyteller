@@ -1,6 +1,7 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.StorySummary;
+import com.adroitandroid.model.StoryWithChapterInput;
 
 import java.util.List;
 
@@ -13,4 +14,8 @@ public interface StoryService {
     StorySummary getCompleteStoryById(long id);
 
     void incrementStoryCompletedCount(Long storyId);
+
+    StorySummary add(Long promptId, String storyTitle);
+
+    void validateInputForNewStory(StoryWithChapterInput storyInput);
 }

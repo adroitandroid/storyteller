@@ -51,7 +51,7 @@ CREATE TABLE chapter_summary (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, parent
 
 CREATE TABLE story_chapters (story_id INT NOT NULL, chapter_id INT NOT NULL, FOREIGN KEY (story_id) REFERENCES story_summary(id), FOREIGN KEY (chapter_id) REFERENCES `chapter_summary`(id));
 
-CREATE TABLE story_stats (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, story_id INT NOT NULL, num_completed INT NOT NULL DEFAULT 0, num_likes INT NOT NULL DEFAULT 0, num_reads INT NOT NULL DEFAULT 0, FOREIGN KEY (story_id) REFERENCES story_summary(id));
+CREATE TABLE story_stats (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, story_id INT NOT NULL, num_completed INT NOT NULL DEFAULT 0, num_likes INT NOT NULL DEFAULT 0, num_reads INT NOT NULL DEFAULT 0, FOREIGN KEY (story_id) REFERENCES story_summary(id), UNIQUE KEY story_id_key (`story_id`));
 
 CREATE TABLE genre (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, genre_name VARCHAR(30) NOT NULL);
 

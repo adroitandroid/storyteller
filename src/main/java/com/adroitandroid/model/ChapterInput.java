@@ -5,10 +5,16 @@ package com.adroitandroid.model;
  */
 public class ChapterInput {
     public Long storyId;
-    public String storyTitle;
-    public Long promptId;
     public Long previousChapterId;
     public String chapterTitle;
     public String chapterPlot;
     public Long userId;
+
+    public ChapterInput(Long storySummaryId, Long prevChapterId, String chapterTitle, String chapterPlot, Long userId) {
+        this.storyId = storySummaryId;
+        this.previousChapterId = prevChapterId;
+        this.chapterTitle = chapterTitle;
+        this.chapterPlot = chapterPlot;
+        this.userId = userId;
+    }
 }

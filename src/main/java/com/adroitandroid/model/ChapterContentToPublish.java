@@ -11,6 +11,13 @@ public class ChapterContentToPublish {
     private Boolean endsStory;
     private List<String> genreNames;
 
+    public ChapterContentToPublish(Long chapterId, String content, Boolean endsStory, List<String> genreNames) {
+        this.chapterId = chapterId;
+        this.content = content;
+        this.endsStory = endsStory;
+        this.genreNames = genreNames;
+    }
+
     public String getContent() {
         return content;
     }

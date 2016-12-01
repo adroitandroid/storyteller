@@ -8,7 +8,7 @@ import java.util.List;
  * Created by pv on 30/11/16.
  */
 public interface ChapterService {
-    void validateAddChapterInput(ChapterInput input);
+    void validateAddChapterInput(ChapterInput input, boolean prevChapterRequired);
 
     Chapter addChapter(ChapterInput chapterInput);
 

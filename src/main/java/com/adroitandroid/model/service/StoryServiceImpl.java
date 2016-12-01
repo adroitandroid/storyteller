@@ -1,6 +1,7 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.StorySummary;
+import com.adroitandroid.model.StoryWithChapterInput;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,22 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public void incrementStoryCompletedCount(Long storyId) {
-        storyStatsRepository.incrementCompletedCount(storyId);
+        storyStatsRepository.insertCompletedCountOnDuplicateKeyIncrement(storyId);
+    }
+
+    @Override
+    public StorySummary add(Long promptId, String storyTitle) {
+        return storySummaryRepository.save(new StorySummary(storyTitle, promptId));
+    }
+
+    @Override
+    public void validateInputForNewStory(StoryWithChapterInput storyInput) {
+        if (isEmpty(storyInput.storyTitle) || storyInput.promptId == null) {
+            throw new IllegalArgumentException("Story cannot be created due to missing title or prompt id");
+        }
+    }
+
+    private boolean isEmpty(String input) {
+        return input == null || input.isEmpty();
     }
 }
