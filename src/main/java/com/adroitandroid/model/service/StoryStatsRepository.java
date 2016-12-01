@@ -12,4 +12,12 @@ interface StoryStatsRepository extends CrudRepository<StoryStats, Long> {
     @Modifying
     @Query(nativeQuery = true, value = "insert into story_stats(story_id, num_completed) values(?1, 1) on duplicate key update num_completed = num_completed + 1")
     void insertCompletedCountOnDuplicateKeyIncrement(Long storyId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = "update story_stats set num_likes = num_likes + 1 where story_id = ?1")
+    void incrementLikes(Long storyId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = "update story_stats set num_likes = num_likes - 1 where story_id = ?1")
+    void decrementLikes(Long storyId);
 }

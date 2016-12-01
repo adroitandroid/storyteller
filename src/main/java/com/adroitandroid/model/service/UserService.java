@@ -15,4 +15,10 @@ public interface UserService {
     int unsetLiked(Long userId, Long storyId);
 
     List<UserStoryRelation> getUserLikesSortedByRecentFirst(Long userId);
+
+    int setToReadLater(Long userId, Long storyId);
+
+    int removeFromReadLater(Long userId, Long storyId);
+
+    List<UserStoryRelation> getUserReadLaterSortedByRecentFirst(Long userId);
 }

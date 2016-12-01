@@ -15,6 +15,7 @@ public class UserStoryRelation {
     public static final String STORY_SUMMARY = "story_in_user_story_relation";
 
     public static final Integer RELATION_ID_LIKE = 1;
+    public static final Integer RELATION_ID_READ_LATER = 2;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

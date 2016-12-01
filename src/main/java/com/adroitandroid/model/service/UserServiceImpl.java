@@ -16,10 +16,14 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserStoryRelationRepository userStoryRelationRepository;
+    private final StoryStatsRepository storyStatsRepository;
 
-    public UserServiceImpl(UserRepository userRepository, UserStoryRelationRepository userStoryRelationRepository) {
+    public UserServiceImpl(UserRepository userRepository,
+                           UserStoryRelationRepository userStoryRelationRepository,
+                           StoryStatsRepository storyStatsRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
+        this.storyStatsRepository = storyStatsRepository;
     }
 
     @Override
@@ -29,18 +33,38 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int setLiked(Long userId, Long storyId) {
-        return userStoryRelationRepository.insertOnDuplicateKeyUpdateSoftDeletedToFalse(
+        int result = userStoryRelationRepository.insertOnDuplicateKeyUpdateSoftDeletedToFalse(
                 userId, storyId, UserStoryRelation.RELATION_ID_LIKE, getCurrentTime());
+        storyStatsRepository.incrementLikes(storyId);
+        return result;
     }
 
     @Override
     public int unsetLiked(Long userId, Long storyId) {
-        return userStoryRelationRepository.softDelete(userId, storyId, UserStoryRelation.RELATION_ID_LIKE, getCurrentTime());
+        int result = userStoryRelationRepository.softDelete(userId, storyId, UserStoryRelation.RELATION_ID_LIKE, getCurrentTime());
+        storyStatsRepository.decrementLikes(storyId);
+        return result;
     }
 
     @Override
     public List<UserStoryRelation> getUserLikesSortedByRecentFirst(Long userId) {
         return userStoryRelationRepository.findByUserIdAndRelationIdAndSoftDeletedFalseOrderByUpdatedAtDesc(userId, UserStoryRelation.RELATION_ID_LIKE);
+    }
+
+    @Override
+    public int setToReadLater(Long userId, Long storyId) {
+        return userStoryRelationRepository.insertOnDuplicateKeyUpdateSoftDeletedToFalse(
+                userId, storyId, UserStoryRelation.RELATION_ID_READ_LATER, getCurrentTime());
+    }
+
+    @Override
+    public int removeFromReadLater(Long userId, Long storyId) {
+        return userStoryRelationRepository.softDelete(userId, storyId, UserStoryRelation.RELATION_ID_READ_LATER, getCurrentTime());
+    }
+
+    @Override
+    public List<UserStoryRelation> getUserReadLaterSortedByRecentFirst(Long userId) {
+        return userStoryRelationRepository.findByUserIdAndRelationIdAndSoftDeletedFalseOrderByUpdatedAtDesc(userId, UserStoryRelation.RELATION_ID_READ_LATER);
     }
 
     private Timestamp getCurrentTime() {

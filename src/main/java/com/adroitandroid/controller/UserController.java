@@ -74,4 +74,24 @@ public class UserController extends AbstractController {
         return prepareResponseFrom(userService.getUserLikesSortedByRecentFirst(userId), UserStoryRelation.STORY_SUMMARY,
                 StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
+
+    @RequestMapping(value = "/read_later", method = RequestMethod.POST, produces = "application/json")
+    public JsonObject readStoryLater(@RequestBody UserStoryPair userStoryPair) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.setToReadLater(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        return jsonObject;
+    }
+
+    @RequestMapping(value = "/read_later", method = RequestMethod.DELETE, produces = "application/json")
+    public JsonObject removeStoryFromReadLater(@RequestBody UserStoryPair userStoryPair) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.removeFromReadLater(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        return jsonObject;
+    }
+
+    @RequestMapping(value = "/read_later", method = RequestMethod.GET, produces = "application/json")
+    public JsonElement getStoriesToReadLater(@RequestParam(value = "user_id") Long userId) {
+        return prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(userId), UserStoryRelation.STORY_SUMMARY,
+                StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
+    }
 }
