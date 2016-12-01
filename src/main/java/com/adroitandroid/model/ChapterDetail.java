@@ -45,4 +45,8 @@ public class ChapterDetail implements Serializable {
         this.createdAt = new Timestamp((new Date()).getTime());
         this.updatedAt = this.createdAt;
     }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

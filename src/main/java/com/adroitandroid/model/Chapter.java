@@ -102,4 +102,8 @@ public class Chapter implements Serializable {
     public Long getId() {
         return id;
     }
+
+    public ChapterDetail getDetail() {
+        return detail;
+    }
 }

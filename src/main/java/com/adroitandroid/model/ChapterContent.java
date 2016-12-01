@@ -7,6 +7,11 @@ public class ChapterContent {
     private Long chapterId;
     private String content;
 
+    public ChapterContent(Long chapterId, String content) {
+        this.chapterId = chapterId;
+        this.content = content;
+    }
+
     public String getContent() {
         return content;
     }

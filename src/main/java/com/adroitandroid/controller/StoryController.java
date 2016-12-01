@@ -26,7 +26,7 @@ public class StoryController extends AbstractController {
     public JsonElement getAllCompletedStories() {
         List<StorySummary> allCompletedStories = storyService.getAllCompletedStories();
         return prepareResponseFrom(allCompletedStories,
-                StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenres.GENRE);
+                StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")

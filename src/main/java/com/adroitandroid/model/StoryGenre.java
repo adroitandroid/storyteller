@@ -9,11 +9,12 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "story_genres")
-public class StoryGenres {
+public class StoryGenre {
     public static final String GENRE = "genre_in_story_genres";
     public static final String STORY = "story_in_story_genres";
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OptionalInGson(exclude = STORY)

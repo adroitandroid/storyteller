@@ -41,6 +41,20 @@ public class ChapterController extends AbstractController {
         chapterService.editChapter(chapterDetail);
     }
 
+    @RequestMapping(value = "/publish", method = RequestMethod.PATCH)
+    public void publishChapter(@RequestBody ChapterContentToPublish contentToPublish) {
+        Chapter chapter = chapterService.validatePublishChapterInput(contentToPublish);
+        ChapterDetail chapterDetail = chapter.getDetail();
+        if (chapterDetail == null) {
+            chapterService.addContent(new ChapterContent(contentToPublish.getChapterId(), contentToPublish.getContent()));
+        } else {
+            chapterDetail.setContent(contentToPublish.getContent());
+            chapterService.editChapter(chapterDetail);
+        }
+        chapterService.updateSummaryAndChapterGenres(chapter, contentToPublish.isEndsStory(),
+                Chapter.STATUS_PUBLISHED, contentToPublish.getGenreNames());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     void handleBadRequests(HttpServletResponse response) throws IOException {
         response.sendError(HttpStatus.BAD_REQUEST.value());

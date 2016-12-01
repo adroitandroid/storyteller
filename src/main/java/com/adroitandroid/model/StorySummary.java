@@ -20,7 +20,7 @@ public class StorySummary implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    public Long id;
 
     private String title;
 
@@ -40,7 +40,7 @@ public class StorySummary implements Serializable {
 
     @OptionalInGson(exclude = STORY_GENRES)
     @OneToMany(mappedBy="story", fetch=FetchType.LAZY)
-    private List<StoryGenres> storyGenres;
+    private List<StoryGenre> storyGenres;
 
     @OptionalInGson(exclude = STORY_STATS)
     @OneToOne(mappedBy="story", fetch=FetchType.LAZY)
