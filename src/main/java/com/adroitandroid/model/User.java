@@ -21,7 +21,7 @@ public class User {
     private Long id;
 
     @Access(AccessType.FIELD)
-    private String username;
+    public String username;
 
     @Column(name = "auth_type_id")
     @Access(AccessType.FIELD)

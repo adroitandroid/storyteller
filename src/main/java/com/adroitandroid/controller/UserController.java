@@ -2,15 +2,14 @@ package com.adroitandroid.controller;
 
 import com.adroitandroid.model.Chapter;
 import com.adroitandroid.model.Notification;
+import com.adroitandroid.model.User;
 import com.adroitandroid.model.service.ChapterService;
 import com.adroitandroid.model.service.NotificationService;
+import com.adroitandroid.model.service.UserService;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by pv on 01/12/16.
@@ -23,6 +22,8 @@ public class UserController extends AbstractController {
     private NotificationService notificationService;
     @Autowired
     private ChapterService chapterService;
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value = "/message", method = RequestMethod.GET, produces = "application/json")
     public JsonObject isAnyUnreadMessage(@RequestParam(value = "user_id") Long userId) {
@@ -47,5 +48,12 @@ public class UserController extends AbstractController {
     public JsonElement getAllPublishedFor(@RequestParam(value = "user_id") Long userId) {
         return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(userId, true,
                 Chapter.STATUS_PUBLISHED), Chapter.STORY_SUMMARY);
+    }
+
+    @RequestMapping(value = "/set_username", method = RequestMethod.PUT, produces = "application/json")
+    public JsonObject setUsername(@RequestBody User user) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.setUsername(user.getId(), user.username));
+        return jsonObject;
     }
 }
