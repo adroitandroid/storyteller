@@ -64,3 +64,5 @@ CREATE TABLE user_story_relation (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, us
 CREATE TABLE chapter_stats (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, chapter_id INT NOT NULL, num_bookmarks INT NOT NULL DEFAULT 0, num_reads INT NOT NULL DEFAULT 0, FOREIGN KEY (chapter_id) REFERENCES chapter_summary(id), UNIQUE KEY chapter_id_key (`chapter_id`));
 
 CREATE TABLE user_chapter_relation (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, chapter_id INT NOT NULL, relation_id INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0, FOREIGN KEY (chapter_id) REFERENCES chapter_summary(id), FOREIGN KEY (user_id) REFERENCES user(id), UNIQUE KEY `user_chapter_relation_key`(chapter_id, user_id, relation_id));
+
+CREATE TABLE version (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, platform VARCHAR(30) NOT NULL, version_latest INT NOT NULL, version_min_supported INT NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP );
