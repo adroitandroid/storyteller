@@ -2,6 +2,7 @@ package com.adroitandroid.model;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * Created by pv on 01/12/16.
@@ -18,14 +19,21 @@ public class User {
         this.id = id;
     }
 
+    public User(String authenticationType, String authUserId) {
+        this.authType = AuthenticationType.getByType(authenticationType);
+        this.authUserId = authUserId;
+        setLastActiveTime();
+    }
+
     private Long id;
 
     @Access(AccessType.FIELD)
     public String username;
 
-    @Column(name = "auth_type_id")
+    @JoinColumn(name = "auth_type_id")
+    @ManyToOne(optional = false)
     @Access(AccessType.FIELD)
-    private Integer authTypeId;
+    private AuthenticationType authType;
 
     @Column(name = "auth_user_id")
     @Access(AccessType.FIELD)
@@ -47,5 +55,17 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setLastActiveAt(Timestamp lastActiveAt) {
+        this.lastActiveAt = lastActiveAt;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    private void setLastActiveTime() {
+        this.lastActiveAt = new Timestamp((new Date()).getTime());
     }
 }

@@ -9,6 +9,11 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Created by pv on 01/12/16.
  */
@@ -22,6 +27,26 @@ public class UserController extends AbstractController {
     private ChapterService chapterService;
     @Autowired
     private UserService userService;
+
+    /**
+     * Called by new user as well as any returning user whose session has expired
+     * @param userLoginInfo
+     * @return
+     */
+    @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
+    public CompletableFuture<UserDetails> signInUser(@RequestBody UserLoginInfo userLoginInfo)
+            throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        validateRequest(userLoginInfo);
+        return userService.signIn(userLoginInfo);
+    }
+
+    private void validateRequest(UserLoginInfo userLoginInfo) {
+        if (userLoginInfo.getAuthUserId() == null
+                || userLoginInfo.getAccessToken() == null
+                || userLoginInfo.getAuthenticationType() == null) {
+            throw new IllegalArgumentException("incomplete login details");
+        }
+    }
 
     @RequestMapping(value = "/message", method = RequestMethod.GET, produces = "application/json")
     public JsonObject isAnyUnreadMessage(@RequestParam(value = "user_id") Long userId) {
