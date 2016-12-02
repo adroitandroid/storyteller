@@ -5,6 +5,7 @@ import com.adroitandroid.HibernateProxyTypeAdapter;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,5 +27,10 @@ class AbstractController {
     @ExceptionHandler(IllegalArgumentException.class)
     void handleBadRequests(HttpServletResponse response) throws IOException {
         response.sendError(HttpStatus.BAD_REQUEST.value());
+    }
+
+
+    Long getUserIdFromRequest() {
+        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

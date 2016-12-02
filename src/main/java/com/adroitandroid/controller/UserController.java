@@ -49,27 +49,27 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/message", method = RequestMethod.GET, produces = "application/json")
-    public JsonObject isAnyUnreadMessage(@RequestParam(value = "user_id") Long userId) {
+    public JsonObject isAnyUnreadMessage() {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("unreads", notificationService.anyUnreadNotificationForUserId(userId));
+        jsonObject.addProperty("unreads", notificationService.anyUnreadNotificationForUserId(getUserIdFromRequest()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/message/list", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getAllMessagesFor(@RequestParam(value = "user_id") Long userId) {
-        return prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByMruFor(userId),
+    public JsonElement getAllMessagesFor() {
+        return prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByMruFor(getUserIdFromRequest()),
                 Notification.RECEIVER_CHAPTER, Notification.SENDER_CHAPTER, Notification.SENDER_USER);
     }
 
     @RequestMapping(value = "/drafts", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getAllDraftsFor(@RequestParam(value = "user_id") Long userId) {
-        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(userId, true,
+    public JsonElement getAllDraftsFor() {
+        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(getUserIdFromRequest(), true,
                 Chapter.STATUS_APPROVED, Chapter.STATUS_AUTO_APPROVED), Chapter.STORY_SUMMARY);
     }
 
     @RequestMapping(value = "/published", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getAllPublishedFor(@RequestParam(value = "user_id") Long userId) {
-        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(userId, true,
+    public JsonElement getAllPublishedFor() {
+        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(getUserIdFromRequest(), true,
                 Chapter.STATUS_PUBLISHED), Chapter.STORY_SUMMARY);
     }
 
@@ -95,8 +95,9 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/like", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getLikes(@RequestParam(value = "user_id") Long userId) {
-        return prepareResponseFrom(userService.getUserLikesSortedByRecentFirst(userId), UserStoryRelation.STORY_SUMMARY,
+    public JsonElement getLikes() {
+        return prepareResponseFrom(
+                userService.getUserLikesSortedByRecentFirst(getUserIdFromRequest()), UserStoryRelation.STORY_SUMMARY,
                 StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
 
@@ -115,9 +116,10 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/read_later", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getStoriesToReadLater(@RequestParam(value = "user_id") Long userId) {
-        return prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(userId), UserStoryRelation.STORY_SUMMARY,
-                StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
+    public JsonElement getStoriesToReadLater() {
+        return prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(getUserIdFromRequest()),
+                UserStoryRelation.STORY_SUMMARY, StorySummary.PROMPT, StorySummary.STORY_STATS,
+                StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
 
     @RequestMapping(value = "/bookmark", method = RequestMethod.POST, produces = "application/json")
@@ -135,7 +137,8 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/bookmark", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getBookmarks(@RequestParam(value = "user_id") Long userId) {
-        return prepareResponseFrom(userService.getUserBookmarksSortedByRecentFirst(userId), UserChapterRelation.CHAPTER_SUMMARY, Chapter.STORY_SUMMARY);
+    public JsonElement getBookmarks() {
+        return prepareResponseFrom(userService.getUserBookmarksSortedByRecentFirst(getUserIdFromRequest()),
+                UserChapterRelation.CHAPTER_SUMMARY, Chapter.STORY_SUMMARY);
     }
 }

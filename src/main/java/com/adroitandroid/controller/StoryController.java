@@ -40,6 +40,7 @@ public class StoryController extends ChapterCreateUpdateController {
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST, produces = "application/json")
     public JsonElement addNewStory(@RequestBody StoryWithChapterInput storyInput) {
+        storyInput.userId = getUserIdFromRequest();
         validateInputForNewStory(storyInput);
         StorySummary storySummary = addNewStorySummary(storyInput);
         getStoryService().insertStoryStats(storySummary.getId());
