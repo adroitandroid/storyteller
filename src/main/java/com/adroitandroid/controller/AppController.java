@@ -25,8 +25,8 @@ public class AppController extends AbstractController {
         Boolean upgradeAvailable = clientVersion < latestVersionForPlatform.getVersionLatest();
         Boolean forceUpgradeRequired = clientVersion < latestVersionForPlatform.getVersionMinSupported();
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("upgrade_available", upgradeAvailable);
-        jsonObject.addProperty("force_upgrade_required", forceUpgradeRequired);
+        jsonObject.addProperty("upgradeAvailable", upgradeAvailable);
+        jsonObject.addProperty("forceUpgradeRequired", forceUpgradeRequired);
         return jsonObject;
     }
 }
