@@ -22,7 +22,7 @@ import java.util.ArrayList;
  */
 public class DemoAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String X_AUTHORIZATION_TOKEN_KEY = "X-Authorization";
+    public static final String X_AUTHORIZATION_TOKEN_KEY = "X-Authorization";
 
     @Autowired
     private UserService userService;
