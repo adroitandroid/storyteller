@@ -22,7 +22,7 @@ public class User {
     public User(String authenticationType, String authUserId) {
         this.authType = AuthenticationType.getByType(authenticationType);
         this.authUserId = authUserId;
-        setLastActiveTime();
+        setCreatedAndLastActiveTime();
     }
 
     private Long id;
@@ -65,7 +65,8 @@ public class User {
         return username;
     }
 
-    private void setLastActiveTime() {
+    private void setCreatedAndLastActiveTime() {
         this.lastActiveAt = new Timestamp((new Date()).getTime());
+        this.createdAt = this.lastActiveAt;
     }
 }
