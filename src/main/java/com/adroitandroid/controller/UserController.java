@@ -30,7 +30,6 @@ public class UserController extends AbstractController {
 
     /**
      * Called by new user as well as any returning user whose session has expired
-     * @param userLoginInfo
      * @return
      */
     @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
@@ -51,25 +50,25 @@ public class UserController extends AbstractController {
     @RequestMapping(value = "/message", method = RequestMethod.GET, produces = "application/json")
     public JsonObject isAnyUnreadMessage() {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("unreads", notificationService.anyUnreadNotificationForUserId(getUserIdFromRequest()));
+        jsonObject.addProperty("unreads", notificationService.anyUnreadNotificationForUserId(needUserId()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/message/list", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getAllMessagesFor() {
-        return prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByMruFor(getUserIdFromRequest()),
+        return prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByMruFor(needUserId()),
                 Notification.RECEIVER_CHAPTER, Notification.SENDER_CHAPTER, Notification.SENDER_USER);
     }
 
     @RequestMapping(value = "/drafts", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getAllDraftsFor() {
-        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(getUserIdFromRequest(), true,
+        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(needUserId(), true,
                 Chapter.STATUS_APPROVED, Chapter.STATUS_AUTO_APPROVED), Chapter.STORY_SUMMARY);
     }
 
     @RequestMapping(value = "/published", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getAllPublishedFor() {
-        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(getUserIdFromRequest(), true,
+        return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(needUserId(), true,
                 Chapter.STATUS_PUBLISHED), Chapter.STORY_SUMMARY);
     }
 
@@ -81,64 +80,64 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/like", method = RequestMethod.POST, produces = "application/json")
-    public JsonObject likeStory(@RequestBody UserStoryPair userStoryPair) {
+    public JsonObject likeStory(@RequestBody StoryId storyId) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("success", userService.setLiked(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        jsonObject.addProperty("success", userService.setLiked(needUserId(), storyId.getStoryId()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/like", method = RequestMethod.DELETE, produces = "application/json")
-    public JsonObject unlikeStory(@RequestBody UserStoryPair userStoryPair) {
+    public JsonObject unlikeStory(@RequestBody StoryId storyId) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("success", userService.unsetLiked(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        jsonObject.addProperty("success", userService.unsetLiked(needUserId(), storyId.getStoryId()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/like", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getLikes() {
         return prepareResponseFrom(
-                userService.getUserLikesSortedByRecentFirst(getUserIdFromRequest()), UserStoryRelation.STORY_SUMMARY,
+                userService.getUserLikesSortedByRecentFirst(needUserId()), UserStoryRelation.STORY_SUMMARY,
                 StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
 
     @RequestMapping(value = "/read_later", method = RequestMethod.POST, produces = "application/json")
-    public JsonObject readStoryLater(@RequestBody UserStoryPair userStoryPair) {
+    public JsonObject readStoryLater(@RequestBody StoryId storyId) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("success", userService.setToReadLater(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        jsonObject.addProperty("success", userService.setToReadLater(needUserId(), storyId.getStoryId()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/read_later", method = RequestMethod.DELETE, produces = "application/json")
-    public JsonObject removeStoryFromReadLater(@RequestBody UserStoryPair userStoryPair) {
+    public JsonObject removeStoryFromReadLater(@RequestBody StoryId storyId) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("success", userService.removeFromReadLater(userStoryPair.getUserId(), userStoryPair.getStoryId()));
+        jsonObject.addProperty("success", userService.removeFromReadLater(needUserId(), storyId.getStoryId()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/read_later", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getStoriesToReadLater() {
-        return prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(getUserIdFromRequest()),
+        return prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(needUserId()),
                 UserStoryRelation.STORY_SUMMARY, StorySummary.PROMPT, StorySummary.STORY_STATS,
                 StorySummary.STORY_GENRES, StoryGenre.GENRE);
     }
 
     @RequestMapping(value = "/bookmark", method = RequestMethod.POST, produces = "application/json")
-    public JsonObject bookmarkChapter(@RequestBody UserChapterPair userChapterPair) {
+    public JsonObject bookmarkChapter(@RequestBody ChapterId chapterId) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("success", userService.setBookmark(userChapterPair.getUserId(), userChapterPair.getChapterId()));
+        jsonObject.addProperty("success", userService.setBookmark(needUserId(), chapterId.getChapterId()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/bookmark", method = RequestMethod.DELETE, produces = "application/json")
-    public JsonObject unbookmarkChapter(@RequestBody UserChapterPair userChapterPair) {
+    public JsonObject unbookmarkChapter(@RequestBody ChapterId chapterId) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("success", userService.removeBookmark(userChapterPair.getUserId(), userChapterPair.getChapterId()));
+        jsonObject.addProperty("success", userService.removeBookmark(needUserId(), chapterId.getChapterId()));
         return jsonObject;
     }
 
     @RequestMapping(value = "/bookmark", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getBookmarks() {
-        return prepareResponseFrom(userService.getUserBookmarksSortedByRecentFirst(getUserIdFromRequest()),
+        return prepareResponseFrom(userService.getUserBookmarksSortedByRecentFirst(needUserId()),
                 UserChapterRelation.CHAPTER_SUMMARY, Chapter.STORY_SUMMARY);
     }
 }

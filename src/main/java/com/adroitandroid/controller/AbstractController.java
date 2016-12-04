@@ -18,6 +18,8 @@ import java.io.IOException;
 @RestController
 class AbstractController {
 
+    public static final String INVALID_USER_MESSAGE = "bad user";
+
     JsonElement prepareResponseFrom(Object src, String... includeAnnotated) {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
@@ -29,9 +31,24 @@ class AbstractController {
         response.sendError(HttpStatus.BAD_REQUEST.value());
     }
 
-
+    /**
+     * For optional check of userId
+     * @return
+     */
     Long getUserIdFromRequest() {
         Long principal = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return principal > 0 ? principal : null;
+    }
+
+    /**
+     * For mandatory requirement of userId
+     * @return
+     */
+    Long needUserId() {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest == null || userIdFromRequest < 0) {
+            throw new IllegalArgumentException(INVALID_USER_MESSAGE);
+        }
+        return userIdFromRequest;
     }
 }

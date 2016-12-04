@@ -20,14 +20,14 @@ import java.util.GregorianCalendar;
  */
 public class ResponseHeaderModifierInterceptor extends HandlerInterceptorAdapter {
 
-    public static final String HEADER_TOKEN_EXPIRING = "Token-Expriring";
+    public static final String HEADER_TOKEN_EXPIRING = "Token-Expiring";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String tokenHeader = request.getHeader(DemoAuthenticationFilter.X_AUTHORIZATION_TOKEN_KEY);
         if (tokenHeader != null) {
             Boolean tokenExpiringOrExpired = isTokenExpiringOrExpired(tokenHeader);
-            response.addHeader(HEADER_TOKEN_EXPIRING, tokenExpiringOrExpired.toString());
+            response.addHeader(HEADER_TOKEN_EXPIRING, String.valueOf(tokenExpiringOrExpired.booleanValue()));
         }
         return true;
     }
@@ -48,6 +48,8 @@ public class ResponseHeaderModifierInterceptor extends HandlerInterceptorAdapter
         ObjectMapper mapper = new ObjectMapper();
         ObjectReader reader = mapper.reader();
         JsonNode jsonNode = reader.readTree(new ByteArrayInputStream(Base64.getDecoder().decode(authToken)));
-        return jsonNode.get("expiryTime").asLong() > startTimeForRegenWindowExpiringNow;
+        JsonNode expiryTime = jsonNode.get("expiryTime");
+        long expiryTimeLong = expiryTime.asLong();
+        return expiryTimeLong < startTimeForRegenWindowExpiringNow;
     }
 }
