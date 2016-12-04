@@ -1,11 +1,17 @@
 package com.adroitandroid.model;
 
 import com.adroitandroid.OptionalInGson;
+import com.adroitandroid.StringToJsonArrayAdapter;
+import com.google.gson.Gson;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.reflect.TypeToken;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by pv on 30/11/16.
@@ -27,7 +33,7 @@ public class Chapter implements Serializable {
     }
 
     public Chapter(String chapterTitle, String chapterPlot, Long previousChapterId, Long userId,
-                   StorySummary storySummary, String traversal, Integer chapterStatus) {
+                   StorySummary storySummary, List<Long> traversal, Integer chapterStatus) {
         this.title = chapterTitle;
         this.description = chapterPlot;
         this.authorUserId = userId;
@@ -35,7 +41,7 @@ public class Chapter implements Serializable {
         this.softDeleted = false;
         this.status = chapterStatus;
         this.storySummary = storySummary;
-        this.traversal = traversal;
+        setTraversal(traversal);
         updateCreatedAndUpdatedTime();
     }
 
@@ -72,6 +78,8 @@ public class Chapter implements Serializable {
     @Column(name = "author_user_id")
     private Long authorUserId;
 
+    @Access(AccessType.FIELD)
+    @JsonAdapter(StringToJsonArrayAdapter.class)
     private String traversal;
 
     @Column(name = "updated_at")
@@ -95,8 +103,12 @@ public class Chapter implements Serializable {
         return storySummary;
     }
 
-    public String getTraversal() {
-        return traversal;
+    public List<Long> getTraversal() {
+        return traversalStringToList();
+    }
+
+    public void setTraversal(List<Long> traversalList) {
+        setTraversalStringFrom(traversalList);
     }
 
     public Long getId() {
@@ -105,5 +117,18 @@ public class Chapter implements Serializable {
 
     public ChapterDetail getDetail() {
         return detail;
+    }
+
+    private List<Long> traversalStringToList() {
+        List<Long> traversedList;
+        Type collectionType = new TypeToken<List<Long>>() {}.getType();
+        Gson gson = new Gson();
+        traversedList = gson.fromJson(traversal, collectionType);
+        return traversedList;
+    }
+
+    private void setTraversalStringFrom(List<Long> traversalList) {
+        Gson gson = new Gson();
+        traversal = gson.toJson(traversalList);
     }
 }

@@ -31,6 +31,7 @@ class AbstractController {
 
 
     Long getUserIdFromRequest() {
-        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long principal = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return principal > 0 ? principal : null;
     }
 }

@@ -38,8 +38,7 @@ public class DemoAuthenticationFilter extends OncePerRequestFilter {
             userService = webApplicationContext.getBean(UserService.class);
         }
 
-        DemoAuthenticationToken auth;
-        auth = getDemoAuthenticationToken(request);
+        DemoAuthenticationToken auth = getDemoAuthenticationToken(request);
         SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);
     }
@@ -48,21 +47,25 @@ public class DemoAuthenticationFilter extends OncePerRequestFilter {
         DemoAuthenticationToken auth;
         String xAuth = request.getHeader(X_AUTHORIZATION_TOKEN_KEY);
         if (xAuth == null) {
-            return null;
+            return getAnonymousAuthenticationToken();
         }
 
         UserSession userSession;
         try {
             userSession = userService.getUserSessionForAuthToken(xAuth);
         } catch (IOException e) {
-            return null;
+            return getAnonymousAuthenticationToken();
         }
         if (userSession == null) {
-            return null;
+            return getAnonymousAuthenticationToken();
         }
 
         auth = new DemoAuthenticationToken(userSession.getUserId(), new UserLoginInfo(userSession.getAuthType(),
                 userSession.getAuthUserId(), userSession.getAccessToken()), new ArrayList<>());
         return auth;
+    }
+
+    private DemoAuthenticationToken getAnonymousAuthenticationToken() {
+        return new DemoAuthenticationToken(-1L, null, new ArrayList<>());
     }
 }

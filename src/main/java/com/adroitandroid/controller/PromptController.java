@@ -41,7 +41,8 @@ public class PromptController extends AbstractController {
 //        Removing all unapproved chapters before returning
         List<StorySummary> storySummariesToRemove = new ArrayList<>();
         for (StorySummary storySummary : promptWithFetches.getStories()) {
-            List<Chapter> chaptersToRemove = storySummary.getChapters().stream().filter(chapter -> chapter.getStatus() <= 0).collect(Collectors.toList());
+            List<Chapter> chaptersToRemove = storySummary.getChapters().stream().filter(chapter
+                    -> chapter.getStatus() != Chapter.STATUS_PUBLISHED).collect(Collectors.toList());
             storySummary.getChapters().removeAll(chaptersToRemove);
             if (storySummary.getChapters().size() == 0) {
                 storySummariesToRemove.add(storySummary);

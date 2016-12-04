@@ -20,6 +20,6 @@ interface PromptRepository extends CrudRepository<Prompt, Long> {
      * @param promptId
      * @return
      */
-    @Query("SELECT p FROM Prompt p JOIN FETCH p.stories WHERE p.id = (:id)")
+    @Query("SELECT p FROM Prompt p LEFT JOIN FETCH p.stories WHERE p.id = (:id)")
     Prompt findByIdWithEagerFetch(@Param("id")long promptId);
 }

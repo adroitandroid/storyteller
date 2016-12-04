@@ -1,12 +1,9 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.*;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,25 +64,23 @@ public class ChapterServiceImpl implements ChapterService {
     @Override
     public Chapter addChapter(ChapterInput chapterInput) {
         StorySummary storySummary;
-        String traversal = null;
         Chapter prevChapter = null;
+        List<Long> traversedChapterIds = null;
         if (chapterInput.previousChapterId != null) {
             prevChapter = chapterRepository.findOne(chapterInput.previousChapterId);
             storySummary = prevChapter.getStorySummary();
-            String prevChapterTraversal = prevChapter.getTraversal();
-            List<Long> traversedChapterIds;
+            List<Long> prevChapterTraversal = prevChapter.getTraversal();
             if (isEmpty(prevChapterTraversal)) {
                 traversedChapterIds = new ArrayList<>();
             } else {
-                traversedChapterIds = getChapterIdListFromTraversalString(prevChapterTraversal);
+                traversedChapterIds = prevChapterTraversal;
             }
             traversedChapterIds.add(prevChapter.getId());
-            traversal = new Gson().toJson(traversedChapterIds);
         } else {
             storySummary = storySummaryRepository.findOne(chapterInput.storyId);
         }
         Chapter newChapter = new Chapter(chapterInput.chapterTitle, chapterInput.chapterPlot,
-                chapterInput.previousChapterId, chapterInput.userId, storySummary, traversal,
+                chapterInput.previousChapterId, chapterInput.userId, storySummary, traversedChapterIds,
                 chapterInput.previousChapterId == null ? Chapter.STATUS_AUTO_APPROVED : Chapter.STATUS_UNAPPROVED);
         Chapter chapter = chapterRepository.save(newChapter);
         if (prevChapter != null) {
@@ -94,14 +89,6 @@ public class ChapterServiceImpl implements ChapterService {
 //        TODO: send notification as well, TBD
         }
         return chapter;
-    }
-
-    private List<Long> getChapterIdListFromTraversalString(String prevChapterTraversal) {
-        List<Long> traversedChapterIds;Type collectionType = new TypeToken<List<Long>>() {
-        }.getType();
-        Gson gson = new Gson();
-        traversedChapterIds = gson.fromJson(prevChapterTraversal, collectionType);
-        return traversedChapterIds;
     }
 
     @Override
@@ -207,9 +194,8 @@ public class ChapterServiceImpl implements ChapterService {
                 storySummary, Chapter.STATUS_PUBLISHED);
         Set<Long> chaptersInCompletedStory = new HashSet<>();
         for (Chapter chapter : endingChapters) {
-            String endChapterTraversal = chapter.getTraversal();
-            if (endChapterTraversal != null) {
-                chaptersInCompletedStory.addAll(getChapterIdListFromTraversalString(endChapterTraversal));
+            if (!isEmpty(chapter.getTraversal())) {
+                chaptersInCompletedStory.addAll(chapter.getTraversal());
             }
             chaptersInCompletedStory.add(chapter.getId());
 

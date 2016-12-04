@@ -3,11 +3,13 @@ package com.adroitandroid.controller;
 import com.adroitandroid.model.*;
 import com.adroitandroid.model.service.ChapterService;
 import com.adroitandroid.model.service.StoryService;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by pv on 30/11/16.
@@ -28,9 +30,25 @@ public class StoryController extends ChapterCreateUpdateController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getEntireStoryById(@PathVariable long id) {
+    public StorySummary getEntireStoryById(@PathVariable long id) {
         StorySummary storySummary = storyService.getCompleteStoryById(id);
-        return prepareResponseFrom(storySummary, StorySummary.CHAPTERS, Chapter.CHAPTER_DETAIL);
+        JsonElement jsonElement = prepareResponseFrom(storySummary, StorySummary.CHAPTERS, Chapter.CHAPTER_DETAIL);
+        StorySummary storySummaryWithChapterContent = new Gson().fromJson(jsonElement, StorySummary.class);
+
+        Long userId = getUserIdFromRequest();
+        List<Chapter> chaptersToRemove = storySummaryWithChapterContent.getChapters().stream().filter(chapter
+                -> !isPublishedOrUserDraft(chapter, userId)).collect(Collectors.toList());
+        storySummaryWithChapterContent.getChapters().removeAll(chaptersToRemove);
+
+        return storySummaryWithChapterContent;
+    }
+
+    private boolean isPublishedOrUserDraft(Chapter chapter, Long userId) {
+        Integer chapterStatus = chapter.getStatus();
+        return chapterStatus == Chapter.STATUS_PUBLISHED
+                || ((chapterStatus == Chapter.STATUS_AUTO_APPROVED
+                || chapterStatus == Chapter.STATUS_APPROVED)
+                && chapter.getAuthorUserId().equals(userId));
     }
 
     /**
