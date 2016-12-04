@@ -40,4 +40,8 @@ public interface UserService {
             throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
     UserSession getUserSessionForAuthToken(String xAuth) throws IOException;
+
+    List<UserChapterRelation> getUserBookmarksFromChapters(Long userId, List<Chapter> chapters);
+
+    boolean hasUserLikedStory(Long userId, Long storyId);
 }

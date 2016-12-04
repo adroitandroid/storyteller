@@ -41,4 +41,8 @@ public class UserChapterRelation {
 
     @Column(name = "soft_deleted")
     private Boolean softDeleted;
+
+    public Chapter getChapter() {
+        return chapter;
+    }
 }

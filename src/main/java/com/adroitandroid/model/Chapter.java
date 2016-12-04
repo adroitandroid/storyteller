@@ -50,22 +50,29 @@ public class Chapter implements Serializable {
         this.updatedAt = this.createdAt;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Access(AccessType.FIELD)
     @Column(name = "parent_id")
     private Long parentChapterId;
+
+    @Access(AccessType.FIELD)
     private String title;
+
+    @Access(AccessType.FIELD)
     private String description;
 
     @Column(name = "ends_story")
+    @Access(AccessType.FIELD)
     public Boolean endsStory;
+
+    @Access(AccessType.FIELD)
     private Integer status;
 
     @OneToOne(fetch=FetchType.LAZY)
     @OptionalInGson(exclude = CHAPTER_DETAIL)
     @JoinColumn(name = "detail_id")
+    @Access(AccessType.FIELD)
     private ChapterDetail detail;
 
     @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
@@ -73,9 +80,11 @@ public class Chapter implements Serializable {
             joinColumns={@JoinColumn(name="chapter_id", referencedColumnName="id")},
             inverseJoinColumns={@JoinColumn(name="story_id", referencedColumnName="id")})
     @OptionalInGson(exclude = STORY_SUMMARY)
+    @Access(AccessType.FIELD)
     private StorySummary storySummary;
 
     @Column(name = "author_user_id")
+    @Access(AccessType.FIELD)
     private Long authorUserId;
 
     @Access(AccessType.FIELD)
@@ -83,12 +92,15 @@ public class Chapter implements Serializable {
     private String traversal;
 
     @Column(name = "updated_at")
+    @Access(AccessType.FIELD)
     private Timestamp updatedAt;
 
     @Column(name = "created_at")
+    @Access(AccessType.FIELD)
     private Timestamp createdAt;
 
     @Column(name = "soft_deleted")
+    @Access(AccessType.FIELD)
     private Boolean softDeleted;
 
     public Integer getStatus() {
@@ -111,8 +123,14 @@ public class Chapter implements Serializable {
         setTraversalStringFrom(traversalList);
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public ChapterDetail getDetail() {

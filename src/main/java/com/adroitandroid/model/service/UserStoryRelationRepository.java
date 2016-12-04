@@ -21,4 +21,6 @@ interface UserStoryRelationRepository extends CrudRepository<UserStoryRelation, 
     int softDelete(Long userId, Long storyId, Integer relationId, Timestamp currentTime);
 
     List<UserStoryRelation> findByUserIdAndRelationIdAndSoftDeletedFalseOrderByUpdatedAtDesc(Long userId, Integer relationId);
+
+    UserStoryRelation findByUserIdAndStoryIdAndRelationIdAndSoftDeletedFalse(Long userId, Long storyId, Integer relationId);
 }

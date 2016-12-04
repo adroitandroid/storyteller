@@ -3,8 +3,10 @@ package com.adroitandroid.controller;
 import com.adroitandroid.model.*;
 import com.adroitandroid.model.service.ChapterService;
 import com.adroitandroid.model.service.StoryService;
+import com.adroitandroid.model.service.UserService;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,8 @@ public class StoryController extends ChapterCreateUpdateController {
     private StoryService storyService;
     @Autowired
     private ChapterService chapterService;
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getAllCompletedStories() {
@@ -33,7 +37,7 @@ public class StoryController extends ChapterCreateUpdateController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
-    public StorySummary getEntireStoryById(@PathVariable long id, @RequestParam(value = "only_complete",
+    public JsonObject getEntireStoryById(@PathVariable long id, @RequestParam(value = "only_complete",
             required = false, defaultValue = "true") boolean onlyComplete) {
         Long userId = getUserIdFromRequest();
 
@@ -63,7 +67,23 @@ public class StoryController extends ChapterCreateUpdateController {
             storySummaryWithChapterContent.getChapters().removeAll(chaptersToRemove);
         }
 
-        return storySummaryWithChapterContent;
+        JsonElement jsonTree = new Gson().toJsonTree(storySummaryWithChapterContent);
+        JsonObject jsonObject = jsonTree.getAsJsonObject();
+        if (userId != null && userId > 0) {
+            List<UserChapterRelation> userBookmarksForChapters
+                    = userService.getUserBookmarksFromChapters(userId, storySummaryWithChapterContent.getChapters());
+
+            boolean hasUserLikedStory = userService.hasUserLikedStory(userId, storySummaryWithChapterContent.getId());
+            jsonObject.addProperty("isLiked", hasUserLikedStory);
+
+            List<Long> bookmarkedChapterIdList = new ArrayList<>();
+            for (UserChapterRelation userChapterRelation : userBookmarksForChapters) {
+                bookmarkedChapterIdList.add(userChapterRelation.getChapter().getId());
+            }
+            jsonObject.add("bookmarkedChapters", new Gson().toJsonTree(bookmarkedChapterIdList));
+
+        }
+        return jsonObject;
     }
 
     private boolean isPublishedOrUserDraft(Chapter chapter, Long userId) {

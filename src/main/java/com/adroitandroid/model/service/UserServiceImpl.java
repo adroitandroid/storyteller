@@ -170,6 +170,28 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public List<UserChapterRelation> getUserBookmarksFromChapters(Long userId, List<Chapter> chapters) {
+        ArrayList<Long> chapterIdList = new ArrayList<>();
+        for (Chapter chapter : chapters) {
+            chapterIdList.add(chapter.getId());
+        }
+        if (!chapterIdList.isEmpty()) {
+            return userChapterRelationRepository.findByUserIdAndChapterIdInAndRelationIdAndSoftDeletedFalse(
+                    userId, chapterIdList, UserChapterRelation.RELATION_ID_BOOKMARK);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean hasUserLikedStory(Long userId, Long storyId) {
+        UserStoryRelation userStoryRelation
+                = userStoryRelationRepository.findByUserIdAndStoryIdAndRelationIdAndSoftDeletedFalse(
+                        userId, storyId, UserStoryRelation.RELATION_ID_LIKE);
+        return userStoryRelation != null;
+    }
+
     private UserDetails validateAndRespondWithUserDetails(String userIdFromFacebook, UserLoginInfo userLoginInfo) {
         String authUserId = userLoginInfo.getAuthUserId();
         if (userIdFromFacebook == null || !userIdFromFacebook.equals(authUserId)) {

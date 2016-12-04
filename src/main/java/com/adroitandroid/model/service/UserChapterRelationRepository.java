@@ -1,11 +1,13 @@
 package com.adroitandroid.model.service;
 
+import com.adroitandroid.model.Chapter;
 import com.adroitandroid.model.UserChapterRelation;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,4 +23,6 @@ interface UserChapterRelationRepository extends CrudRepository<UserChapterRelati
     int softDelete(Long userId, Long chapterId, Integer relationId, Timestamp currentTime);
 
     List<UserChapterRelation> findByUserIdAndRelationIdAndSoftDeletedFalseOrderByUpdatedAtDesc(Long userId, Integer relationId);
+
+    List<UserChapterRelation> findByUserIdAndChapterIdInAndRelationIdAndSoftDeletedFalse(Long userId, ArrayList<Long> chapters, Integer relationId);
 }
