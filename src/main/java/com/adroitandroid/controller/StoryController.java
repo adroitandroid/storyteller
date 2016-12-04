@@ -8,7 +8,10 @@ import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -30,15 +33,35 @@ public class StoryController extends ChapterCreateUpdateController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
-    public StorySummary getEntireStoryById(@PathVariable long id) {
+    public StorySummary getEntireStoryById(@PathVariable long id, @RequestParam(value = "only_complete",
+            required = false, defaultValue = "true") boolean onlyComplete) {
+        Long userId = getUserIdFromRequest();
+
         StorySummary storySummary = storyService.getCompleteStoryById(id);
         JsonElement jsonElement = prepareResponseFrom(storySummary, StorySummary.CHAPTERS, Chapter.CHAPTER_DETAIL);
         StorySummary storySummaryWithChapterContent = new Gson().fromJson(jsonElement, StorySummary.class);
 
-        Long userId = getUserIdFromRequest();
         List<Chapter> chaptersToRemove = storySummaryWithChapterContent.getChapters().stream().filter(chapter
                 -> !isPublishedOrUserDraft(chapter, userId)).collect(Collectors.toList());
-        storySummaryWithChapterContent.getChapters().removeAll(chaptersToRemove);
+        if (onlyComplete) {
+            List<Chapter> chaptersToRetain = new ArrayList<>();
+            Set<Long> chapterIdsToRetain = new HashSet<>();
+            storySummaryWithChapterContent.getChapters().stream().filter(chapter
+                    -> chapter.endsStory != null && chapter.endsStory).forEach(chapter -> {
+                chaptersToRetain.add(chapter);
+                List<Long> traversal = chapter.getTraversal();
+                if (traversal != null) {
+                    chapterIdsToRetain.addAll(traversal);
+                }
+            });
+            chaptersToRetain.addAll(storySummaryWithChapterContent.getChapters().stream().filter(chapter
+                    -> chapterIdsToRetain.contains(chapter.getId())).collect(Collectors.toList()));
+
+            storySummaryWithChapterContent.getChapters().retainAll(chaptersToRetain);
+        }
+        if (chaptersToRemove != null) {
+            storySummaryWithChapterContent.getChapters().removeAll(chaptersToRemove);
+        }
 
         return storySummaryWithChapterContent;
     }
