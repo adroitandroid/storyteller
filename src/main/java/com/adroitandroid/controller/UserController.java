@@ -4,6 +4,8 @@ import com.adroitandroid.model.*;
 import com.adroitandroid.model.service.ChapterService;
 import com.adroitandroid.model.service.NotificationService;
 import com.adroitandroid.model.service.UserService;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,9 +97,10 @@ public class UserController extends AbstractController {
 
     @RequestMapping(value = "/like", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getLikes() {
-        return prepareResponseFrom(
+        JsonElement jsonElement = prepareResponseFrom(
                 userService.getUserLikesSortedByRecentFirst(needUserId()), UserStoryRelation.STORY_SUMMARY,
                 StorySummary.PROMPT, StorySummary.STORY_STATS, StorySummary.STORY_GENRES, StoryGenre.GENRE);
+        return getStoriesJsonArrayFromUserStoryRelations(jsonElement);
     }
 
     @RequestMapping(value = "/read_later", method = RequestMethod.POST, produces = "application/json")
@@ -116,9 +119,10 @@ public class UserController extends AbstractController {
 
     @RequestMapping(value = "/read_later", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getStoriesToReadLater() {
-        return prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(needUserId()),
+        JsonElement jsonElement = prepareResponseFrom(userService.getUserReadLaterSortedByRecentFirst(needUserId()),
                 UserStoryRelation.STORY_SUMMARY, StorySummary.PROMPT, StorySummary.STORY_STATS,
                 StorySummary.STORY_GENRES, StoryGenre.GENRE);
+        return getStoriesJsonArrayFromUserStoryRelations(jsonElement);
     }
 
     @RequestMapping(value = "/bookmark", method = RequestMethod.POST, produces = "application/json")
@@ -137,7 +141,22 @@ public class UserController extends AbstractController {
 
     @RequestMapping(value = "/bookmark", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getBookmarks() {
-        return prepareResponseFrom(userService.getUserBookmarksSortedByRecentFirst(needUserId()),
+        JsonElement jsonElement = prepareResponseFrom(userService.getUserBookmarksSortedByRecentFirst(needUserId()),
                 UserChapterRelation.CHAPTER_SUMMARY, Chapter.STORY_SUMMARY);
+        UserChapterRelation[] userChapterRelations = new Gson().fromJson(jsonElement, UserChapterRelation[].class);
+        JsonArray chapters = new JsonArray();
+        for (UserChapterRelation relation : userChapterRelations) {
+            chapters.add(new Gson().toJsonTree(relation.getChapter()));
+        }
+        return chapters;
+    }
+
+    private JsonElement getStoriesJsonArrayFromUserStoryRelations(JsonElement jsonElement) {
+        UserStoryRelation[] userStoryRelations = new Gson().fromJson(jsonElement, UserStoryRelation[].class);
+        JsonArray stories = new JsonArray();
+        for (UserStoryRelation relation : userStoryRelations) {
+            stories.add(new Gson().toJsonTree(relation.story));
+        }
+        return stories;
     }
 }

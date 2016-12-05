@@ -2,6 +2,7 @@ package com.adroitandroid.controller;
 
 import com.adroitandroid.GsonExclusionStrategy;
 import com.adroitandroid.HibernateProxyTypeAdapter;
+import com.adroitandroid.security.DemoAuthenticationToken;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import org.springframework.http.HttpStatus;
@@ -36,8 +37,7 @@ class AbstractController {
      * @return
      */
     Long getUserIdFromRequest() {
-        Long principal = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return principal > 0 ? principal : null;
+        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     /**
@@ -50,5 +50,11 @@ class AbstractController {
             throw new IllegalArgumentException(INVALID_USER_MESSAGE);
         }
         return userIdFromRequest;
+    }
+
+    void returnIfUnauthenticatedUserSession() {
+        if (DemoAuthenticationToken.isUnauthenticatedUser(getUserIdFromRequest())) {
+            throw new IllegalArgumentException(INVALID_USER_MESSAGE);
+        }
     }
 }

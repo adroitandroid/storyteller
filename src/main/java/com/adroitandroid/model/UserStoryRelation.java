@@ -29,7 +29,7 @@ public class UserStoryRelation {
     @ManyToOne(fetch= FetchType.LAZY)
     @OptionalInGson(exclude = STORY_SUMMARY)
     @JoinColumn(name = "story_id")
-    private StorySummary story;
+    public StorySummary story;
 
     @Column(name = "relation_id")
     private Integer relationId;

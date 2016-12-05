@@ -47,17 +47,17 @@ public class DemoAuthenticationFilter extends OncePerRequestFilter {
         DemoAuthenticationToken auth;
         String xAuth = request.getHeader(X_AUTHORIZATION_TOKEN_KEY);
         if (xAuth == null) {
-            return getAnonymousAuthenticationToken();
+            return new DemoAuthenticationToken();
         }
 
         UserSession userSession;
         try {
             userSession = userService.getUserSessionForAuthToken(xAuth);
         } catch (IOException e) {
-            return getAnonymousAuthenticationToken();
+            return getUnverifiedAuthenticationToken(xAuth);
         }
         if (userSession == null) {
-            return getAnonymousAuthenticationToken();
+            return getUnverifiedAuthenticationToken(xAuth);
         }
 
         auth = new DemoAuthenticationToken(userSession.getUserId(), new UserLoginInfo(userSession.getAuthType(),
@@ -65,7 +65,8 @@ public class DemoAuthenticationFilter extends OncePerRequestFilter {
         return auth;
     }
 
-    private DemoAuthenticationToken getAnonymousAuthenticationToken() {
-        return new DemoAuthenticationToken(-1L, null, new ArrayList<>());
+    private DemoAuthenticationToken getUnverifiedAuthenticationToken(String xAuth) {
+        return new DemoAuthenticationToken(xAuth);
     }
+
 }

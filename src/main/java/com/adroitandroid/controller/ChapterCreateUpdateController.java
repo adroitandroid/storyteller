@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 abstract class ChapterCreateUpdateController extends AbstractController {
 
     Chapter validateAndAddNewChapter(@RequestBody ChapterInput chapterInput, boolean prevChapterPresent) {
-        chapterInput.userId = getUserIdFromRequest();
+        chapterInput.userId = needUserId();
         getChapterService().validateAddChapterInput(chapterInput, prevChapterPresent);
         return getChapterService().addChapter(chapterInput);
     }
