@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class UserDetails implements Serializable {
     private final Long userId;
     private final String token;
-    private final String username;
+    public final String username;
 
     public UserDetails(Long userId, String token, String username) {
         this.userId = userId;

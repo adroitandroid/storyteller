@@ -60,7 +60,7 @@ public class Notification {
     public Chapter senderChapter;
 
     @Column(name = "notification_type")
-    private Integer notificationType;
+    public Integer notificationType;
 
     @Column(name = "read_status")
     private Boolean readStatus;
@@ -69,7 +69,7 @@ public class Notification {
     private Timestamp updatedAt;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    public Timestamp createdAt;
 
     private void updateCreatedAndUpdatedTime() {
         this.createdAt = new Timestamp((new Date()).getTime());

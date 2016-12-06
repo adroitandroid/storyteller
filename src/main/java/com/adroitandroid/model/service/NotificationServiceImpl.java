@@ -25,7 +25,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<Notification> getUnreadSortedByEdfAndReadSortedByMruFor(Long userId) {
+    public List<Notification> getUnreadSortedByEdfAndReadSortedByLifoFor(Long userId) {
         List<Notification> notifications
                 = notificationRepository.findByReceiverUserIdAndReadStatusFalseOrderByCreatedAtAsc(userId);
         notifications.addAll(notificationRepository.findByReceiverUserIdAndReadStatusTrueOrderByCreatedAtDesc(userId));

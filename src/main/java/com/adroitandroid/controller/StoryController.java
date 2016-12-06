@@ -43,7 +43,8 @@ public class StoryController extends ChapterCreateUpdateController {
         Long userId = getUserIdFromRequest();
 
         StorySummary storySummary = storyService.getCompleteStoryById(id);
-        JsonElement jsonElement = prepareResponseFrom(storySummary, StorySummary.CHAPTERS, Chapter.CHAPTER_DETAIL);
+        JsonElement jsonElement = prepareResponseFrom(storySummary,
+                StorySummary.PROMPT, StorySummary.CHAPTERS, Chapter.CHAPTER_DETAIL);
         StorySummary storySummaryWithChapterContent = new Gson().fromJson(jsonElement, StorySummary.class);
 
         List<Chapter> chaptersToRemove = storySummaryWithChapterContent.getChapters().stream().filter(chapter

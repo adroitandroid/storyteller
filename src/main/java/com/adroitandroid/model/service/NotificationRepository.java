@@ -12,11 +12,11 @@ import java.util.List;
  */
 interface NotificationRepository extends CrudRepository<Notification, Long> {
 
-    Notification findByReceiverChapter(Chapter receiverChapter);
-
     List<Notification> findByReceiverUserIdAndReadStatusFalseOrderByCreatedAtAsc(Long userId);
 
     List<Notification> findByReceiverUserIdAndReadStatusTrueOrderByCreatedAtDesc(Long userId);
 
     long countByReceiverUserAndReadStatusFalse(User user);
+
+    List<Notification> findByReceiverChapterAndNotificationType(Chapter receiverChapter, Integer notificationType);
 }

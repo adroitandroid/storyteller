@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -57,9 +59,15 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/message/list", method = RequestMethod.GET, produces = "application/json")
-    public JsonElement getAllMessagesFor() {
-        return prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByMruFor(needUserId()),
-                Notification.RECEIVER_CHAPTER, Notification.SENDER_CHAPTER, Notification.SENDER_USER);
+    public List<Message> getAllMessagesFor() {
+        JsonElement jsonElement = prepareResponseFrom(notificationService.getUnreadSortedByEdfAndReadSortedByLifoFor(needUserId()),
+                Notification.RECEIVER_CHAPTER, Notification.SENDER_CHAPTER, Chapter.STORY_SUMMARY, Notification.SENDER_USER);
+        Notification[] notifications = new Gson().fromJson(jsonElement, Notification[].class);
+        List<Message> messageList = new ArrayList<>();
+        for (Notification notification : notifications) {
+            messageList.add(new Message(notification));
+        }
+        return messageList;
     }
 
     @RequestMapping(value = "/drafts", method = RequestMethod.GET, produces = "application/json")
@@ -71,13 +79,13 @@ public class UserController extends AbstractController {
     @RequestMapping(value = "/published", method = RequestMethod.GET, produces = "application/json")
     public JsonElement getAllPublishedFor() {
         return prepareResponseFrom(chapterService.findAllChaptersByAuthorIdWithStatus(needUserId(), true,
-                Chapter.STATUS_PUBLISHED), Chapter.STORY_SUMMARY);
+                Chapter.STATUS_PUBLISHED), Chapter.STORY_SUMMARY, Chapter.CHAPTER_STATS);
     }
 
     @RequestMapping(value = "/set_username", method = RequestMethod.PUT, produces = "application/json")
-    public JsonObject setUsername(@RequestBody User user) {
+    public JsonObject setUsername(@RequestBody UserDetails userDetails) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("success", userService.setUsername(user.getId(), user.username));
+        jsonObject.addProperty("success", userService.setUsername(getUserIdFromRequest(), userDetails.username));
         return jsonObject;
     }
 

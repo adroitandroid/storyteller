@@ -46,7 +46,7 @@ public class ChapterController extends ChapterCreateUpdateController {
      * @param chapterContent
      * @return
      */
-    @RequestMapping(value = "/add_content", method = RequestMethod.PUT)
+    @RequestMapping(value = "/add_content", method = RequestMethod.POST)
     public JsonElement addContent(@RequestBody ChapterContent chapterContent) {
         return prepareResponseFrom(addChapterContent(chapterContent));
     }
@@ -55,7 +55,7 @@ public class ChapterController extends ChapterCreateUpdateController {
      * Called whenever new chapter's content is saved as draft and chapter detail id is known
      * @param chapterDetail
      */
-    @RequestMapping(value = "/edit_content", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/edit_content", method = RequestMethod.PUT)
     public void editContent(@RequestBody ChapterDetail chapterDetail) {
         chapterService.editChapter(chapterDetail);
     }

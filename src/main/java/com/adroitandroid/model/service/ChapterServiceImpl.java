@@ -65,7 +65,7 @@ public class ChapterServiceImpl implements ChapterService {
     public Chapter addChapter(ChapterInput chapterInput) {
         StorySummary storySummary;
         Chapter prevChapter = null;
-        List<Long> traversedChapterIds = null;
+        List<Long> traversedChapterIds = new ArrayList<>();
         if (chapterInput.previousChapterId != null) {
             prevChapter = chapterRepository.findOne(chapterInput.previousChapterId);
             storySummary = prevChapter.getStorySummary();
@@ -119,14 +119,18 @@ public class ChapterServiceImpl implements ChapterService {
         ChapterDetail chapterDetail = new ChapterDetail(chapterContent.getContent());
         ChapterDetail savedChapterDetail = chapterDetailRepository.save(chapterDetail);
         chapterRepository.putChapterDetailId(chapterContent.getChapterId(), savedChapterDetail.getId(), getCurrentTime());
-        Chapter senderChapter = chapterRepository.findOne(chapterContent.getChapterId());
-        markNotificationReadForReceiverChapter(senderChapter);
+        Chapter newChapter = chapterRepository.findOne(chapterContent.getChapterId());
+        if (newChapter.parentChapterId != null) {
+//            If new author came after notified of proposal approval, mark it as read
+            markNotificationReadForReceiverChapter(newChapter, Notification.TYPE_APPROVED_NOTIFICATION);
+        }
         return savedChapterDetail;
     }
 
-    public void markNotificationReadForReceiverChapter(Chapter receiverChapter) {
-        Notification notification = notificationRepository.findByReceiverChapter(receiverChapter);
-        markNotificationAsRead(notification);
+    public void markNotificationReadForReceiverChapter(Chapter receiverChapter, Integer notificationType) {
+        List<Notification> notificationList
+                = notificationRepository.findByReceiverChapterAndNotificationType(receiverChapter, notificationType);
+        notificationList.forEach(this::markNotificationAsRead);
     }
 
     @Override

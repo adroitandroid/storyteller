@@ -10,5 +10,5 @@ import java.util.List;
 public interface NotificationService {
     Boolean anyUnreadNotificationForUserId(Long userId);
 
-    List<Notification> getUnreadSortedByEdfAndReadSortedByMruFor(Long userId);
+    List<Notification> getUnreadSortedByEdfAndReadSortedByLifoFor(Long userId);
 }

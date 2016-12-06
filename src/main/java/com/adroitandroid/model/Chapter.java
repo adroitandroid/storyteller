@@ -21,6 +21,7 @@ import java.util.List;
 public class Chapter implements Serializable {
     public static final String CHAPTER_DETAIL = "chapter_detail_in_chapter_summary";
     public static final String STORY_SUMMARY = "story_summary_in_chapter_summary";
+    public static final String CHAPTER_STATS = "chapter_stats_in_chapter_summary";
 
     public static final int STATUS_PUBLISHED = 3;
     public static final int STATUS_APPROVED = 1;
@@ -54,10 +55,10 @@ public class Chapter implements Serializable {
 
     @Access(AccessType.FIELD)
     @Column(name = "parent_id")
-    private Long parentChapterId;
+    public Long parentChapterId;
 
     @Access(AccessType.FIELD)
-    private String title;
+    public String title;
 
     @Access(AccessType.FIELD)
     private String description;
@@ -82,6 +83,11 @@ public class Chapter implements Serializable {
     @OptionalInGson(exclude = STORY_SUMMARY)
     @Access(AccessType.FIELD)
     private StorySummary storySummary;
+
+    @OptionalInGson(exclude = CHAPTER_STATS)
+    @OneToOne(mappedBy="chapter", fetch=FetchType.LAZY)
+    @Access(value = AccessType.FIELD)
+    private ChapterStats chapterStats;
 
     @Column(name = "author_user_id")
     @Access(AccessType.FIELD)

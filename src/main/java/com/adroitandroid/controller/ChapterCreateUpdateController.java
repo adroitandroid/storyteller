@@ -27,7 +27,7 @@ abstract class ChapterCreateUpdateController extends AbstractController {
         ChapterDetail chapterDetail = chapter.getDetail();
         if (chapterDetail == null) {
             addChapterContent(new ChapterContent(contentToPublish.getChapterId(), contentToPublish.getContent()));
-            getChapterService().markNotificationReadForReceiverChapter(chapter);
+            getChapterService().markNotificationReadForReceiverChapter(chapter, Notification.TYPE_APPROVED_NOTIFICATION);
         } else {
             chapterDetail.setContent(contentToPublish.getContent());
             getChapterService().editChapter(chapterDetail);
