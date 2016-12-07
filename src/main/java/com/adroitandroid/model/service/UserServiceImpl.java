@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final UserChapterRelationRepository userChapterRelationRepository;
     private final ChapterStatsRepository chapterStatsRepository;
     private final UserSessionRepository userSessionRepository;
+    private final UserDetailRepository userDetailsRepository;
 
     @Value("${facebook.uservalidation.url}")
     private String FACEBOOK_TOKEN_VALIDATION_URL;
@@ -54,18 +55,21 @@ public class UserServiceImpl implements UserService {
         rf.setReadTimeout(10 * 1000);
     }
 
+
     public UserServiceImpl(UserRepository userRepository,
                            UserStoryRelationRepository userStoryRelationRepository,
                            StoryStatsRepository storyStatsRepository,
                            UserChapterRelationRepository userChapterRelationRepository,
                            ChapterStatsRepository chapterStatsRepository,
-                           UserSessionRepository userSessionRepository) {
+                           UserSessionRepository userSessionRepository,
+                           UserDetailRepository userDetailsRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
         this.storyStatsRepository = storyStatsRepository;
         this.userChapterRelationRepository = userChapterRelationRepository;
         this.chapterStatsRepository = chapterStatsRepository;
         this.userSessionRepository = userSessionRepository;
+        this.userDetailsRepository = userDetailsRepository;
     }
 
     @Override
@@ -134,7 +138,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CompletableFuture<UserDetails> signIn(UserLoginInfo userLoginInfo)
+    public CompletableFuture<UserLoginDetails> signIn(UserLoginInfo userLoginInfo)
             throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         Date currentTime = new Date();
         UserSession userSession = userSessionRepository.findByAuthTypeAndAuthUserIdAndAccessToken(
@@ -192,7 +196,12 @@ public class UserServiceImpl implements UserService {
         return userStoryRelation != null;
     }
 
-    private UserDetails validateAndRespondWithUserDetails(String userIdFromFacebook, UserLoginInfo userLoginInfo) {
+    @Override
+    public int updateToken(Long userId, String fcmToken) {
+        return userDetailsRepository.updateToken(userId, fcmToken, getCurrentTime());
+    }
+
+    private UserLoginDetails validateAndRespondWithUserDetails(String userIdFromFacebook, UserLoginInfo userLoginInfo) {
         String authUserId = userLoginInfo.getAuthUserId();
         if (userIdFromFacebook == null || !userIdFromFacebook.equals(authUserId)) {
             throw new IllegalArgumentException("incorrect login details");
@@ -209,7 +218,7 @@ public class UserServiceImpl implements UserService {
                 UserSession userSession = userSessionRepository.save(new UserSession(user.getId(), userLoginInfo.getAuthenticationType(),
                         userLoginInfo.getAuthUserId(), userLoginInfo.getAccessToken(), new Date(currentTime.getTime())));
                 String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());
-                return new UserDetails(user.getId(), token, user.getUsername());
+                return new UserLoginDetails(user.getId(), token, user.getUsername());
             } catch (NoSuchAlgorithmException | JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -235,14 +244,14 @@ public class UserServiceImpl implements UserService {
         return Hex.encodeHexString(sha256Hmac.doFinal(data.getBytes("UTF-8")));
     }
 
-    private UserDetails getUserDetailsForExistingUser(UserSession userSession, Long time) {
+    private UserLoginDetails getUserDetailsForExistingUser(UserSession userSession, Long time) {
         Long userId = userSession.getUserId();
         User user = userRepository.findOne(userId);
         user.setLastActiveAt(new Timestamp(time));
         userRepository.save(user);
         try {
             String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());
-            return new UserDetails(userId, token, user.getUsername());
+            return new UserLoginDetails(userId, token, user.getUsername());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

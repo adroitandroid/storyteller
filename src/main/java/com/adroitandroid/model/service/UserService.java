@@ -36,7 +36,7 @@ public interface UserService {
 
     List<UserChapterRelation> getUserBookmarksSortedByRecentFirst(Long userId);
 
-    CompletableFuture<UserDetails> signIn(UserLoginInfo userLoginInfo)
+    CompletableFuture<UserLoginDetails> signIn(UserLoginInfo userLoginInfo)
             throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
     UserSession getUserSessionForAuthToken(String xAuth) throws IOException;
@@ -44,4 +44,6 @@ public interface UserService {
     List<UserChapterRelation> getUserBookmarksFromChapters(Long userId, List<Chapter> chapters);
 
     boolean hasUserLikedStory(Long userId, Long storyId);
+
+    int updateToken(Long userId, String fcmToken);
 }

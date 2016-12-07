@@ -66,3 +66,5 @@ CREATE TABLE chapter_stats (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, chapter_
 CREATE TABLE user_chapter_relation (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, chapter_id INT NOT NULL, relation_id INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0, FOREIGN KEY (chapter_id) REFERENCES chapter_summary(id), FOREIGN KEY (user_id) REFERENCES user(id), UNIQUE KEY `user_chapter_relation_key`(chapter_id, user_id, relation_id));
 
 CREATE TABLE version (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, platform VARCHAR(30) NOT NULL, version_latest INT NOT NULL, version_min_supported INT NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP );
+
+CREATE TABLE user_details (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, fcm_token TEXT NOT NULL CHARACTER SET utf8 NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, soft_deleted TINYINT NOT NULL DEFAULT 0, FOREIGN KEY (user_id) REFERENCES user(id), UNIQUE KEY `user_key`(user_id));

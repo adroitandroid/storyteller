@@ -37,7 +37,7 @@ public class UserController extends AbstractController {
      * @return
      */
     @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
-    public CompletableFuture<UserDetails> signInUser(@RequestBody UserLoginInfo userLoginInfo)
+    public CompletableFuture<UserLoginDetails> signInUser(@RequestBody UserLoginInfo userLoginInfo)
             throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         validateRequest(userLoginInfo);
         return userService.signIn(userLoginInfo);
@@ -49,6 +49,13 @@ public class UserController extends AbstractController {
                 || userLoginInfo.getAuthenticationType() == null) {
             throw new IllegalArgumentException("incomplete login details");
         }
+    }
+
+    @RequestMapping(value = "/token", method = RequestMethod.PUT)
+    public JsonObject updateUserDetailsToken(@RequestBody UserDetailInfo userDetailInfo) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", userService.updateToken(getUserIdFromRequest(), userDetailInfo.fcmToken));
+        return jsonObject;
     }
 
     @RequestMapping(value = "/message", method = RequestMethod.GET, produces = "application/json")
@@ -83,7 +90,7 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/set_username", method = RequestMethod.PUT, produces = "application/json")
-    public JsonObject setUsername(@RequestBody UserDetails userDetails) {
+    public JsonObject setUsername(@RequestBody UserLoginDetails userDetails) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("success", userService.setUsername(getUserIdFromRequest(), userDetails.username));
         return jsonObject;

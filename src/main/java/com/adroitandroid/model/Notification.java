@@ -37,7 +37,7 @@ public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    public Long id;
 
     @OptionalInGson(exclude = RECEIVER_USER)
     @ManyToOne(fetch = FetchType.LAZY)

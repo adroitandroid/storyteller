@@ -15,6 +15,7 @@ public class Message {
     private final Response response;
     private final Chapter proposedChapterSummary;
     private final MessageType type;
+    private final long id;
 
     public Message(Notification notification) {
         this.messageFromUsername = notification.senderUser.username;
@@ -25,6 +26,7 @@ public class Message {
         boolean approvedNotif = Notification.TYPE_APPROVED_NOTIFICATION.equals(notification.notificationType);
         this.proposedChapterSummary = approvedNotif ? notification.receiverChapter : notification.senderChapter;
         this.type = approvedNotif ? MessageType.getApprovalResponseType() : MessageType.getApprovalRequestType();
+        this.id = notification.id;
     }
 
     private static Response getResponseFrom(Notification notification) {

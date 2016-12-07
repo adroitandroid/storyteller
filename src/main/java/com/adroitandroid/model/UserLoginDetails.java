@@ -5,12 +5,12 @@ import java.io.Serializable;
 /**
  * Created by pv on 02/12/16.
  */
-public class UserDetails implements Serializable {
+public class UserLoginDetails implements Serializable {
     private final Long userId;
     private final String token;
     public final String username;
 
-    public UserDetails(Long userId, String token, String username) {
+    public UserLoginDetails(Long userId, String token, String username) {
         this.userId = userId;
         this.token = token;
         this.username = username;
