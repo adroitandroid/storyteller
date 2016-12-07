@@ -1,7 +1,6 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.Notification;
-import com.adroitandroid.model.User;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +20,16 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Boolean anyUnreadNotificationForUserId(Long userId) {
-        return notificationRepository.countByReceiverUserAndReadStatusFalse(new User(userId)) > 0;
+        return notificationRepository.countByReceiverUserIdAndStatusIsBetween(userId,
+                Notification.STATUS_CREATED, Notification.STATUS_DELIVERED) > 0;
     }
 
     @Override
     public List<Notification> getUnreadSortedByEdfAndReadSortedByLifoFor(Long userId) {
         List<Notification> notifications
-                = notificationRepository.findByReceiverUserIdAndReadStatusFalseOrderByCreatedAtAsc(userId);
-        notifications.addAll(notificationRepository.findByReceiverUserIdAndReadStatusTrueOrderByCreatedAtDesc(userId));
+                = notificationRepository.findByReceiverUserIdAndStatusIsBetweenOrderByCreatedAtAsc(
+                        userId, Notification.STATUS_CREATED, Notification.STATUS_DELIVERED);
+        notifications.addAll(notificationRepository.findByReceiverUserIdAndStatusOrderByCreatedAtDesc(userId, Notification.STATUS_READ));
         return notifications;
     }
 }

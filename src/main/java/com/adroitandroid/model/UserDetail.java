@@ -1,6 +1,6 @@
 package com.adroitandroid.model;
 
-import com.adroitandroid.OptionalInGson;
+import com.adroitandroid.serializer.OptionalInGson;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -19,11 +19,11 @@ public class UserDetail {
 
     @OptionalInGson(exclude = USER)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "fcm_token")
-    private String fcmToken;
+    public String fcmToken;
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;

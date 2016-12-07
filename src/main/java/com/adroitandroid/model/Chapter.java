@@ -1,7 +1,7 @@
 package com.adroitandroid.model;
 
-import com.adroitandroid.OptionalInGson;
-import com.adroitandroid.StringToJsonArrayAdapter;
+import com.adroitandroid.serializer.OptionalInGson;
+import com.adroitandroid.serializer.StringToJsonArrayAdapter;
 import com.google.gson.Gson;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.reflect.TypeToken;

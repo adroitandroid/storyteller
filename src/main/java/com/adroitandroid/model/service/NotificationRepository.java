@@ -2,7 +2,6 @@ package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.Chapter;
 import com.adroitandroid.model.Notification;
-import com.adroitandroid.model.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
@@ -12,11 +11,13 @@ import java.util.List;
  */
 interface NotificationRepository extends CrudRepository<Notification, Long> {
 
-    List<Notification> findByReceiverUserIdAndReadStatusFalseOrderByCreatedAtAsc(Long userId);
-
-    List<Notification> findByReceiverUserIdAndReadStatusTrueOrderByCreatedAtDesc(Long userId);
-
-    long countByReceiverUserAndReadStatusFalse(User user);
-
     List<Notification> findByReceiverChapterAndNotificationType(Chapter receiverChapter, Integer notificationType);
+
+    List<Notification> findByReceiverUserIdAndStatusIsBetweenOrderByCreatedAtAsc(Long userId,
+                                                                                 Integer statusCreated,
+                                                                                 Integer statusRead);
+
+    List<Notification> findByReceiverUserIdAndStatusOrderByCreatedAtDesc(Long userId, Integer statusDelivered);
+
+    long countByReceiverUserIdAndStatusIsBetween(Long userId, Integer statusCreated, Integer statusDelivered);
 }

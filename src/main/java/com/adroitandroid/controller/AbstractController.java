@@ -1,7 +1,7 @@
 package com.adroitandroid.controller;
 
-import com.adroitandroid.GsonExclusionStrategy;
-import com.adroitandroid.HibernateProxyTypeAdapter;
+import com.adroitandroid.serializer.GsonExclusionStrategy;
+import com.adroitandroid.serializer.HibernateProxyTypeAdapter;
 import com.adroitandroid.security.DemoAuthenticationToken;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;

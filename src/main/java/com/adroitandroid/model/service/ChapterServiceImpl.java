@@ -1,8 +1,14 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.*;
+import com.adroitandroid.network.ServiceGenerator;
+import com.adroitandroid.network.entity.FcmPushBody;
+import com.adroitandroid.network.entity.FcmResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -22,6 +28,7 @@ public class ChapterServiceImpl implements ChapterService {
     private final ChapterGenreRepository chapterGenreRepository;
     private final StoryGenreRepository storyGenreRepository;
     private final ChapterStatsRepository chapterStatsRepository;
+    private final UserDetailRepository userDetailRepository;
 
     public ChapterServiceImpl(ChapterRepository chapterRepository,
                               StorySummaryRepository storySummaryRepository,
@@ -30,7 +37,8 @@ public class ChapterServiceImpl implements ChapterService {
                               GenreRepository genreRepository,
                               ChapterGenreRepository chapterGenreRepository,
                               StoryGenreRepository storyGenreRepository,
-                              ChapterStatsRepository chapterStatsRepository) {
+                              ChapterStatsRepository chapterStatsRepository,
+                              UserDetailRepository userDetailRepository) {
         this.chapterRepository = chapterRepository;
         this.storySummaryRepository = storySummaryRepository;
         this.notificationRepository = notificationRepository;
@@ -39,6 +47,7 @@ public class ChapterServiceImpl implements ChapterService {
         this.chapterGenreRepository = chapterGenreRepository;
         this.storyGenreRepository = storyGenreRepository;
         this.chapterStatsRepository = chapterStatsRepository;
+        this.userDetailRepository = userDetailRepository;
     }
 
     @Override
@@ -86,7 +95,8 @@ public class ChapterServiceImpl implements ChapterService {
         if (prevChapter != null) {
             Notification newNotification = new Notification(prevChapter, chapter, Notification.TYPE_APPROVAL_REQUEST);
             notificationRepository.save(newNotification);
-//        TODO: send notification as well, TBD
+
+            sendFcmPush(newNotification, true, false);
         }
         return chapter;
     }
@@ -97,14 +107,54 @@ public class ChapterServiceImpl implements ChapterService {
         chapterRepository.updateStatus(
                 chapterId, approval ? Chapter.STATUS_APPROVED : Chapter.STATUS_REJECTED, currentTime);
         Notification notificationForApproval = notificationRepository.findOne(notificationId);
-        markNotificationAsRead(notificationForApproval);
-        notificationRepository.save(new Notification(notificationForApproval.senderChapter,
-                notificationForApproval.receiverChapter, Notification.TYPE_APPROVED_NOTIFICATION));
-//        TODO: send notification as well, TBD
+        updateNotificationStatus(notificationForApproval, Notification.STATUS_READ);
+        Notification notification = new Notification(notificationForApproval.senderChapter,
+                notificationForApproval.receiverChapter, Notification.TYPE_APPROVED_NOTIFICATION);
+        notificationRepository.save(notification);
+
+        sendFcmPush(notification, false, approval);
     }
 
-    private void markNotificationAsRead(Notification notification) {
-        notification.setReadStatusTrue();
+    private void sendFcmPush(Notification notification, boolean isApprovalRequest, boolean approvalResponse) {
+        Long userId = notification.receiverUser.getId();
+        UserDetail userDetail = userDetailRepository.findByUserId(userId);
+        if (userDetail != null && userDetail.fcmToken != null) {
+            ServiceGenerator.getFcmService().sendPush(new FcmPushBody(userDetail.fcmToken, isApprovalRequest, approvalResponse))
+                    .enqueue(new Callback<FcmResponse>() {
+                        @Override
+                        public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
+                            if (response.isSuccessful()) {
+                                List<FcmResponse.FcmResult> fcmResults = response.body().getResults();
+                                FcmResponse.FcmResult fcmResult = fcmResults.get(0);
+                                if (fcmResult.isSuccess()) {
+                                    updateNotificationStatus(notification, Notification.STATUS_SENT);
+                                    String newToken = fcmResult.getRegistrationId();
+                                    if (newToken != null) {
+                                        userDetailRepository.updateToken(userId, newToken, getCurrentTime());
+                                    }
+                                } else if (fcmResult.shouldRemove()) {
+                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_BAD_DETAILS);
+                                    userDetailRepository.updateToken(userId, null, getCurrentTime());
+                                } else if (fcmResult.shouldResend()) {
+                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_QUEUED);
+                                } else if (fcmResult.isUnrecoverableError()) {
+                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_FCM_UNRECOVERABLE_FAILURE);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<FcmResponse> call, Throwable throwable) {
+                            updateNotificationStatus(notification, Notification.STATUS_UNSENT_FCM_FAILURE);
+                        }
+                    });
+        } else {
+            updateNotificationStatus(notification, Notification.STATUS_UNSENT_BAD_DETAILS);
+        }
+    }
+
+    private void updateNotificationStatus(Notification notification, Integer newStatus) {
+        notification.setNewStatus(newStatus);
         notification.updateUpdatedTime();
         notificationRepository.save(notification);
     }
@@ -130,7 +180,7 @@ public class ChapterServiceImpl implements ChapterService {
     public void markNotificationReadForReceiverChapter(Chapter receiverChapter, Integer notificationType) {
         List<Notification> notificationList
                 = notificationRepository.findByReceiverChapterAndNotificationType(receiverChapter, notificationType);
-        notificationList.forEach(this::markNotificationAsRead);
+        notificationList.forEach((notification) -> updateNotificationStatus(notification, Notification.STATUS_READ));
     }
 
     @Override

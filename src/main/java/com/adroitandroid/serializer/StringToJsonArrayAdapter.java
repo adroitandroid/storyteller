@@ -1,4 +1,4 @@
-package com.adroitandroid;
+package com.adroitandroid.serializer;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;

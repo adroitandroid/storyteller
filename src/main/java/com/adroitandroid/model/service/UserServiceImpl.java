@@ -198,7 +198,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int updateToken(Long userId, String fcmToken) {
-        return userDetailsRepository.updateToken(userId, fcmToken, getCurrentTime());
+        if (userId > 0) {
+            return userDetailsRepository.updateToken(userId, fcmToken, getCurrentTime());
+        } else {
+            return 0;
+        }
     }
 
     private UserLoginDetails validateAndRespondWithUserDetails(String userIdFromFacebook, UserLoginInfo userLoginInfo) {

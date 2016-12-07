@@ -1,6 +1,6 @@
 package com.adroitandroid.model;
 
-import com.adroitandroid.OptionalInGson;
+import com.adroitandroid.serializer.OptionalInGson;
 
 import javax.persistence.*;
 import java.sql.Timestamp;

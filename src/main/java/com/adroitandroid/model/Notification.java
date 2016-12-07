@@ -1,6 +1,6 @@
 package com.adroitandroid.model;
 
-import com.adroitandroid.OptionalInGson;
+import com.adroitandroid.serializer.OptionalInGson;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -16,6 +16,15 @@ public class Notification {
     public static final Integer TYPE_APPROVAL_REQUEST = 1;
     public static final Integer TYPE_APPROVED_NOTIFICATION = 2;
 
+    public static final Integer STATUS_CREATED = 0;
+    public static final Integer STATUS_SENT = 1;
+    public static final Integer STATUS_DELIVERED = 2;
+    public static final Integer STATUS_READ = 3;
+    public static final Integer STATUS_UNSENT_QUEUED = -1;
+    public static final Integer STATUS_UNSENT_FCM_FAILURE = -2;
+    public static final Integer STATUS_UNSENT_FCM_UNRECOVERABLE_FAILURE = -3;
+    public static final Integer STATUS_UNSENT_BAD_DETAILS = -4;
+
     public static final String RECEIVER_CHAPTER = "receiver_chapter_in_notifications";
     public static final String SENDER_CHAPTER = "sender_chapter_in_notifications";
     public static final String RECEIVER_USER = "receiver_user_in_notifications";
@@ -23,7 +32,7 @@ public class Notification {
 
     public Notification(Chapter receiverChapter, Chapter senderChapter, Integer type) {
         this.notificationType = type;
-        this.readStatus = false;
+        this.status = STATUS_CREATED;
         this.receiverChapter = receiverChapter;
         this.senderChapter = senderChapter;
         this.receiverUser = new User(receiverChapter.getAuthorUserId());
@@ -62,8 +71,8 @@ public class Notification {
     @Column(name = "notification_type")
     public Integer notificationType;
 
-    @Column(name = "read_status")
-    private Boolean readStatus;
+    @Column(name = "status")
+    private Integer status;
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
@@ -80,7 +89,7 @@ public class Notification {
         this.updatedAt = new Timestamp((new Date()).getTime());
     }
 
-    public void setReadStatusTrue() {
-        this.readStatus = true;
+    public void setNewStatus(Integer newStatus) {
+        this.status = newStatus;
     }
 }
