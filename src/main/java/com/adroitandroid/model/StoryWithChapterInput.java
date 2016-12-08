@@ -10,7 +10,7 @@ public class StoryWithChapterInput {
     public String storyTitle;
     public String chapterTitle;
     public String chapterPlot;
-    public Long userId;
+    public Long userId; //client value ignored
     public String chapterContent;
     public Boolean endsStory;
     public List<String> genreNames;

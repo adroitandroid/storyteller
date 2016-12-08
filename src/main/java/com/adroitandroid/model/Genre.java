@@ -14,7 +14,6 @@ public class Genre {
     @Id
     private Integer id;
 
-    @Column(name = "genre_name")
     private String name;
 
     public Integer getId() {
