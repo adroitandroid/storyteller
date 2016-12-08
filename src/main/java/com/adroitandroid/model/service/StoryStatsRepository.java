@@ -26,6 +26,6 @@ interface StoryStatsRepository extends CrudRepository<StoryStats, Long> {
     void save(Long storySummaryId);
 
     @Modifying
-    @Query(nativeQuery = true, value = "insert into story_stats(user_id, story_id, relation_id, created_at, updated_at) values(?1, ?2, ?3, ?4, ?4) on duplicate key update soft_deleted = 0, updated_at = ?4")
+    @Query(nativeQuery = true, value = "insert into story_stats(story_id, num_reads) values(?1, 1) on duplicate key update num_reads = num_reads + 1")
     void incrementReads(Long storySummaryId);
 }
