@@ -3,6 +3,7 @@ package com.adroitandroid.model;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Created by pv on 06/12/16.
@@ -16,6 +17,7 @@ public class Message {
     private final Chapter proposedChapterSummary;
     private final MessageType type;
     private final long id;
+    private final int chapterNumber;
 
     public Message(Notification notification) {
         this.messageFromUsername = notification.senderUser.username;
@@ -27,6 +29,12 @@ public class Message {
         this.proposedChapterSummary = approvedNotif ? notification.receiverChapter : notification.senderChapter;
         this.type = approvedNotif ? MessageType.getApprovalResponseType() : MessageType.getApprovalRequestType();
         this.id = notification.id;
+        this.chapterNumber = getChapterNumberFrom(approvedNotif ? notification.senderChapter : notification.receiverChapter);
+    }
+
+    private int getChapterNumberFrom(Chapter chapter) {
+        List<Long> traversal = chapter.getTraversal();
+        return traversal == null ? 2 : traversal.size() + 2;
     }
 
     private static Response getResponseFrom(Notification notification) {
