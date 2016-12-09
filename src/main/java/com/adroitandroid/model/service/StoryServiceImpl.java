@@ -1,5 +1,6 @@
 package com.adroitandroid.model.service;
 
+import com.adroitandroid.model.Prompt;
 import com.adroitandroid.model.StorySummary;
 import com.adroitandroid.model.StoryWithChapterInput;
 import org.springframework.stereotype.Component;
@@ -16,11 +17,14 @@ public class StoryServiceImpl implements StoryService {
 
     private final StorySummaryRepository storySummaryRepository;
     private final StoryStatsRepository storyStatsRepository;
+    private final PromptRepository promptRepository;
 
     public StoryServiceImpl(StorySummaryRepository storySummaryRepository,
-                            StoryStatsRepository storyStatsRepository) {
+                            StoryStatsRepository storyStatsRepository,
+                            PromptRepository promptRepository) {
         this.storySummaryRepository = storySummaryRepository;
         this.storyStatsRepository = storyStatsRepository;
+        this.promptRepository = promptRepository;
     }
 
     @Override
@@ -40,7 +44,9 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     public StorySummary add(Long promptId, String storyTitle) {
-        return storySummaryRepository.save(new StorySummary(storyTitle, promptId));
+        Prompt prompt = promptRepository.findOne(promptId);
+        StorySummary storySummary = new StorySummary(storyTitle, prompt);
+        return storySummaryRepository.save(storySummary);
     }
 
     @Override

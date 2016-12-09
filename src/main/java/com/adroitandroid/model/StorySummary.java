@@ -26,11 +26,11 @@ public class StorySummary implements Serializable {
     @OptionalInGson(exclude = CHAPTERS)
     private List<Chapter> chapters;
 
+    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name="prompt_stories",
             joinColumns={@JoinColumn(name="story_id", referencedColumnName="id")},
             inverseJoinColumns={@JoinColumn(name="prompt_id", referencedColumnName="id")})
     @OptionalInGson(exclude = PROMPT)
-    @ManyToOne(fetch=FetchType.LAZY)
     @Access(value = AccessType.FIELD)
     private Prompt prompt;
 
@@ -54,9 +54,9 @@ public class StorySummary implements Serializable {
 //        default contructor required by hibernate
     }
 
-    public StorySummary(String storyTitle, Long promptId) {
+    public StorySummary(String storyTitle, Prompt promptFromDb) {
         this.title = storyTitle;
-        this.prompt = new Prompt(promptId);
+        this.prompt = promptFromDb;
         updateCreatedAndUpdatedTime();
     }
 
