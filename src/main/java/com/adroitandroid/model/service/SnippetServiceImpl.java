@@ -47,7 +47,7 @@ public class SnippetServiceImpl implements SnippetService {
     public Snippet addNewSnippet(Snippet snippet) {
         User user = userRepository.findOne(snippet.getAuthorUser().getId());
         snippet.setAuthorUser(user);
-        snippet.setCreatedTimeAsCurrent();
+        snippet.init();
         if (snippet.getParentSnippetId() == null) {
             snippet.setParentSnippetId(-1L);
         }

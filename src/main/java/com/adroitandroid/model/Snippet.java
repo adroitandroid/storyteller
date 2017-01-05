@@ -1,6 +1,9 @@
 package com.adroitandroid.model;
 
+import com.adroitandroid.serializer.OptionalInGson;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -9,7 +12,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "snippet")
-public class Snippet {
+public class Snippet implements Serializable {
     public Long id;
 
     @Access(AccessType.FIELD)
@@ -28,6 +31,15 @@ public class Snippet {
     @Column(name = "created_at")
     @Access(AccessType.FIELD)
     public Timestamp createdAt;
+
+    @OptionalInGson(exclude = "snippet_stats")
+    @OneToOne(mappedBy="snippet", cascade=CascadeType.ALL)
+    @Access(value = AccessType.FIELD)
+    private SnippetStats snippetStats;
+
+    public Snippet() {
+//        default constructor required by hibernate
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -65,7 +77,13 @@ public class Snippet {
         this.rootSnippetId = rootSnippetId;
     }
 
-    public void setCreatedTimeAsCurrent() {
+    private void setCreatedTimeAsCurrent() {
         this.createdAt = new Timestamp((new Date()).getTime());
+    }
+
+    public void init() {
+        setCreatedTimeAsCurrent();
+        this.snippetStats = new SnippetStats(this.createdAt);
+        this.snippetStats.snippet = this;
     }
 }
