@@ -1,5 +1,7 @@
 package com.adroitandroid.model;
 
+import com.adroitandroid.serializer.OptionalInGson;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -10,6 +12,8 @@ import java.util.Date;
 @Entity
 @Table(name = "user")
 public class User {
+
+    public static final String AUTH_TYPE = "auth_type";
 
     public User() {
 //        Empty constructor as required by hibernate
@@ -31,7 +35,8 @@ public class User {
     public String username;
 
     @JoinColumn(name = "auth_type_id")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @OptionalInGson(exclude = AUTH_TYPE)
     @Access(AccessType.FIELD)
     private AuthenticationType authType;
 

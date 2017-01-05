@@ -8,7 +8,7 @@ import javax.persistence.Table;
  * Created by pv on 02/12/16.
  */
 @Entity
-@Table(name = "user_auth_type")
+@Table(name = "auth_type")
 public class AuthenticationType {
 
     static final String FACEBOOK = "facebook";
