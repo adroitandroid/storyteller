@@ -4,6 +4,7 @@ import com.adroitandroid.model.Snippet;
 import com.adroitandroid.model.SnippetListItem;
 import com.adroitandroid.model.UserSnippetVote;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,4 +17,6 @@ public interface SnippetService {
     Snippet addNewSnippet(Snippet snippet);
 
     UserSnippetVote addUserVote(UserSnippetVote userSnippetVote);
+
+    List<SnippetListItem> getSnippetTreeWithRootId(long id);
 }

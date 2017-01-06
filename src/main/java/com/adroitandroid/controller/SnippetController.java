@@ -6,10 +6,7 @@ import com.adroitandroid.model.UserSnippetVote;
 import com.adroitandroid.model.service.SnippetService;
 import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,5 +51,10 @@ public class SnippetController extends AbstractController {
     @RequestMapping(value = "/vote/", method = RequestMethod.PUT, produces = "application/json")
     public UserSnippetVote addUserVoteForSnippet(@RequestBody UserSnippetVote userSnippetVote) {
         return snippetService.addUserVote(userSnippetVote);
+    }
+
+    @RequestMapping(value = "/{id}/tree/", method = RequestMethod.GET, produces = "application/json")
+    public List<SnippetListItem> getSnippetTreeFor(@PathVariable long id) {
+        return snippetService.getSnippetTreeWithRootId(id);
     }
 }

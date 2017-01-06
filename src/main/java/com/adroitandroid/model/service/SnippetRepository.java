@@ -29,4 +29,7 @@ public interface SnippetRepository extends PagingAndSortingRepository<Snippet, L
 
     @Query(value = "select new com.adroitandroid.model.SnippetListItemForTrending(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND s.id IN :ids")
     List<SnippetListItemForTrending> findSnippetsWithIds(@Param("ids") Set<Long> snippetIds);
+
+    @Query(value = "select new com.adroitandroid.model.SnippetListItem(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND s.rootSnippetId = ?1")
+    List<SnippetListItem> findByRootSnippetId(long id);
 }

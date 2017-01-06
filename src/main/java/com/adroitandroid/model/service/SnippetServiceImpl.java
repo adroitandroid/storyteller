@@ -159,4 +159,15 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
                 snippetVote.getSnippet().getSnippetStats().getVoteSum() + deltaVote);
         return snippetVote;
     }
+
+    @Override
+    public List<SnippetListItem> getSnippetTreeWithRootId(long id) {
+        Type listType = new TypeToken<ArrayList<SnippetListItem>>() {}.getType();
+        List<SnippetListItem> snippetListForRoot = snippetRepository.findByRootSnippetId(id);
+        for (SnippetListItem snippetListItem : snippetListForRoot) {
+            snippetListItem.removeParentIfDummy();
+        }
+        JsonElement jsonElement = prepareResponseFrom(snippetListForRoot);
+        return new Gson().fromJson(jsonElement, listType);
+    }
 }
