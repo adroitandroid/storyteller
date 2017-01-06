@@ -2,6 +2,7 @@ package com.adroitandroid.controller;
 
 import com.adroitandroid.model.Snippet;
 import com.adroitandroid.model.SnippetListItem;
+import com.adroitandroid.model.UserSnippetVote;
 import com.adroitandroid.model.service.SnippetService;
 import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +49,10 @@ public class SnippetController extends AbstractController {
     public JsonElement addNewSnippet(@RequestBody Snippet snippet) {
         Snippet addedSnippet = snippetService.addNewSnippet(snippet);
         return prepareResponseFrom(addedSnippet);
+    }
+
+    @RequestMapping(value = "/vote/", method = RequestMethod.PUT, produces = "application/json")
+    public UserSnippetVote addUserVoteForSnippet(@RequestBody UserSnippetVote userSnippetVote) {
+        return snippetService.addUserVote(userSnippetVote);
     }
 }

@@ -90,4 +90,8 @@ public class Snippet implements Serializable {
         this.snippetStats = new SnippetStats(this.createdAt);
         this.snippetStats.snippet = this;
     }
+
+    public SnippetStats getSnippetStats() {
+        return snippetStats;
+    }
 }

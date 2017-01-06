@@ -54,4 +54,12 @@ public class SnippetStats implements Serializable {
     public Timestamp getUpdatedAt() {
         return updatedAt;
     }
+
+    public Long getVoteSum() {
+        return voteSum;
+    }
+
+    public void setVoteSum(long voteSum) {
+        this.voteSum = voteSum;
+    }
 }

@@ -2,6 +2,7 @@ package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.Snippet;
 import com.adroitandroid.model.SnippetListItem;
+import com.adroitandroid.model.UserSnippetVote;
 
 import java.util.List;
 import java.util.Set;
@@ -19,4 +20,6 @@ public interface SnippetService {
     List<Snippet> getNormalSnippetsForFeed();
 
     Snippet addNewSnippet(Snippet snippet);
+
+    UserSnippetVote addUserVote(UserSnippetVote userSnippetVote);
 }

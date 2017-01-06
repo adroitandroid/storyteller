@@ -23,10 +23,20 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     public static final int MIN_SNIPPET_LIST_SIZE = 40;
     private SnippetRepository snippetRepository;
     private UserRepository userRepository;
+    private UserSnippetVoteRepository userSnippetVoteRepository;
+    private SnippetStatsRepository snippetStatsRepository;
+    private RecentVoteRepository recentVoteRepository;
 
-    public SnippetServiceImpl(SnippetRepository snippetRepository, UserRepository userRepository) {
+    public SnippetServiceImpl(SnippetRepository snippetRepository,
+                              UserRepository userRepository,
+                              UserSnippetVoteRepository userSnippetVoteRepository,
+                              SnippetStatsRepository snippetStatsRepository,
+                              RecentVoteRepository recentVoteRepository) {
         this.snippetRepository = snippetRepository;
         this.userRepository = userRepository;
+        this.userSnippetVoteRepository = userSnippetVoteRepository;
+        this.snippetStatsRepository = snippetStatsRepository;
+        this.recentVoteRepository = recentVoteRepository;
     }
 
     public List<Snippet> getTrendingSnippetsForFeed() {
@@ -105,5 +115,44 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
             snippetInDb = snippetRepository.save(snippetInDb);
         }
         return snippetInDb;
+    }
+
+    @Override
+    public UserSnippetVote addUserVote(UserSnippetVote userSnippetVote) {
+        Timestamp currentTime = new Timestamp((new Date()).getTime());
+        Long snippetId = userSnippetVote.getSnippet().getId();
+        Long userId = userSnippetVote.getUser().getId();
+        Integer newVote = userSnippetVote.getVote();
+
+        RecentVote recentVote = new RecentVote(snippetId, userId);
+        RecentVote existingUserSnippetVote = recentVoteRepository.findByUserIdAndSnippetId(userId, snippetId);
+        if (existingUserSnippetVote != null) {
+            recentVoteRepository.delete(existingUserSnippetVote);
+        }
+        recentVoteRepository.save(recentVote);
+        UserSnippetVote existingVote = userSnippetVoteRepository.findByUserIdAndSnippetId(userId, snippetId);
+
+        Integer deltaVote;
+        if (existingVote == null) {
+            deltaVote = newVote;
+            snippetStatsRepository.updateVotes(snippetId, 1, deltaVote, currentTime);
+            userSnippetVote.setSnippet(snippetRepository.findOne(snippetId));
+            userSnippetVote.setUser(userRepository.findOne(userId));
+        } else {
+            deltaVote = newVote - existingVote.getVote();
+            snippetStatsRepository.updateVotes(snippetId, 0, deltaVote, currentTime);
+            existingVote.setVote(userSnippetVote.getVote());
+            userSnippetVote = existingVote;
+        }
+        userSnippetVote.setUpdatedAt(currentTime);
+        UserSnippetVote savedVote = userSnippetVoteRepository.save(userSnippetVote);
+
+        JsonElement jsonElement
+                = prepareResponseFrom(savedVote, UserSnippetVote.SNIPPET_IN_USER_VOTES, Snippet.SNIPPET_STATS_IN_SNIPPET);
+        UserSnippetVote snippetVote = new Gson().fromJson(jsonElement, UserSnippetVote.class);
+//        TODO: snippet stats is being retrieved from within transaction
+        snippetVote.getSnippet().getSnippetStats().setVoteSum(
+                snippetVote.getSnippet().getSnippetStats().getVoteSum() + deltaVote);
+        return snippetVote;
     }
 }
