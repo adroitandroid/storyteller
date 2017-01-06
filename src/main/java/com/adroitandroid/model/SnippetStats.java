@@ -50,4 +50,8 @@ public class SnippetStats implements Serializable {
         this.numVotes = 0L;
         this.voteSum = 0L;
     }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
 }

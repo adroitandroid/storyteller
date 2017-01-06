@@ -13,11 +13,15 @@ import java.util.Date;
 @Entity
 @Table(name = "snippet")
 public class Snippet implements Serializable {
+    public static final String SNIPPET_STATS_IN_SNIPPET = "snippet_stats_in_snippet";
+    public static final String AUTHOR_USER_IN_SNIPPET = "author_user_in_snippet";
+    public static final Long DUMMY_SNIPPET_ID = -1L;
     public Long id;
 
     @Access(AccessType.FIELD)
     private String content;
 
+    @OptionalInGson(exclude = AUTHOR_USER_IN_SNIPPET)
     private User authorUser;
 
     @Column(name = "parent_snippet_id")
@@ -32,8 +36,8 @@ public class Snippet implements Serializable {
     @Access(AccessType.FIELD)
     public Timestamp createdAt;
 
-    @OptionalInGson(exclude = "snippet_stats")
-    @OneToOne(mappedBy="snippet", cascade=CascadeType.ALL)
+    @OneToOne(mappedBy="snippet", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @OptionalInGson(exclude = SNIPPET_STATS_IN_SNIPPET)
     @Access(value = AccessType.FIELD)
     private SnippetStats snippetStats;
 

@@ -43,7 +43,7 @@ INSERT INTO auth_type VALUES (DEFAULT, 'facebook'), (DEFAULT, 'phone'), (DEFAULT
 
 CREATE TABLE user_relations (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL, follower_user_id INT NOT NULL, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, soft_deleted TINYINT NOT NULL DEFAULT 0, FOREIGN KEY (user_id) REFERENCES user(`id`), FOREIGN KEY (follower_user_id) REFERENCES user(id)) ENGINE=INNODB;
 
-CREATE TABLE user_stats (user_id INT NOT NULL PRIMARY KEY, num_snippets INT NOT NULL DEFAULT 0, num_followers INT NOT NULL DEFAULT 0, net_votes INT NOT NULL DEFAULT 0, FOREIGN KEY (user_id) REFERENCES user(id)) ENGINE=INNODB;
+CREATE TABLE user_stats (user_id INT NOT NULL PRIMARY KEY, num_snippets INT NOT NULL DEFAULT 0, num_followers INT NOT NULL DEFAULT 0, net_votes INT NOT NULL DEFAULT 0, FOREIGN KEY (user_id) REFERENCES user(id), INDEX `vote_sum` (`vote_sum`), INDEX `num_votes` (`num_votes`)) ENGINE=INNODB;
 
 CREATE TABLE snippet (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, content VARCHAR(160) NOT NULL, author_user_id INT NOT NULL, parent_snippet_id INT NOT NULL DEFAULT -1, root_snippet_id INT, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (`author_user_id`) REFERENCES user(id), KEY(parent_snippet_id), KEY(root_snippet_id)) ENGINE=INNODB;
 
