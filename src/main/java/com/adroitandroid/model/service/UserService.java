@@ -46,4 +46,6 @@ public interface UserService {
     boolean hasUserLikedStory(Long userId, Long storyId);
 
     int updateToken(Long userId, String fcmToken);
+
+    void updateUserBookmark(UserBookmark userBookmark);
 }

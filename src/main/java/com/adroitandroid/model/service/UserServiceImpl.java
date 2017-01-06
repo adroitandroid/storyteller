@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final ChapterStatsRepository chapterStatsRepository;
     private final UserSessionRepository userSessionRepository;
     private final UserDetailRepository userDetailsRepository;
+    private final UserBookmarkRepository userBookmarkRepository;
 
     @Value("${facebook.uservalidation.url}")
     private String FACEBOOK_TOKEN_VALIDATION_URL;
@@ -56,13 +57,15 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
     public UserServiceImpl(UserRepository userRepository,
                            UserStoryRelationRepository userStoryRelationRepository,
                            StoryStatsRepository storyStatsRepository,
                            UserChapterRelationRepository userChapterRelationRepository,
                            ChapterStatsRepository chapterStatsRepository,
                            UserSessionRepository userSessionRepository,
-                           UserDetailRepository userDetailsRepository) {
+                           UserDetailRepository userDetailsRepository,
+                           UserBookmarkRepository userBookmarkRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
         this.storyStatsRepository = storyStatsRepository;
@@ -70,6 +73,7 @@ public class UserServiceImpl implements UserService {
         this.chapterStatsRepository = chapterStatsRepository;
         this.userSessionRepository = userSessionRepository;
         this.userDetailsRepository = userDetailsRepository;
+        this.userBookmarkRepository = userBookmarkRepository;
     }
 
     @Override
@@ -203,6 +207,12 @@ public class UserServiceImpl implements UserService {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public void updateUserBookmark(UserBookmark userBookmark) {
+         userBookmarkRepository.update(userBookmark.getUserId(),
+                 userBookmark.getSnippet().getId(), userBookmark.getSoftDeleted() ? 1 : 0);
     }
 
     private UserLoginDetails validateAndRespondWithUserDetails(String userIdFromFacebook, UserLoginInfo userLoginInfo) {

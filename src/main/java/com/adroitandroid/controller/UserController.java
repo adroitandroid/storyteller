@@ -174,4 +174,9 @@ public class UserController extends AbstractController {
         }
         return stories;
     }
+
+    @RequestMapping(value = "/bookmark/", method = RequestMethod.PUT, produces = "application/json")
+    public void updateUserBookmark(@RequestBody UserBookmark userBookmark) {
+        userService.updateUserBookmark(userBookmark);
+    }
 }
