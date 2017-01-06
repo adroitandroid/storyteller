@@ -66,4 +66,9 @@ public class SnippetListItem {
     public boolean equals(Object obj) {
         return obj instanceof SnippetListItem && this.snippet.getId().equals(((SnippetListItem)obj).snippet.getId());
     }
+
+    @Override
+    public int hashCode() {
+        return this.snippet.getId().hashCode();
+    }
 }

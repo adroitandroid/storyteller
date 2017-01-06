@@ -8,6 +8,6 @@ import java.math.BigInteger;
 /**
  * Created by pv on 06/01/17.
  */
-public interface RecentVoteRepository extends MongoRepository<RecentVote, BigInteger> {
+public interface RecentVoteRepository extends MongoRepository<RecentVote, BigInteger>, RecentVoteRepositoryCustom {
     RecentVote findByUserIdAndSnippetId(Long userId, Long snippetId);
 }

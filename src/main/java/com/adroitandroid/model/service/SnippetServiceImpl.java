@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by pv on 05/01/17.
@@ -21,6 +22,7 @@ import java.util.*;
 public class SnippetServiceImpl extends AbstractService implements SnippetService {
     private static final long MIN_VOTES_FOR_NOT_NEW = 6L;
     public static final int MIN_SNIPPET_LIST_SIZE = 40;
+    private static final int MIN_FREQUENCY_FOR_TRENDING = 10;
     private SnippetRepository snippetRepository;
     private UserRepository userRepository;
     private UserSnippetVoteRepository userSnippetVoteRepository;
@@ -39,16 +41,6 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         this.recentVoteRepository = recentVoteRepository;
     }
 
-    public List<Snippet> getTrendingSnippetsForFeed() {
-//        TODO: implement
-        return null;
-    }
-
-    public List<Snippet> getPopularSnippetsForFeed() {
-//        TODO: implement
-        return null;
-    }
-
     public Set<SnippetListItem> getSnippetsForFeed() {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(new Date());
@@ -56,11 +48,10 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         Timestamp yesterday = new Timestamp(calendar.getTime().getTime());
 
         HashSet<SnippetListItem> snippetListItems = new HashSet<>();
-        snippetListItems.addAll(getSnippetListItemSortedByCreateDate());
-        snippetListItems.addAll(getSnippetListItemsForPopular());
+        snippetListItems.addAll(getSnippetListItemsForTrending());
         snippetListItems.addAll(getSnippetListItemsForNew(yesterday));
-//    TODO: implement
-//        snippetListItems.addAll(getSnippetListItemsForTrending(yesterday));
+        snippetListItems.addAll(getSnippetListItemsForPopular());
+        snippetListItems.addAll(getSnippetListItemSortedByCreateDate());
         for (SnippetListItem snippetListItem : snippetListItems) {
             snippetListItem.removeParentIfDummy();
         }
@@ -76,10 +67,28 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         return new Gson().fromJson(jsonElement, listType);
     }
 
-//    TODO: implement
-//    private List<SnippetListItemForTrending> getSnippetListItemsForTrending(Timestamp yesterday) {
-//        return null;
-//    }
+    private List<SnippetListItemForTrending> getSnippetListItemsForTrending() {
+        ArrayList<RecentSnippet> recentSnippets = new ArrayList<>(recentVoteRepository.getRecentSnippets());
+        int i = 0;
+        while (i < recentSnippets.size()) {
+            if (recentSnippets.get(i).getFrequency() >= MIN_FREQUENCY_FOR_TRENDING) {
+                i++;
+            } else {
+                recentSnippets.remove(i);
+            }
+        }
+        if (recentSnippets.size() > 0) {
+            Set<Long> snippetIdSet = recentSnippets.stream().map(RecentSnippet::getSnippetId).collect(Collectors.toSet());
+            List<SnippetListItemForTrending> trendingSnippetListItems = snippetRepository.findSnippetsWithIds(snippetIdSet);
+
+            Type listType = new TypeToken<ArrayList<SnippetListItemForNew>>() {
+            }.getType();
+            JsonElement jsonElement = prepareResponseFrom(trendingSnippetListItems);
+            return new Gson().fromJson(jsonElement, listType);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 
     private List<SnippetListItemForPopular> getSnippetListItemsForPopular() {
         Type listType = new TypeToken<ArrayList<SnippetListItemForNew>>() {}.getType();
@@ -94,11 +103,6 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
                 = snippetRepository.findSnippetsForNewFeed(yesterday, MIN_VOTES_FOR_NOT_NEW);
         JsonElement jsonElement = prepareResponseFrom(snippetsForNewFeed);
         return new Gson().fromJson(jsonElement, listType);
-    }
-
-    public List<Snippet> getNormalSnippetsForFeed() {
-//        TODO: implement
-        return null;
     }
 
     @Override
