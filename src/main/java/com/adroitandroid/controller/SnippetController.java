@@ -2,6 +2,7 @@ package com.adroitandroid.controller;
 
 import com.adroitandroid.model.Snippet;
 import com.adroitandroid.model.SnippetListItem;
+import com.adroitandroid.model.Story;
 import com.adroitandroid.model.UserSnippetVote;
 import com.adroitandroid.model.service.SnippetService;
 import com.google.gson.JsonElement;
@@ -46,6 +47,12 @@ public class SnippetController extends AbstractController {
     public JsonElement addNewSnippet(@RequestBody Snippet snippet) {
         Snippet addedSnippet = snippetService.addNewSnippet(snippet);
         return prepareResponseFrom(addedSnippet);
+    }
+
+    @RequestMapping(value = "/end/", method = RequestMethod.POST)
+    public JsonElement addNewEnd(@RequestBody Story story) {
+        Story addedStory = snippetService.addNewEnd(story);
+        return prepareResponseFrom(addedStory);
     }
 
     @RequestMapping(value = "/vote/", method = RequestMethod.PUT, produces = "application/json")

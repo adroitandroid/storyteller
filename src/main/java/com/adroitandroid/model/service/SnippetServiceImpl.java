@@ -28,17 +28,20 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     private UserSnippetVoteRepository userSnippetVoteRepository;
     private SnippetStatsRepository snippetStatsRepository;
     private RecentVoteRepository recentVoteRepository;
+    private StoryRepository storyRepository;
 
     public SnippetServiceImpl(SnippetRepository snippetRepository,
                               UserRepository userRepository,
                               UserSnippetVoteRepository userSnippetVoteRepository,
                               SnippetStatsRepository snippetStatsRepository,
-                              RecentVoteRepository recentVoteRepository) {
+                              RecentVoteRepository recentVoteRepository,
+                              StoryRepository storyRepository) {
         this.snippetRepository = snippetRepository;
         this.userRepository = userRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
         this.snippetStatsRepository = snippetStatsRepository;
         this.recentVoteRepository = recentVoteRepository;
+        this.storyRepository = storyRepository;
     }
 
     public Set<SnippetListItem> getSnippetsForFeed() {
@@ -169,5 +172,23 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         }
         JsonElement jsonElement = prepareResponseFrom(snippetListForRoot);
         return new Gson().fromJson(jsonElement, listType);
+    }
+
+    @Override
+    public Story addNewEnd(Story story) {
+        User user = userRepository.findOne(story.getEndSnippet().getAuthorUser().getId());
+        story.getEndSnippet().setAuthorUser(user);
+        story.getEndSnippet().init();
+////        Not required since story cannot be one snippet long
+//        if (story.getEndSnippet().getParentSnippetId() == null) {
+//            story.getEndSnippet().setParentSnippetId(-1L);
+//        }
+        Story storyInDb = storyRepository.save(story);
+////        Not required since story cannot be one snippet long
+//        if (story.getEndSnippet().getRootSnippetId() == null) {
+//            storyInDb.getEndSnippet().setRootSnippetId(storyInDb.getId());
+//            storyInDb.setEndSnippet(snippetRepository.save(storyInDb.getEndSnippet()));
+//        }
+        return storyInDb;
     }
 }
