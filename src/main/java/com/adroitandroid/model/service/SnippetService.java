@@ -1,9 +1,6 @@
 package com.adroitandroid.model.service;
 
-import com.adroitandroid.model.Snippet;
-import com.adroitandroid.model.SnippetListItem;
-import com.adroitandroid.model.Story;
-import com.adroitandroid.model.UserSnippetVote;
+import com.adroitandroid.model.*;
 
 import java.util.List;
 import java.util.Set;
@@ -22,4 +19,6 @@ public interface SnippetService {
     List<SnippetListItem> getSnippetTreeWithRootId(long id);
 
     Story addNewEnd(Story story);
+
+    Set<StoryListItem> getStoriesForFeed();
 }

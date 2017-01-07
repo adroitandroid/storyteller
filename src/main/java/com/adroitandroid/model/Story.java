@@ -2,6 +2,7 @@ package com.adroitandroid.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
  * Created by pv on 07/01/17.
@@ -18,6 +19,9 @@ public class Story implements Serializable {
     private String tags;
 
     private Snippet endSnippet;
+
+    @Column(name = "created_at")
+    private Timestamp createdAt;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -61,5 +65,13 @@ public class Story implements Serializable {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }

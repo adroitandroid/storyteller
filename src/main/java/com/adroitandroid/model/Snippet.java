@@ -32,6 +32,10 @@ public class Snippet implements Serializable {
     @Access(AccessType.FIELD)
     public Long rootSnippetId;
 
+    @Column(name = "ends_story")
+    @Access(AccessType.FIELD)
+    public Boolean endsStory;
+
     @Column(name = "created_at")
     @Access(AccessType.FIELD)
     public Timestamp createdAt;
@@ -85,10 +89,11 @@ public class Snippet implements Serializable {
         this.createdAt = new Timestamp((new Date()).getTime());
     }
 
-    public void init() {
+    public void init(boolean endsStory) {
         setCreatedTimeAsCurrent();
         this.snippetStats = new SnippetStats(this.createdAt);
         this.snippetStats.snippet = this;
+        this.endsStory = endsStory;
     }
 
     public SnippetStats getSnippetStats() {

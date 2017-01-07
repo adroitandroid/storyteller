@@ -1,9 +1,6 @@
 package com.adroitandroid.controller;
 
-import com.adroitandroid.model.Snippet;
-import com.adroitandroid.model.SnippetListItem;
-import com.adroitandroid.model.Story;
-import com.adroitandroid.model.UserSnippetVote;
+import com.adroitandroid.model.*;
 import com.adroitandroid.model.service.SnippetService;
 import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +24,7 @@ public class SnippetController extends AbstractController {
      * Defining popular as those having the favour of most => vote sum > num votes / 2 => 75%+ users liked it, <- most recent created first
      */
     @RequestMapping(value = "/feed", method = RequestMethod.GET)
-    public List<SnippetListItem> getSnippetsForNewFeed() {
+    public List<SnippetListItem> getSnippetsForFeed() {
         List<SnippetListItem> snippetsForFeed = new ArrayList<>(snippetService.getSnippetsForFeed());
         snippetsForFeed.sort((o1, o2) -> {
             if (SnippetListItem.CATEGORY_NEW.equals(o1.getCategory())
@@ -47,6 +44,26 @@ public class SnippetController extends AbstractController {
     public JsonElement addNewSnippet(@RequestBody Snippet snippet) {
         Snippet addedSnippet = snippetService.addNewSnippet(snippet);
         return prepareResponseFrom(addedSnippet);
+    }
+
+    /**
+     * Definition of New, Trending and Popular same as that for snippets
+     */
+    @RequestMapping(value = "/end/feed", method = RequestMethod.GET)
+    public List<StoryListItem> getStoriesForFeed() {
+        List<StoryListItem> snippetsForFeed = new ArrayList<>(snippetService.getStoriesForFeed());
+        snippetsForFeed.sort((o1, o2) -> {
+            if (SnippetListItem.CATEGORY_NEW.equals(o1.getCategory())
+                    && SnippetListItem.CATEGORY_NEW.equals(o2.getCategory())) {
+                return o1.getSnippetCreationTime().compareTo(o2.getSnippetCreationTime());
+            }
+            if (SnippetListItem.CATEGORY_POPULAR.equals(o1.getCategory())
+                    && SnippetListItem.CATEGORY_POPULAR.equals(o2.getCategory())) {
+                return o2.getSnippetCreationTime().compareTo(o1.getSnippetCreationTime());
+            }
+            return o2.getEndSnippetUpdateTime().compareTo(o1.getEndSnippetUpdateTime());
+        });
+        return snippetsForFeed;
     }
 
     @RequestMapping(value = "/end/", method = RequestMethod.POST)

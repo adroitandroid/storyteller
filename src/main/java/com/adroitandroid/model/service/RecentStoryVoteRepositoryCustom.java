@@ -7,6 +7,6 @@ import java.util.List;
 /**
  * Created by pv on 06/01/17.
  */
-public interface RecentVoteRepositoryCustom {
-    List<RecentSnippet> getRecentSnippets();
+public interface RecentStoryVoteRepositoryCustom {
+    List<RecentSnippet> getRecentStories();
 }

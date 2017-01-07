@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @CompoundIndex(name = "userSnippetVote", def = "{'snippetId' : 1, 'userId': 1}", unique = true)
 @Document(collection = "snippetRecentVotes")
-public class RecentVote implements Serializable {
+public class SnippetRecentVote implements Serializable {
     public static final int SECONDS_IN_A_DAY = 86400;
 
     @Id
@@ -27,7 +27,7 @@ public class RecentVote implements Serializable {
     @Indexed(expireAfterSeconds = SECONDS_IN_A_DAY)
     private Date updateDate;
 
-    public RecentVote(Long snippetId, Long userId) {
+    public SnippetRecentVote(Long snippetId, Long userId) {
         this.snippetId = snippetId;
         this.userId = userId;
         this.updateDate = new Date();

@@ -27,21 +27,24 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     private UserRepository userRepository;
     private UserSnippetVoteRepository userSnippetVoteRepository;
     private SnippetStatsRepository snippetStatsRepository;
-    private RecentVoteRepository recentVoteRepository;
+    private SnippetRecentVoteRepository snippetRecentVoteRepository;
     private StoryRepository storyRepository;
+    private StoryRecentVoteRepository storyRecentVoteRepository;
 
     public SnippetServiceImpl(SnippetRepository snippetRepository,
                               UserRepository userRepository,
                               UserSnippetVoteRepository userSnippetVoteRepository,
                               SnippetStatsRepository snippetStatsRepository,
-                              RecentVoteRepository recentVoteRepository,
-                              StoryRepository storyRepository) {
+                              SnippetRecentVoteRepository snippetRecentVoteRepository,
+                              StoryRepository storyRepository,
+                              StoryRecentVoteRepository storyRecentVoteRepository) {
         this.snippetRepository = snippetRepository;
         this.userRepository = userRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
         this.snippetStatsRepository = snippetStatsRepository;
-        this.recentVoteRepository = recentVoteRepository;
+        this.snippetRecentVoteRepository = snippetRecentVoteRepository;
         this.storyRepository = storyRepository;
+        this.storyRecentVoteRepository = storyRecentVoteRepository;
     }
 
     public Set<SnippetListItem> getSnippetsForFeed() {
@@ -62,7 +65,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     }
 
     private List<SnippetListItem> getSnippetListItemSortedByCreateDate() {
-        Type listType = new TypeToken<ArrayList<SnippetListItemForNew>>() {}.getType();
+        Type listType = new TypeToken<ArrayList<SnippetListItem>>() {}.getType();
         List<SnippetListItem> snippetsForNewFeed = snippetRepository.findRecentlyCreatedStoriesOrSnippets(
                 new PageRequest(0, MIN_SNIPPET_LIST_SIZE,
                 new Sort(new Sort.Order(Sort.Direction.DESC, "createdAt")))).getContent();
@@ -70,8 +73,18 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         return new Gson().fromJson(jsonElement, listType);
     }
 
+    private List<StoryListItem> getStoryListItemsSortedByCreateDate() {
+        Type listType = new TypeToken<ArrayList<StoryListItem>>() {}.getType();
+        List<StoryListItem> snippetsForNewFeed = snippetRepository.findRecentlyCompletedStories(
+                new PageRequest(0, MIN_SNIPPET_LIST_SIZE,
+                new Sort(new Sort.Order(Sort.Direction.DESC, "createdAt")))).getContent();
+        JsonElement jsonElement = prepareResponseFrom(snippetsForNewFeed,
+                Snippet.AUTHOR_USER_IN_SNIPPET, Snippet.SNIPPET_STATS_IN_SNIPPET);
+        return new Gson().fromJson(jsonElement, listType);
+    }
+
     private List<SnippetListItemForTrending> getSnippetListItemsForTrending() {
-        ArrayList<RecentSnippet> recentSnippets = new ArrayList<>(recentVoteRepository.getRecentSnippets());
+        ArrayList<RecentSnippet> recentSnippets = new ArrayList<>(snippetRecentVoteRepository.getRecentSnippets());
         int i = 0;
         while (i < recentSnippets.size()) {
             if (recentSnippets.get(i).getFrequency() >= MIN_FREQUENCY_FOR_TRENDING) {
@@ -84,7 +97,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
             Set<Long> snippetIdSet = recentSnippets.stream().map(RecentSnippet::getSnippetId).collect(Collectors.toSet());
             List<SnippetListItemForTrending> trendingSnippetListItems = snippetRepository.findSnippetsWithIds(snippetIdSet);
 
-            Type listType = new TypeToken<ArrayList<SnippetListItemForNew>>() {
+            Type listType = new TypeToken<ArrayList<SnippetListItemForTrending>>() {
             }.getType();
             JsonElement jsonElement = prepareResponseFrom(trendingSnippetListItems);
             return new Gson().fromJson(jsonElement, listType);
@@ -93,10 +106,42 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         }
     }
 
+    private List<StoryListItemForTrending> getStoryListItemsForTrending() {
+        ArrayList<RecentSnippet> recentStories = new ArrayList<>(storyRecentVoteRepository.getRecentStories());
+        int i = 0;
+        while (i < recentStories.size()) {
+            if (recentStories.get(i).getFrequency() >= MIN_FREQUENCY_FOR_TRENDING) {
+                i++;
+            } else {
+                recentStories.remove(i);
+            }
+        }
+        if (recentStories.size() > 0) {
+            Set<Long> snippetIdSet = recentStories.stream().map(RecentSnippet::getSnippetId).collect(Collectors.toSet());
+            List<StoryListItemForTrending> trendingStoryListItems = storyRepository.findWithEndSnippetIdIn(snippetIdSet);
+
+            Type listType = new TypeToken<ArrayList<StoryListItemForTrending>>() {
+            }.getType();
+            JsonElement jsonElement = prepareResponseFrom(trendingStoryListItems,
+                    Snippet.AUTHOR_USER_IN_SNIPPET, Snippet.SNIPPET_STATS_IN_SNIPPET);
+            return new Gson().fromJson(jsonElement, listType);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     private List<SnippetListItemForPopular> getSnippetListItemsForPopular() {
-        Type listType = new TypeToken<ArrayList<SnippetListItemForNew>>() {}.getType();
+        Type listType = new TypeToken<ArrayList<SnippetListItemForPopular>>() {}.getType();
         List<SnippetListItemForPopular> snippetsForNewFeed = snippetRepository.findSnippetsForPopularFeed();
         JsonElement jsonElement = prepareResponseFrom(snippetsForNewFeed);
+        return new Gson().fromJson(jsonElement, listType);
+    }
+
+    private List<StoryListItemForPopular> getStoryListItemsForPopular() {
+        Type listType = new TypeToken<ArrayList<StoryListItemForPopular>>() {}.getType();
+        List<StoryListItemForPopular> snippetsForNewFeed = snippetRepository.findStoriesForPopularFeed();
+        JsonElement jsonElement = prepareResponseFrom(snippetsForNewFeed,
+                Snippet.AUTHOR_USER_IN_SNIPPET, Snippet.SNIPPET_STATS_IN_SNIPPET);
         return new Gson().fromJson(jsonElement, listType);
     }
 
@@ -108,11 +153,20 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         return new Gson().fromJson(jsonElement, listType);
     }
 
+    private List<StoryListItemForNew> getStoryListItemsForNew(Timestamp yesterday) {
+        Type listType = new TypeToken<ArrayList<StoryListItemForNew>>() {}.getType();
+        List<StoryListItemForNew> storiesForNewFeed
+                = snippetRepository.findStoriesForNewFeed(yesterday, MIN_VOTES_FOR_NOT_NEW);
+        JsonElement jsonElement = prepareResponseFrom(storiesForNewFeed,
+                Snippet.AUTHOR_USER_IN_SNIPPET, Snippet.SNIPPET_STATS_IN_SNIPPET);
+        return new Gson().fromJson(jsonElement, listType);
+    }
+
     @Override
     public Snippet addNewSnippet(Snippet snippet) {
         User user = userRepository.findOne(snippet.getAuthorUser().getId());
         snippet.setAuthorUser(user);
-        snippet.init();
+        snippet.init(false);
         if (snippet.getParentSnippetId() == null) {
             snippet.setParentSnippetId(-1L);
         }
@@ -131,12 +185,22 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         Long userId = userSnippetVote.getUser().getId();
         Integer newVote = userSnippetVote.getVote();
 
-        RecentVote recentVote = new RecentVote(snippetId, userId);
-        RecentVote existingUserSnippetVote = recentVoteRepository.findByUserIdAndSnippetId(userId, snippetId);
-        if (existingUserSnippetVote != null) {
-            recentVoteRepository.delete(existingUserSnippetVote);
+        if (userSnippetVote.getSnippet().endsStory) {
+            StoryRecentVote storyRecentVote = new StoryRecentVote(snippetId, userId);
+            StoryRecentVote existingUserStoryVote = storyRecentVoteRepository.findByUserIdAndSnippetId(userId, snippetId);
+            if (existingUserStoryVote != null) {
+                storyRecentVoteRepository.delete(existingUserStoryVote);
+            }
+            storyRecentVoteRepository.save(storyRecentVote);
+        } else {
+            SnippetRecentVote snippetRecentVote = new SnippetRecentVote(snippetId, userId);
+            SnippetRecentVote existingUserSnippetVote = snippetRecentVoteRepository.findByUserIdAndSnippetId(userId, snippetId);
+            if (existingUserSnippetVote != null) {
+                snippetRecentVoteRepository.delete(existingUserSnippetVote);
+            }
+            snippetRecentVoteRepository.save(snippetRecentVote);
         }
-        recentVoteRepository.save(recentVote);
+
         UserSnippetVote existingVote = userSnippetVoteRepository.findByUserIdAndSnippetId(userId, snippetId);
 
         Integer deltaVote;
@@ -178,7 +242,8 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     public Story addNewEnd(Story story) {
         User user = userRepository.findOne(story.getEndSnippet().getAuthorUser().getId());
         story.getEndSnippet().setAuthorUser(user);
-        story.getEndSnippet().init();
+        story.getEndSnippet().init(true);
+        story.setCreatedAt(story.getEndSnippet().createdAt);
 ////        Not required since story cannot be one snippet long
 //        if (story.getEndSnippet().getParentSnippetId() == null) {
 //            story.getEndSnippet().setParentSnippetId(-1L);
@@ -190,5 +255,24 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
 //            storyInDb.setEndSnippet(snippetRepository.save(storyInDb.getEndSnippet()));
 //        }
         return storyInDb;
+    }
+
+    @Override
+    public Set<StoryListItem> getStoriesForFeed() {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, -1);
+        Timestamp yesterday = new Timestamp(calendar.getTime().getTime());
+
+        HashSet<StoryListItem> snippetListItems = new HashSet<>();
+        snippetListItems.addAll(getStoryListItemsForTrending());
+        snippetListItems.addAll(getStoryListItemsForNew(yesterday));
+        snippetListItems.addAll(getStoryListItemsForPopular());
+        snippetListItems.addAll(getStoryListItemsSortedByCreateDate());
+//        This should not be required since any story ender will have a parent
+//        for (StoryListItem snippetListItem : snippetListItems) {
+//            snippetListItem.story.getEndSnippet().removeParentIfDummy();
+//        }
+        return snippetListItems;
     }
 }
