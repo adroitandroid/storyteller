@@ -235,17 +235,17 @@ public class UserServiceImpl extends AbstractService implements UserService {
         calendar.add(Calendar.DATE, -1);
         Timestamp yesterday = new Timestamp(calendar.getTime().getTime());
         Timestamp updatesSince = lastActiveTime.after(yesterday) ? yesterday : lastActiveTime;
+
+        List<ContributionUpdate> contributionUpdateList = snippetRepository.getNewContributionsFromFollowed(userId, updatesSince);
+        Map<Long, SnippetListItemForUpdate> itemForUpdateMap = getSnippetsMapFor(contributionUpdateList);
+
         List<VoteUpdate> voteUpdateList = snippetRepository.getVoteUpdatesOnContributionsBy(userId, updatesSince);
         List<ChildUpdate> childUpdateList = snippetRepository.getChildUpdatesOnContributionsBy(userId, updatesSince);
-        Map<Long, SnippetListItemForUpdate> itemForUpdateMap = getSnippetsMapFor(voteUpdateList, childUpdateList);
+        itemForUpdateMap.putAll(getSnippetsMapFor(voteUpdateList, childUpdateList));
 
         voteUpdateList = snippetRepository.getVoteUpdatesOnBookmarksFor(userId, updatesSince);
         childUpdateList = snippetRepository.getChildUpdatesOnBookmarksFor(userId, updatesSince);
         itemForUpdateMap.putAll(getSnippetsMapFor(voteUpdateList, childUpdateList));
-
-////        TODO: implement follow API for this one
-//        List<ContributionUpdate> contributionUpdateList = snippetRepository.getNewContributionsFromFollowed(userId, updatesSince);
-//        itemForUpdateMap.putAll(getSnippetsMapFor(voteUpdateList, childUpdateList));
 
         for (SnippetListItemForUpdate update : itemForUpdateMap.values()) {
             update.setCategoryFromUpdate();
@@ -256,6 +256,21 @@ public class UserServiceImpl extends AbstractService implements UserService {
         Type listType = new TypeToken<ArrayList<SnippetListItemForUpdate>>() {}.getType();
         JsonElement jsonElement = prepareResponseFrom(updates);
         return new Gson().fromJson(jsonElement, listType);
+    }
+
+    private Map<Long, SnippetListItemForUpdate> getSnippetsMapFor(List<ContributionUpdate> contributionUpdateList) {
+        Map<Long, SnippetListItemForUpdate> itemForUpdateMap = new HashMap<>();
+        for (ContributionUpdate contributionUpdate : contributionUpdateList) {
+            Long snippetId = contributionUpdate.getSnippet().getId();
+            SnippetListItemForUpdate snippetListItemForUpdate = itemForUpdateMap.get(snippetId);
+            if (snippetListItemForUpdate == null) { // not adding those that are already added as of interested
+                snippetListItemForUpdate = new SnippetListItemForUpdate(contributionUpdate.getSnippet(),
+                        contributionUpdate.getParentSnippet(), contributionUpdate.getSnippetStats(),
+                        contributionUpdate.getUser(), contributionUpdate.getCreatedTime(), true);
+                itemForUpdateMap.put(snippetListItemForUpdate.getSnippetId(), snippetListItemForUpdate);
+            }
+        }
+        return itemForUpdateMap;
     }
 
     @Override

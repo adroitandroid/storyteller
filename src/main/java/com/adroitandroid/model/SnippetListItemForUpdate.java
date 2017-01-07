@@ -28,9 +28,8 @@ public class SnippetListItemForUpdate extends SnippetListItem {
         this.lastUpdateAt = lastUpdateTime;
     }
 
-//    Not used yet
     public SnippetListItemForUpdate(Snippet snippet, Snippet parentSnippet, SnippetStats snippetStats, User authorUser,
-                                    Timestamp lastUpdateTime, int isContributionOfFollowed) {
+                                    Date lastUpdateTime, boolean isContributionOfFollowed) {
         super(snippet, parentSnippet, snippetStats, authorUser);
         this.lastUpdateAt = lastUpdateTime;
         setCategoryText();
@@ -58,7 +57,7 @@ public class SnippetListItemForUpdate extends SnippetListItem {
             setCategory(updateList.get(0));
         } else if (updateCount == 2) {
             setCategory(updateList.get(0) + " and " + updateList.get(1));
-        } else {
+        } else if (updateCount == 3) { //when votes, snippets and ends are there on top of interesting snippet
             setCategory(updateList.get(0) + ", " + updateList.get(1) + " and " + updateList.get(2));
         }
     }

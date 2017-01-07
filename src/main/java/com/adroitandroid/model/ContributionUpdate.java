@@ -10,14 +10,12 @@ public class ContributionUpdate {
     private final Snippet parentSnippet;
     private final SnippetStats snippetStats;
     private final Snippet snippet;
-    private final Date createdTime;
 
-    public ContributionUpdate(User user, Snippet parentSnippet, SnippetStats snippetStats, Snippet snippet, Date createdTime) {
+    public ContributionUpdate(Snippet snippet, Snippet parentSnippet, User user, SnippetStats snippetStats) {
         this.user = user;
         this.parentSnippet = parentSnippet;
         this.snippetStats = snippetStats;
         this.snippet = snippet;
-        this.createdTime = createdTime;
     }
 
     public User getUser() {
@@ -37,6 +35,6 @@ public class ContributionUpdate {
     }
 
     public Date getCreatedTime() {
-        return createdTime;
+        return snippet.createdAt;
     }
 }

@@ -44,4 +44,7 @@ public interface SnippetRepository extends PagingAndSortingRepository<Snippet, L
 
     @Query(value = "select new com.adroitandroid.model.ChildUpdate(s, ps, ss, au, count(cs), max(cs.createdAt)) from Snippet s, Snippet ps, Snippet cs, SnippetStats ss, User au, UserBookmark ub WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND s.id = cs.parentSnippetId AND cs.createdAt > ?2 AND ub.userId = ?1 AND ub.snippet = s AND ub.softDeleted = false GROUP BY cs.parentSnippetId")
     List<ChildUpdate> getChildUpdatesOnBookmarksFor(Long userId, Timestamp updatesSince);
+
+    @Query(value = "select new com.adroitandroid.model.ContributionUpdate(s, ps, au, ss) from Snippet s, Snippet ps, SnippetStats ss, User au, UserRelation ur WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND au.id = ur.userId AND ur.followerUserId = ?1 AND s.createdAt > ?2")
+    List<ContributionUpdate> getNewContributionsFromFollowed(Long userId, Timestamp updatesSince);
 }
