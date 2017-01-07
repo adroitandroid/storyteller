@@ -46,6 +46,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     private final UserDetailRepository userDetailsRepository;
     private final UserBookmarkRepository userBookmarkRepository;
     private final SnippetRepository snippetRepository;
+    private final UserRelationRepository userRelationsRepository;
 
     @Value("${facebook.uservalidation.url}")
     private String FACEBOOK_TOKEN_VALIDATION_URL;
@@ -71,7 +72,8 @@ public class UserServiceImpl extends AbstractService implements UserService {
                            UserSessionRepository userSessionRepository,
                            UserDetailRepository userDetailsRepository,
                            UserBookmarkRepository userBookmarkRepository,
-                           SnippetRepository snippetRepository) {
+                           SnippetRepository snippetRepository,
+                           UserRelationRepository userRelationsRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
         this.storyStatsRepository = storyStatsRepository;
@@ -81,6 +83,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
         this.userDetailsRepository = userDetailsRepository;
         this.userBookmarkRepository = userBookmarkRepository;
         this.snippetRepository = snippetRepository;
+        this.userRelationsRepository = userRelationsRepository;
     }
 
     @Override
@@ -253,6 +256,11 @@ public class UserServiceImpl extends AbstractService implements UserService {
         Type listType = new TypeToken<ArrayList<SnippetListItemForUpdate>>() {}.getType();
         JsonElement jsonElement = prepareResponseFrom(updates);
         return new Gson().fromJson(jsonElement, listType);
+    }
+
+    @Override
+    public void updateFollowRelationship(Long followedUserId, Long followerUserId, boolean unfollow) {
+        userRelationsRepository.updateFollow(followedUserId, followerUserId, unfollow, getCurrentTime());
     }
 
     private Map<Long, SnippetListItemForUpdate> getSnippetsMapFor(List<VoteUpdate> voteUpdateList,

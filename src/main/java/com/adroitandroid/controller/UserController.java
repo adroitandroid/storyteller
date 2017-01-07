@@ -182,11 +182,18 @@ public class UserController extends AbstractController {
     }
 
     /**
-     * An update is defined as an activity of interest - a change of votes or a contribution on top of the snippet
+     * An update is defined as an activity of interest -
+     * 1. a change of votes or a contribution on top of contributed or bookmarked snippet OR
+     * 2. a new contribution from someone followed
      * SINCE last login time OR within last day, whichever is earlier
      */
     @RequestMapping(value = "/updates/", method = RequestMethod.GET, produces = "application/json")
     public List<SnippetListItemForUpdate> getUpdatesFor(@RequestParam(value = "user_id") Long userId) {
         return userService.getUpdatesFor(userId);
+    }
+
+    @RequestMapping(value = "/follow/", method = RequestMethod.PUT, produces = "application/json")
+    public void updateFollowed(@RequestBody UserRelation userRelation) {
+        userService.updateFollowRelationship(userRelation.getUserId(), userRelation.getFollowerUserId(), userRelation.isSoftDeleted());
     }
 }
