@@ -74,4 +74,8 @@ public class User {
         this.lastActiveAt = new Timestamp((new Date()).getTime());
         this.createdAt = this.lastActiveAt;
     }
+
+    public Timestamp getLastActiveAt() {
+        return lastActiveAt;
+    }
 }

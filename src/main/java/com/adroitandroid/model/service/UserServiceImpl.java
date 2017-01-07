@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -20,6 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -32,7 +36,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Component("userService")
 @Transactional
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends AbstractService implements UserService {
     private final UserRepository userRepository;
     private final UserStoryRelationRepository userStoryRelationRepository;
     private final StoryStatsRepository storyStatsRepository;
@@ -41,6 +45,7 @@ public class UserServiceImpl implements UserService {
     private final UserSessionRepository userSessionRepository;
     private final UserDetailRepository userDetailsRepository;
     private final UserBookmarkRepository userBookmarkRepository;
+    private final SnippetRepository snippetRepository;
 
     @Value("${facebook.uservalidation.url}")
     private String FACEBOOK_TOKEN_VALIDATION_URL;
@@ -65,7 +70,8 @@ public class UserServiceImpl implements UserService {
                            ChapterStatsRepository chapterStatsRepository,
                            UserSessionRepository userSessionRepository,
                            UserDetailRepository userDetailsRepository,
-                           UserBookmarkRepository userBookmarkRepository) {
+                           UserBookmarkRepository userBookmarkRepository,
+                           SnippetRepository snippetRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
         this.storyStatsRepository = storyStatsRepository;
@@ -74,6 +80,7 @@ public class UserServiceImpl implements UserService {
         this.userSessionRepository = userSessionRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.userBookmarkRepository = userBookmarkRepository;
+        this.snippetRepository = snippetRepository;
     }
 
     @Override
@@ -209,11 +216,65 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+//    TODO:----------------------------- vver methods start ---------------------
     @Override
     public void updateUserBookmark(UserBookmark userBookmark) {
          userBookmarkRepository.update(userBookmark.getUserId(),
                  userBookmark.getSnippet().getId(), userBookmark.getSoftDeleted() ? 1 : 0);
     }
+
+    @Override
+    public List<SnippetListItemForUpdate> getUpdatesFor(Long userId) {
+        User user = userRepository.findOne(userId);
+        Timestamp lastActiveTime = user.getLastActiveAt();
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, -1);
+        Timestamp yesterday = new Timestamp(calendar.getTime().getTime());
+        Timestamp updatesSince = lastActiveTime.after(yesterday) ? yesterday : lastActiveTime;
+        List<VoteUpdate> voteUpdateList = snippetRepository.getVoteUpdatesOnContributionsBy(userId, updatesSince);
+        List<ChildUpdate> childUpdateList = snippetRepository.getChildUpdatesOnContributionsBy(userId, updatesSince);
+        Map<Long, SnippetListItemForUpdate> itemForUpdateMap = getSnippetsMapFor(voteUpdateList, childUpdateList);
+
+        voteUpdateList = snippetRepository.getVoteUpdatesOnBookmarksFor(userId, updatesSince);
+        childUpdateList = snippetRepository.getChildUpdatesOnBookmarksFor(userId, updatesSince);
+        itemForUpdateMap.putAll(getSnippetsMapFor(voteUpdateList, childUpdateList));
+
+////        TODO: implement follow API for this one
+//        List<ContributionUpdate> contributionUpdateList = snippetRepository.getNewContributionsFromFollowed(userId, updatesSince);
+//        itemForUpdateMap.putAll(getSnippetsMapFor(voteUpdateList, childUpdateList));
+
+        for (SnippetListItemForUpdate update : itemForUpdateMap.values()) {
+            update.setCategoryFromUpdate();
+        }
+        ArrayList<SnippetListItemForUpdate> updates = new ArrayList<>(itemForUpdateMap.values());
+        updates.sort((o1, o2) -> o2.getLastUpdateAt().compareTo(o1.getLastUpdateAt()));
+
+        Type listType = new TypeToken<ArrayList<SnippetListItemForUpdate>>() {}.getType();
+        JsonElement jsonElement = prepareResponseFrom(updates);
+        return new Gson().fromJson(jsonElement, listType);
+    }
+
+    private Map<Long, SnippetListItemForUpdate> getSnippetsMapFor(List<VoteUpdate> voteUpdateList,
+                                                                  List<ChildUpdate> childUpdateList) {
+        Map<Long, SnippetListItemForUpdate> itemForUpdateMap = new HashMap<>();
+        for (VoteUpdate voteUpdate : voteUpdateList) {
+            SnippetListItemForUpdate snippetListItemForUpdate = new SnippetListItemForUpdate();
+            snippetListItemForUpdate.setVotes(voteUpdate);
+            itemForUpdateMap.put(snippetListItemForUpdate.getSnippetId(), snippetListItemForUpdate);
+        }
+        for (ChildUpdate childUpdate : childUpdateList) {
+            Long snippetId = childUpdate.getSnippet().getId();
+            SnippetListItemForUpdate snippetListItemForUpdate = itemForUpdateMap.get(snippetId);
+            if (snippetListItemForUpdate == null) {
+                snippetListItemForUpdate = new SnippetListItemForUpdate();
+            }
+            snippetListItemForUpdate.setChildInfo(childUpdate);
+        }
+        return itemForUpdateMap;
+    }
+
+//    ----------------------------- vver methods end ---------------------
 
     private UserLoginDetails validateAndRespondWithUserDetails(String userIdFromFacebook, UserLoginInfo userLoginInfo) {
         String authUserId = userLoginInfo.getAuthUserId();

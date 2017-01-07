@@ -22,15 +22,16 @@ public class SnippetListItem {
     private String category;
 
     SnippetListItem(Snippet snippet, Snippet parentSnippet, SnippetStats snippetStats, User authorUser, String category) {
-        this.snippet = snippet;
-        this.parentSnippet = parentSnippet;
-        this.author = authorUser;
-        this.snippetStats = snippetStats;
+        basicInit(snippet, parentSnippet, snippetStats, authorUser);
         this.category = category;
     }
 
 //    Used in SnippetRepository query
     public SnippetListItem(Snippet snippet, Snippet parentSnippet, SnippetStats snippetStats, User authorUser) {
+        basicInit(snippet, parentSnippet, snippetStats, authorUser);
+    }
+
+    void basicInit(Snippet snippet, Snippet parentSnippet, SnippetStats snippetStats, User authorUser) {
         this.snippet = snippet;
         this.parentSnippet = parentSnippet;
         this.author = authorUser;
@@ -44,6 +45,10 @@ public class SnippetListItem {
         this.category = category;
     }
 
+    public SnippetListItem() {
+
+    }
+
     public SnippetStats getSnippetStats() {
         return snippetStats;
     }
@@ -52,14 +57,26 @@ public class SnippetListItem {
         return this.category;
     }
 
+    void setCategory(String category) {
+        this.category = category;
+    }
+
     public Timestamp getSnippetCreationTime() {
         return this.snippet.createdAt;
     }
 
     public void removeParentIfDummy() {
-        if (Snippet.DUMMY_SNIPPET_ID.equals(this.parentSnippet.getId())) {
+        if (isStoryStarter()) {
             this.parentSnippet = null;
         }
+    }
+
+    boolean isStoryStarter() {
+        return Snippet.DUMMY_SNIPPET_ID.equals(this.parentSnippet.getId());
+    }
+
+    public long getSnippetId() {
+        return snippet.getId();
     }
 
     @Override

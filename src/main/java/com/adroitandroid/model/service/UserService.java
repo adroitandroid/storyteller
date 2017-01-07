@@ -48,4 +48,6 @@ public interface UserService {
     int updateToken(Long userId, String fcmToken);
 
     void updateUserBookmark(UserBookmark userBookmark);
+
+    List<SnippetListItemForUpdate> getUpdatesFor(Long userId);
 }

@@ -175,8 +175,18 @@ public class UserController extends AbstractController {
         return stories;
     }
 
+    //#####################TODO: vver starts from here #######################
     @RequestMapping(value = "/bookmark/", method = RequestMethod.PUT, produces = "application/json")
     public void updateUserBookmark(@RequestBody UserBookmark userBookmark) {
         userService.updateUserBookmark(userBookmark);
+    }
+
+    /**
+     * An update is defined as an activity of interest - a change of votes or a contribution on top of the snippet
+     * SINCE last login time OR within last day, whichever is earlier
+     */
+    @RequestMapping(value = "/updates/", method = RequestMethod.GET, produces = "application/json")
+    public List<SnippetListItemForUpdate> getUpdatesFor(@RequestParam(value = "user_id") Long userId) {
+        return userService.getUpdatesFor(userId);
     }
 }
