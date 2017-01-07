@@ -181,6 +181,11 @@ public class UserController extends AbstractController {
         userService.updateUserBookmark(userBookmark);
     }
 
+    @RequestMapping(value = "/bookmark/all/", method = RequestMethod.GET, produces = "application/json")
+    public List<SnippetListItem> updateUserBookmark(@RequestParam(value = "user_id") Long userId) {
+        return userService.getAllBookmarksOf(userId);
+    }
+
     /**
      * An update is defined as an activity of interest -
      * 1. a change of votes or a contribution on top of contributed or bookmarked snippet OR

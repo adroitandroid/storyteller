@@ -278,6 +278,17 @@ public class UserServiceImpl extends AbstractService implements UserService {
         userRelationsRepository.updateFollow(followedUserId, followerUserId, unfollow, getCurrentTime());
     }
 
+    @Override
+    public List<SnippetListItem> getAllBookmarksOf(Long userId) {
+        Type listType = new TypeToken<ArrayList<SnippetListItem>>() {}.getType();
+        List<SnippetListItem> allBookmarks = userBookmarkRepository.findAllBookmarksFor(userId);
+        for (SnippetListItem snippetListItem : allBookmarks) {
+            snippetListItem.removeParentIfDummy();
+        }
+        JsonElement jsonElement = prepareResponseFrom(allBookmarks);
+        return new Gson().fromJson(jsonElement, listType);
+    }
+
     private Map<Long, SnippetListItemForUpdate> getSnippetsMapFor(List<VoteUpdate> voteUpdateList,
                                                                   List<ChildUpdate> childUpdateList) {
         Map<Long, SnippetListItemForUpdate> itemForUpdateMap = new HashMap<>();

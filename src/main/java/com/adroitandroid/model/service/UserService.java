@@ -52,4 +52,6 @@ public interface UserService {
     List<SnippetListItemForUpdate> getUpdatesFor(Long userId);
 
     void updateFollowRelationship(Long followedUserId, Long followerUserId, boolean unfollow);
+
+    List<SnippetListItem> getAllBookmarksOf(Long userId);
 }

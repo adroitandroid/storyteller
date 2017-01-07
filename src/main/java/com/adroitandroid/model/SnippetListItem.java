@@ -31,13 +31,6 @@ public class SnippetListItem {
         basicInit(snippet, parentSnippet, snippetStats, authorUser);
     }
 
-    void basicInit(Snippet snippet, Snippet parentSnippet, SnippetStats snippetStats, User authorUser) {
-        this.snippet = snippet;
-        this.parentSnippet = parentSnippet;
-        this.author = authorUser;
-        this.snippetStats = snippetStats;
-    }
-
     SnippetListItem(Snippet snippet, SnippetStats snippetStats, User authorUser, String category) {
         this.snippet = snippet;
         this.author = authorUser;
@@ -47,6 +40,13 @@ public class SnippetListItem {
 
     public SnippetListItem() {
 
+    }
+
+    void basicInit(Snippet snippet, Snippet parentSnippet, SnippetStats snippetStats, User authorUser) {
+        this.snippet = snippet;
+        this.parentSnippet = parentSnippet;
+        this.author = authorUser;
+        this.snippetStats = snippetStats;
     }
 
     public SnippetStats getSnippetStats() {
