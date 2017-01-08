@@ -19,4 +19,6 @@ public interface UserBookmarkRepository extends CrudRepository<UserBookmark, Lon
 
     @Query(value = "select new com.adroitandroid.model.SnippetListItem(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au, UserBookmark ub WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND ub.snippet = s AND ub.userId = ?1 AND ub.softDeleted = false ORDER BY ub.updatedAt DESC")
     List<SnippetListItem> findAllBookmarksFor(Long userId);
+
+    List<UserBookmark> findByUserIdAndSoftDeletedFalse(long userId);
 }

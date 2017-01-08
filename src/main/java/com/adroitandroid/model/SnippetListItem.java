@@ -88,4 +88,14 @@ public class SnippetListItem {
     public int hashCode() {
         return this.snippet.getId().hashCode();
     }
+
+    public void setUserVote(Integer userVote) {
+        if (userVote != null) {
+            this.userVote = userVote;
+        }
+    }
+
+    public void setBookmarked(boolean bookmarked) {
+        this.isBookmarked = bookmarked;
+    }
 }

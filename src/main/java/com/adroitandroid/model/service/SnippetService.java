@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public interface SnippetService {
 
-    Set<SnippetListItem> getSnippetsForFeed();
+    Set<SnippetListItem> getSnippetsForFeed(long userId);
 
     Snippet addNewSnippet(Snippet snippet);
 
@@ -20,5 +20,5 @@ public interface SnippetService {
 
     Story addNewEnd(Story story);
 
-    Set<StoryListItem> getStoriesForFeed();
+    Set<StoryListItem> getStoriesForFeed(Long userId);
 }

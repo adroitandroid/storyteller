@@ -30,6 +30,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     private SnippetRecentVoteRepository snippetRecentVoteRepository;
     private StoryRepository storyRepository;
     private StoryRecentVoteRepository storyRecentVoteRepository;
+    private UserBookmarkRepository userBookmarkRepository;
 
     public SnippetServiceImpl(SnippetRepository snippetRepository,
                               UserRepository userRepository,
@@ -37,7 +38,8 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
                               SnippetStatsRepository snippetStatsRepository,
                               SnippetRecentVoteRepository snippetRecentVoteRepository,
                               StoryRepository storyRepository,
-                              StoryRecentVoteRepository storyRecentVoteRepository) {
+                              StoryRecentVoteRepository storyRecentVoteRepository,
+                              UserBookmarkRepository userBookmarkRepository) {
         this.snippetRepository = snippetRepository;
         this.userRepository = userRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
@@ -45,9 +47,10 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         this.snippetRecentVoteRepository = snippetRecentVoteRepository;
         this.storyRepository = storyRepository;
         this.storyRecentVoteRepository = storyRecentVoteRepository;
+        this.userBookmarkRepository = userBookmarkRepository;
     }
 
-    public Set<SnippetListItem> getSnippetsForFeed() {
+    public Set<SnippetListItem> getSnippetsForFeed(long userId) {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(new Date());
         calendar.add(Calendar.DATE, -1);
@@ -58,8 +61,24 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         snippetListItems.addAll(getSnippetListItemsForNew(yesterday));
         snippetListItems.addAll(getSnippetListItemsForPopular());
         snippetListItems.addAll(getSnippetListItemSortedByCreateDate());
+
+        Map<Long, Integer> snippetVoteMap = new HashMap<>();
+        Set<Long> bookmarkSet = new HashSet<>();
+        if (userId > 0) {
+            List<UserSnippetVote> userVotes = userSnippetVoteRepository.findByUserId(userId);
+            for (UserSnippetVote snippetVote : userVotes) {
+                snippetVoteMap.put(snippetVote.getSnippet().getId(), snippetVote.getVote());
+            }
+            List<UserBookmark> userBookmarks = userBookmarkRepository.findByUserIdAndSoftDeletedFalse(userId);
+            for (UserBookmark userBookmark : userBookmarks) {
+                bookmarkSet.add(userBookmark.getSnippet().getId());
+            }
+        }
+
         for (SnippetListItem snippetListItem : snippetListItems) {
             snippetListItem.removeParentIfDummy();
+            snippetListItem.setUserVote(snippetVoteMap.get(snippetListItem.getSnippetId()));
+            snippetListItem.setBookmarked(bookmarkSet.contains(snippetListItem.getSnippetId()));
         }
         return snippetListItems;
     }
@@ -258,21 +277,38 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     }
 
     @Override
-    public Set<StoryListItem> getStoriesForFeed() {
+    public Set<StoryListItem> getStoriesForFeed(Long userId) {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(new Date());
         calendar.add(Calendar.DATE, -1);
         Timestamp yesterday = new Timestamp(calendar.getTime().getTime());
 
-        HashSet<StoryListItem> snippetListItems = new HashSet<>();
-        snippetListItems.addAll(getStoryListItemsForTrending());
-        snippetListItems.addAll(getStoryListItemsForNew(yesterday));
-        snippetListItems.addAll(getStoryListItemsForPopular());
-        snippetListItems.addAll(getStoryListItemsSortedByCreateDate());
+        HashSet<StoryListItem> storyListItems = new HashSet<>();
+        storyListItems.addAll(getStoryListItemsForTrending());
+        storyListItems.addAll(getStoryListItemsForNew(yesterday));
+        storyListItems.addAll(getStoryListItemsForPopular());
+        storyListItems.addAll(getStoryListItemsSortedByCreateDate());
+
+        Map<Long, Integer> snippetVoteMap = new HashMap<>();
+        Set<Long> bookmarkSet = new HashSet<>();
+        if (userId > 0) {
+            List<UserSnippetVote> userVotes = userSnippetVoteRepository.findByUserId(userId);
+            for (UserSnippetVote snippetVote : userVotes) {
+                snippetVoteMap.put(snippetVote.getSnippet().getId(), snippetVote.getVote());
+            }
+            List<UserBookmark> userBookmarks = userBookmarkRepository.findByUserIdAndSoftDeletedFalse(userId);
+            for (UserBookmark userBookmark : userBookmarks) {
+                bookmarkSet.add(userBookmark.getSnippet().getId());
+            }
+        }
+
+        for (StoryListItem storyListItem : storyListItems) {
 //        This should not be required since any story ender will have a parent
-//        for (StoryListItem snippetListItem : snippetListItems) {
-//            snippetListItem.story.getEndSnippet().removeParentIfDummy();
-//        }
-        return snippetListItems;
+//            storyListItem.story.getEndSnippet().removeParentIfDummy();
+            storyListItem.setUserVote(snippetVoteMap.get(storyListItem.getSnippetId()));
+            storyListItem.setBookmarked(bookmarkSet.contains(storyListItem.getSnippetId()));
+        }
+
+        return storyListItems;
     }
 }
