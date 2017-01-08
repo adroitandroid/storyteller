@@ -13,7 +13,8 @@ import java.util.Date;
 @Table(name = "user")
 public class User {
 
-    public static final String AUTH_TYPE = "auth_type";
+    public static final String AUTH_TYPE = "auth_type_in_user";
+    public static final String USER_STATS_IN_USER = "user_stats_in_user";
 
     public User() {
 //        Empty constructor as required by hibernate
@@ -51,6 +52,11 @@ public class User {
     @Column(name = "created_at")
     @Access(AccessType.FIELD)
     private Timestamp createdAt;
+
+    @OneToOne(mappedBy="user", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    @OptionalInGson(exclude = USER_STATS_IN_USER)
+    @Access(value = AccessType.FIELD)
+    private UserStats userStats;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

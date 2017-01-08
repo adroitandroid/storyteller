@@ -31,6 +31,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     private StoryRepository storyRepository;
     private StoryRecentVoteRepository storyRecentVoteRepository;
     private UserBookmarkRepository userBookmarkRepository;
+    private UserStatsRepository userStatsRepository;
 
     public SnippetServiceImpl(SnippetRepository snippetRepository,
                               UserRepository userRepository,
@@ -39,7 +40,8 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
                               SnippetRecentVoteRepository snippetRecentVoteRepository,
                               StoryRepository storyRepository,
                               StoryRecentVoteRepository storyRecentVoteRepository,
-                              UserBookmarkRepository userBookmarkRepository) {
+                              UserBookmarkRepository userBookmarkRepository,
+                              UserStatsRepository userStatsRepository) {
         this.snippetRepository = snippetRepository;
         this.userRepository = userRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
@@ -48,6 +50,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         this.storyRepository = storyRepository;
         this.storyRecentVoteRepository = storyRecentVoteRepository;
         this.userBookmarkRepository = userBookmarkRepository;
+        this.userStatsRepository = userStatsRepository;
     }
 
     public Set<SnippetListItem> getSnippetsForFeed(long userId) {
@@ -167,6 +170,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     @Override
     public Snippet addNewSnippet(Snippet snippet) {
         User user = userRepository.findOne(snippet.getAuthorUser().getId());
+        userStatsRepository.incrementSnippetCount(user.getId());
         snippet.setAuthorUser(user);
         snippet.init(false);
         if (snippet.getParentSnippetId() == null) {
@@ -219,6 +223,8 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         }
         userSnippetVote.setUpdatedAt(currentTime);
         UserSnippetVote savedVote = userSnippetVoteRepository.save(userSnippetVote);
+        Long authorUserId = snippetRepository.findOne(snippetId).getAuthorUser().getId();
+        userStatsRepository.updateNetVotes(authorUserId, deltaVote);
 
         JsonElement jsonElement
                 = prepareResponseFrom(savedVote, UserSnippetVote.SNIPPET_IN_USER_VOTES, Snippet.SNIPPET_STATS_IN_SNIPPET);
@@ -243,6 +249,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     @Override
     public Story addNewEnd(Story story) {
         User user = userRepository.findOne(story.getEndSnippet().getAuthorUser().getId());
+        userStatsRepository.incrementSnippetCount(user.getId());
         story.getEndSnippet().setAuthorUser(user);
         story.getEndSnippet().init(true);
         story.setCreatedAt(story.getEndSnippet().createdAt);

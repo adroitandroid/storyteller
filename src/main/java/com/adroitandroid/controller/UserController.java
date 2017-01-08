@@ -199,6 +199,7 @@ public class UserController extends AbstractController {
 
     @RequestMapping(value = "/follow/", method = RequestMethod.PUT, produces = "application/json")
     public void updateFollowed(@RequestBody UserRelation userRelation) {
-        userService.updateFollowRelationship(userRelation.getUserId(), userRelation.getFollowerUserId(), userRelation.isSoftDeleted());
+        userService.updateFollowRelationship(
+                userRelation.getUserId(), userRelation.getFollowerUserId(), userRelation.isSoftDeleted());
     }
 }

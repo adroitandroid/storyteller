@@ -48,6 +48,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     private final SnippetRepository snippetRepository;
     private final UserRelationRepository userRelationsRepository;
     private final UserSnippetVoteRepository userSnippetVoteRepository;
+    private final UserStatsRepository userStatsRepository;
 
     @Value("${facebook.uservalidation.url}")
     private String FACEBOOK_TOKEN_VALIDATION_URL;
@@ -75,7 +76,8 @@ public class UserServiceImpl extends AbstractService implements UserService {
                            UserBookmarkRepository userBookmarkRepository,
                            SnippetRepository snippetRepository,
                            UserRelationRepository userRelationsRepository,
-                           UserSnippetVoteRepository userSnippetVoteRepository) {
+                           UserSnippetVoteRepository userSnippetVoteRepository,
+                           UserStatsRepository userStatsRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
         this.storyStatsRepository = storyStatsRepository;
@@ -87,6 +89,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
         this.snippetRepository = snippetRepository;
         this.userRelationsRepository = userRelationsRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
+        this.userStatsRepository = userStatsRepository;
     }
 
     @Override
@@ -282,6 +285,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     @Override
     public void updateFollowRelationship(Long followedUserId, Long followerUserId, boolean unfollow) {
         userRelationsRepository.updateFollow(followedUserId, followerUserId, unfollow, getCurrentTime());
+        userStatsRepository.updateFollowersCount(followedUserId, unfollow ? -1 : 1);
     }
 
     @Override
