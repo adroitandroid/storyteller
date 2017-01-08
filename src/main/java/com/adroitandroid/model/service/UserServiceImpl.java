@@ -49,6 +49,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     private final UserRelationRepository userRelationsRepository;
     private final UserSnippetVoteRepository userSnippetVoteRepository;
     private final UserStatsRepository userStatsRepository;
+    private final UserStatusRepository userStatusRepository;
 
     @Value("${facebook.uservalidation.url}")
     private String FACEBOOK_TOKEN_VALIDATION_URL;
@@ -64,8 +65,6 @@ public class UserServiceImpl extends AbstractService implements UserService {
         rf.setReadTimeout(10 * 1000);
     }
 
-
-
     public UserServiceImpl(UserRepository userRepository,
                            UserStoryRelationRepository userStoryRelationRepository,
                            StoryStatsRepository storyStatsRepository,
@@ -77,7 +76,8 @@ public class UserServiceImpl extends AbstractService implements UserService {
                            SnippetRepository snippetRepository,
                            UserRelationRepository userRelationsRepository,
                            UserSnippetVoteRepository userSnippetVoteRepository,
-                           UserStatsRepository userStatsRepository) {
+                           UserStatsRepository userStatsRepository,
+                           UserStatusRepository userStatusRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
         this.storyStatsRepository = storyStatsRepository;
@@ -90,6 +90,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
         this.userRelationsRepository = userRelationsRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
         this.userStatsRepository = userStatsRepository;
+        this.userStatusRepository = userStatusRepository;
     }
 
     @Override
@@ -297,6 +298,24 @@ public class UserServiceImpl extends AbstractService implements UserService {
 
         JsonElement jsonElement = prepareResponseFrom(allBookmarks);
         return new Gson().fromJson(jsonElement, listType);
+    }
+
+    @Override
+    public List<UserStatus> getStatusFor(Long userId) {
+        return userStatusRepository.findByUserId(userId);
+    }
+
+    @Override
+    public void updateStatus(UserStatus userStatus) {
+        UserStatus statusInDb = userStatusRepository.findByUserIdAndEvent(userStatus.getUserId(), userStatus.getEvent());
+        if ((statusInDb == null || !statusInDb.getStatus()) && userStatus.getStatus()) {
+            if (statusInDb != null) {
+                userStatus = statusInDb;
+                userStatus.setStatus(true);
+            }
+            userStatus.setUpdatedAt(getCurrentTime());
+            userStatusRepository.save(userStatus);
+        }
     }
 
     private Map<Long, SnippetListItemForUpdate> getSnippetsMapFor(List<VoteUpdate> voteUpdateList,

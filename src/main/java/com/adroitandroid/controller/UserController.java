@@ -197,6 +197,16 @@ public class UserController extends AbstractController {
         return userService.getUpdatesFor(userId);
     }
 
+    @RequestMapping(value = "/status/", method = RequestMethod.GET, produces = "application/json")
+    public List<UserStatus> getStatusFor(@RequestParam(value = "user_id") Long userId) {
+        return userService.getStatusFor(userId);
+    }
+
+    @RequestMapping(value = "/status/", method = RequestMethod.PUT, produces = "application/json")
+    public void updateStatusFor(@RequestBody UserStatus userStatus) {
+        userService.updateStatus(userStatus);
+    }
+
     @RequestMapping(value = "/follow/", method = RequestMethod.PUT, produces = "application/json")
     public void updateFollowed(@RequestBody UserRelation userRelation) {
         userService.updateFollowRelationship(
