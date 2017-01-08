@@ -11,10 +11,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface UserStatsRepository extends CrudRepository<UserStats, Long> {
 
     @Modifying
-    @Query(nativeQuery = true, value = "insert into user_stats(user_id, num_snippets, num_followers, net_votes) values(?1, 1, DEFAULT, DEFAULT) on duplicate key update num_snippets = num_snippets + 1")
-    void incrementSnippetCount(Long userId);
-
-    @Modifying
     @Query(nativeQuery = true, value = "insert into user_stats(user_id, num_snippets, num_followers, net_votes) values(?1, DEFAULT, ?2, DEFAULT) on duplicate key update num_followers = num_followers + ?2")
     void updateFollowersCount(Long userId, int delta);
 

@@ -32,6 +32,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     private StoryRecentVoteRepository storyRecentVoteRepository;
     private UserBookmarkRepository userBookmarkRepository;
     private UserStatsRepository userStatsRepository;
+    private UserStatusRepository userStatusRepository;
 
     public SnippetServiceImpl(SnippetRepository snippetRepository,
                               UserRepository userRepository,
@@ -41,7 +42,8 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
                               StoryRepository storyRepository,
                               StoryRecentVoteRepository storyRecentVoteRepository,
                               UserBookmarkRepository userBookmarkRepository,
-                              UserStatsRepository userStatsRepository) {
+                              UserStatsRepository userStatsRepository,
+                              UserStatusRepository userStatusRepository) {
         this.snippetRepository = snippetRepository;
         this.userRepository = userRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
@@ -51,6 +53,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         this.storyRecentVoteRepository = storyRecentVoteRepository;
         this.userBookmarkRepository = userBookmarkRepository;
         this.userStatsRepository = userStatsRepository;
+        this.userStatusRepository = userStatusRepository;
     }
 
     public Set<SnippetListItem> getSnippetsForFeed(long userId) {
@@ -170,7 +173,6 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     @Override
     public Snippet addNewSnippet(Snippet snippet) {
         User user = userRepository.findOne(snippet.getAuthorUser().getId());
-        userStatsRepository.incrementSnippetCount(user.getId());
         snippet.setAuthorUser(user);
         snippet.init(false);
         if (snippet.getParentSnippetId() == null) {
@@ -181,6 +183,9 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
             snippetInDb.setRootSnippetId(snippetInDb.getId());
             snippetInDb = snippetRepository.save(snippetInDb);
         }
+
+        updateUserStatusAndStatsOnAdd(user, snippet.createdAt, snippet.getParentSnippetId() == -1L);
+
         return snippetInDb;
     }
 
@@ -225,6 +230,8 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         UserSnippetVote savedVote = userSnippetVoteRepository.save(userSnippetVote);
         Long authorUserId = snippetRepository.findOne(snippetId).getAuthorUser().getId();
         userStatsRepository.updateNetVotes(authorUserId, deltaVote);
+        userStatusRepository.updateEligibleSnippets(authorUserId, deltaVote,
+                UserStatus.EVENT_ELIGIBLE_TO_ADD_SNIPPET, currentTime);
 
         JsonElement jsonElement
                 = prepareResponseFrom(savedVote, UserSnippetVote.SNIPPET_IN_USER_VOTES, Snippet.SNIPPET_STATS_IN_SNIPPET);
@@ -249,21 +256,38 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     @Override
     public Story addNewEnd(Story story) {
         User user = userRepository.findOne(story.getEndSnippet().getAuthorUser().getId());
-        userStatsRepository.incrementSnippetCount(user.getId());
+
         story.getEndSnippet().setAuthorUser(user);
         story.getEndSnippet().init(true);
-        story.setCreatedAt(story.getEndSnippet().createdAt);
+        Timestamp currentTime = story.getEndSnippet().createdAt;
+        story.setCreatedAt(currentTime);
+        Story storyInDb = storyRepository.save(story);
+
+        updateUserStatusAndStatsOnAdd(user, currentTime, false);
+
 ////        Not required since story cannot be one snippet long
 //        if (story.getEndSnippet().getParentSnippetId() == null) {
 //            story.getEndSnippet().setParentSnippetId(-1L);
 //        }
-        Story storyInDb = storyRepository.save(story);
 ////        Not required since story cannot be one snippet long
 //        if (story.getEndSnippet().getRootSnippetId() == null) {
 //            storyInDb.getEndSnippet().setRootSnippetId(storyInDb.getId());
 //            storyInDb.setEndSnippet(snippetRepository.save(storyInDb.getEndSnippet()));
 //        }
         return storyInDb;
+    }
+
+    private void updateUserStatusAndStatsOnAdd(User user, Timestamp currentTime, boolean isNewStory) {
+        Long userId = user.getId();
+        UserStats userStats = userStatsRepository.findOne(userId);
+        if (userStats == null) {
+            userStats = new UserStats(user);
+        } else if (userStats.getNumSnippets() == 9) {
+            userStatusRepository.updateInitialSnippetsToUsed(userId, UserStatus.EVENT_INITIAL_SNIPPETS_USED, currentTime);
+        }
+        userStatusRepository.updateEligibleSnippets(userId, isNewStory ? -5 : -1, UserStatus.EVENT_ELIGIBLE_TO_ADD_SNIPPET, currentTime);
+        userStats.setNumSnippets(userStats.getNumSnippets() + 1);
+        userStatsRepository.save(userStats);
     }
 
     @Override

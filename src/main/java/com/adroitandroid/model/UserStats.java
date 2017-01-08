@@ -42,9 +42,18 @@ public class UserStats {
     }
 
 
-    public UserStats(Timestamp dummyArgument) {
+    public UserStats(User user) {
+        this.user = user;
         this.numFollowers = 0L;
         this.netVotes = 0L;
         this.numSnippets = 0L;
+    }
+
+    public Long getNumSnippets() {
+        return numSnippets;
+    }
+
+    public void setNumSnippets(long numSnippets) {
+        this.numSnippets = numSnippets;
     }
 }

@@ -308,10 +308,10 @@ public class UserServiceImpl extends AbstractService implements UserService {
     @Override
     public void updateStatus(UserStatus userStatus) {
         UserStatus statusInDb = userStatusRepository.findByUserIdAndEvent(userStatus.getUserId(), userStatus.getEvent());
-        if ((statusInDb == null || !statusInDb.getStatus()) && userStatus.getStatus()) {
+        if ((statusInDb == null || statusInDb.getStatus() == 0) && userStatus.getStatus() == 1) {
             if (statusInDb != null) {
                 userStatus = statusInDb;
-                userStatus.setStatus(true);
+                userStatus.setStatus(1);
             }
             userStatus.setUpdatedAt(getCurrentTime());
             userStatusRepository.save(userStatus);
@@ -349,6 +349,8 @@ public class UserServiceImpl extends AbstractService implements UserService {
             Timestamp currentTime = new Timestamp((new Date()).getTime());
             if (isNewUser) {
                 user = userRepository.save(new User(userLoginInfo.getAuthenticationType(), authUserId));
+                userStatusRepository.save(UserStatus.getInitialSnippetsStatus(user.getId(), currentTime));
+                userStatusRepository.save(UserStatus.getEligibleToAddSnippetsStatus(user.getId(), currentTime));
             } else {
                 userRepository.updateLastActiveTime(user.getId(), currentTime);
             }

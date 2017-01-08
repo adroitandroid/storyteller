@@ -9,13 +9,20 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "user_status")
 public class UserStatus {
+
+    public static final String EVENT_ELIGIBLE_TO_ADD_SNIPPET = "eligibleToAddSnippet";
+    public static final String EVENT_INITIAL_SNIPPETS_USED = "initialSnippets";
+    private static final int INITIAL_SNIPPET_COUNT = 10;
+    private static final int STATUS_TRUE = 1;
+    private static final int STATUS_FALSE = 0;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(name = "user_id")
     private Long userId;
     private String event;
-    private Boolean status;
+    private Integer status;
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
@@ -43,11 +50,11 @@ public class UserStatus {
         this.event = event;
     }
 
-    public Boolean getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -57,5 +64,23 @@ public class UserStatus {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public static UserStatus getInitialSnippetsStatus(Long userId, Timestamp currentTime) {
+        UserStatus userStatus = new UserStatus();
+        userStatus.setUpdatedAt(currentTime);
+        userStatus.setEvent(EVENT_INITIAL_SNIPPETS_USED);
+        userStatus.setStatus(STATUS_FALSE);
+        userStatus.setUserId(userId);
+        return userStatus;
+    }
+
+    public static UserStatus getEligibleToAddSnippetsStatus(Long userId, Timestamp currentTime) {
+        UserStatus userStatus = new UserStatus();
+        userStatus.setUpdatedAt(currentTime);
+        userStatus.setEvent(EVENT_ELIGIBLE_TO_ADD_SNIPPET);
+        userStatus.setStatus(INITIAL_SNIPPET_COUNT);
+        userStatus.setUserId(userId);
+        return userStatus;
     }
 }
