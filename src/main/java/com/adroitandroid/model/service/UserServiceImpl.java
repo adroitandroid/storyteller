@@ -47,6 +47,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     private final UserBookmarkRepository userBookmarkRepository;
     private final SnippetRepository snippetRepository;
     private final UserRelationRepository userRelationsRepository;
+    private final UserSnippetVoteRepository userSnippetVoteRepository;
 
     @Value("${facebook.uservalidation.url}")
     private String FACEBOOK_TOKEN_VALIDATION_URL;
@@ -73,7 +74,8 @@ public class UserServiceImpl extends AbstractService implements UserService {
                            UserDetailRepository userDetailsRepository,
                            UserBookmarkRepository userBookmarkRepository,
                            SnippetRepository snippetRepository,
-                           UserRelationRepository userRelationsRepository) {
+                           UserRelationRepository userRelationsRepository,
+                           UserSnippetVoteRepository userSnippetVoteRepository) {
         this.userRepository = userRepository;
         this.userStoryRelationRepository = userStoryRelationRepository;
         this.storyStatsRepository = storyStatsRepository;
@@ -84,6 +86,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
         this.userBookmarkRepository = userBookmarkRepository;
         this.snippetRepository = snippetRepository;
         this.userRelationsRepository = userRelationsRepository;
+        this.userSnippetVoteRepository = userSnippetVoteRepository;
     }
 
     @Override
@@ -253,8 +256,11 @@ public class UserServiceImpl extends AbstractService implements UserService {
         ArrayList<SnippetListItemForUpdate> updates = new ArrayList<>(itemForUpdateMap.values());
         updates.sort((o1, o2) -> o2.getLastUpdateAt().compareTo(o1.getLastUpdateAt()));
 
+        ArrayList<SnippetListItem> updateListItems = new ArrayList<>(updates);
+        updateBookmarkAndVoteStatusFor(userId, updateListItems, false);
+
         Type listType = new TypeToken<ArrayList<SnippetListItemForUpdate>>() {}.getType();
-        JsonElement jsonElement = prepareResponseFrom(updates);
+        JsonElement jsonElement = prepareResponseFrom(updateListItems);
         return new Gson().fromJson(jsonElement, listType);
     }
 
@@ -282,9 +288,9 @@ public class UserServiceImpl extends AbstractService implements UserService {
     public List<SnippetListItem> getAllBookmarksOf(Long userId) {
         Type listType = new TypeToken<ArrayList<SnippetListItem>>() {}.getType();
         List<SnippetListItem> allBookmarks = userBookmarkRepository.findAllBookmarksFor(userId);
-        for (SnippetListItem snippetListItem : allBookmarks) {
-            snippetListItem.removeParentIfDummy();
-        }
+
+        updateBookmarkAndVoteStatusFor(userId, allBookmarks, true);
+
         JsonElement jsonElement = prepareResponseFrom(allBookmarks);
         return new Gson().fromJson(jsonElement, listType);
     }
@@ -401,5 +407,15 @@ public class UserServiceImpl extends AbstractService implements UserService {
 
     private Timestamp getCurrentTime() {
         return new Timestamp((new Date()).getTime());
+    }
+
+    @Override
+    protected UserBookmarkRepository getUserBookmarkRepository() {
+        return userBookmarkRepository;
+    }
+
+    @Override
+    protected UserSnippetVoteRepository getUserSnippetVoteRepository() {
+        return userSnippetVoteRepository;
     }
 }

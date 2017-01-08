@@ -16,7 +16,7 @@ public interface SnippetService {
 
     UserSnippetVote addUserVote(UserSnippetVote userSnippetVote);
 
-    List<SnippetListItem> getSnippetTreeWithRootId(long id);
+    List<SnippetListItem> getSnippetTreeWithRootId(long id, long userId);
 
     Story addNewEnd(Story story);
 

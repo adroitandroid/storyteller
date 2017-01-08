@@ -62,24 +62,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         snippetListItems.addAll(getSnippetListItemsForPopular());
         snippetListItems.addAll(getSnippetListItemSortedByCreateDate());
 
-        Map<Long, Integer> snippetVoteMap = new HashMap<>();
-        Set<Long> bookmarkSet = new HashSet<>();
-        if (userId > 0) {
-            List<UserSnippetVote> userVotes = userSnippetVoteRepository.findByUserId(userId);
-            for (UserSnippetVote snippetVote : userVotes) {
-                snippetVoteMap.put(snippetVote.getSnippet().getId(), snippetVote.getVote());
-            }
-            List<UserBookmark> userBookmarks = userBookmarkRepository.findByUserIdAndSoftDeletedFalse(userId);
-            for (UserBookmark userBookmark : userBookmarks) {
-                bookmarkSet.add(userBookmark.getSnippet().getId());
-            }
-        }
-
-        for (SnippetListItem snippetListItem : snippetListItems) {
-            snippetListItem.removeParentIfDummy();
-            snippetListItem.setUserVote(snippetVoteMap.get(snippetListItem.getSnippetId()));
-            snippetListItem.setBookmarked(bookmarkSet.contains(snippetListItem.getSnippetId()));
-        }
+        updateBookmarkAndVoteStatusFor(userId, snippetListItems, false);
         return snippetListItems;
     }
 
@@ -247,12 +230,12 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     }
 
     @Override
-    public List<SnippetListItem> getSnippetTreeWithRootId(long id) {
+    public List<SnippetListItem> getSnippetTreeWithRootId(long id, long userId) {
         Type listType = new TypeToken<ArrayList<SnippetListItem>>() {}.getType();
         List<SnippetListItem> snippetListForRoot = snippetRepository.findByRootSnippetId(id);
-        for (SnippetListItem snippetListItem : snippetListForRoot) {
-            snippetListItem.removeParentIfDummy();
-        }
+
+        updateBookmarkAndVoteStatusFor(userId, snippetListForRoot, false);
+
         JsonElement jsonElement = prepareResponseFrom(snippetListForRoot);
         return new Gson().fromJson(jsonElement, listType);
     }
@@ -310,5 +293,15 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         }
 
         return storyListItems;
+    }
+
+    @Override
+    protected UserBookmarkRepository getUserBookmarkRepository() {
+        return userBookmarkRepository;
+    }
+
+    @Override
+    protected UserSnippetVoteRepository getUserSnippetVoteRepository() {
+        return userSnippetVoteRepository;
     }
 }
