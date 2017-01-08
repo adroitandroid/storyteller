@@ -212,4 +212,18 @@ public class UserController extends AbstractController {
         userService.updateFollowRelationship(
                 userRelation.getUserId(), userRelation.getFollowerUserId(), userRelation.isSoftDeleted());
     }
+
+    @RequestMapping(value = "/profile/", method = RequestMethod.GET, produces = "application/json")
+    public UserProfile getProfileFor(@RequestParam(value = "user_id") Long userId,
+                                          @RequestParam(value = "requesting_user_id", required = false) Long requestingUserId) {
+        return userService.getProfileFor(userId, requestingUserId);
+    }
+
+    /**
+     * Change in name or description of user
+     */
+    @RequestMapping(value = "/profile/", method = RequestMethod.PUT, produces = "application/json")
+    public void updateProfile(@RequestBody User user) {
+        userService.update(user);
+    }
 }

@@ -56,4 +56,7 @@ public interface SnippetRepository extends PagingAndSortingRepository<Snippet, L
 
     @Query(value = "select new com.adroitandroid.model.StoryListItem(s) from Story s, Snippet es, SnippetStats ss WHERE es.endsStory = true AND ss.snippetId = es.id AND s.endSnippet = es")
     Page<StoryListItem> findRecentlyCompletedStories(Pageable pageable);
+
+    @Query(value = "select new com.adroitandroid.model.SnippetListItem(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND au.id = ?1 ORDER BY s.createdAt DESC")
+    List<SnippetListItem> getContributionsBy(Long userId);
 }

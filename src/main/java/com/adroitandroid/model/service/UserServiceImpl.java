@@ -318,6 +318,28 @@ public class UserServiceImpl extends AbstractService implements UserService {
         }
     }
 
+    @Override
+    public UserProfile getProfileFor(Long userId, Long requestingUserId) {
+        User user = userRepository.findOne(userId);
+        Type listType = new TypeToken<ArrayList<SnippetListItem>>() {}.getType();
+        JsonElement jsonElement = prepareResponseFrom(snippetRepository.getContributionsBy(userId));
+        List<SnippetListItem> contributions = new Gson().fromJson(jsonElement, listType);
+
+        if (requestingUserId != null) {
+            updateBookmarkAndVoteStatusFor(requestingUserId, contributions, userId.equals(requestingUserId));
+        }
+        User userWithFetch = new Gson().fromJson(prepareResponseFrom(user, User.USER_STATS_IN_USER), User.class);
+        return new UserProfile(userWithFetch, contributions);
+    }
+
+    @Override
+    public void update(User user) {
+        User userInDb = userRepository.findOne(user.getId());
+        userInDb.setUsername(user.getUsername());
+        userInDb.setDescription(user.getDescription());
+        userRepository.save(userInDb);
+    }
+
     private Map<Long, SnippetListItemForUpdate> getSnippetsMapFor(List<VoteUpdate> voteUpdateList,
                                                                   List<ChildUpdate> childUpdateList) {
         Map<Long, SnippetListItemForUpdate> itemForUpdateMap = new HashMap<>();

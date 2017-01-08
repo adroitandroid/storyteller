@@ -13,7 +13,7 @@ import java.util.Date;
 @Table(name = "user")
 public class User {
 
-    public static final String AUTH_TYPE = "auth_type_in_user";
+    public static final String AUTH_TYPE_IN_USER = "auth_type_in_user";
     public static final String USER_STATS_IN_USER = "user_stats_in_user";
 
     public User() {
@@ -35,9 +35,12 @@ public class User {
     @Access(AccessType.FIELD)
     public String username;
 
+    @Access(AccessType.FIELD)
+    public String description;
+
     @JoinColumn(name = "auth_type_id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @OptionalInGson(exclude = AUTH_TYPE)
+    @OptionalInGson(exclude = AUTH_TYPE_IN_USER)
     @Access(AccessType.FIELD)
     private AuthenticationType authType;
 
@@ -83,5 +86,17 @@ public class User {
 
     public Timestamp getLastActiveAt() {
         return lastActiveAt;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

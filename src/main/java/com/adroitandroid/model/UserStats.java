@@ -1,13 +1,10 @@
 package com.adroitandroid.model;
 
 import com.adroitandroid.serializer.OptionalInGson;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.sql.Timestamp;
 
 /**
  * Created by pv on 08/01/17.

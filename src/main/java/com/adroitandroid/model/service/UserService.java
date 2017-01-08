@@ -58,4 +58,8 @@ public interface UserService {
     List<UserStatus> getStatusFor(Long userId);
 
     void updateStatus(UserStatus userStatus);
+
+    UserProfile getProfileFor(Long userId, Long requestingUserId);
+
+    void update(User user);
 }
