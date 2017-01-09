@@ -183,6 +183,9 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
             snippetInDb.setRootSnippetId(snippetInDb.getId());
             snippetInDb = snippetRepository.save(snippetInDb);
         }
+        if (snippet.getParentSnippetId() > 0) {
+            snippetStatsRepository.incrementChildren(snippet.getParentSnippetId(), snippet.createdAt);
+        }
 
         updateUserStatusAndStatsOnAdd(user, snippet.createdAt, snippet.getParentSnippetId() == -1L);
 
@@ -262,6 +265,10 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         Timestamp currentTime = story.getEndSnippet().createdAt;
         story.setCreatedAt(currentTime);
         Story storyInDb = storyRepository.save(story);
+
+        if (storyInDb.getEndSnippet().getParentSnippetId() > 0) {
+            snippetStatsRepository.incrementChildren(storyInDb.getEndSnippet().getParentSnippetId(), currentTime);
+        }
 
         updateUserStatusAndStatsOnAdd(user, currentTime, false);
 
