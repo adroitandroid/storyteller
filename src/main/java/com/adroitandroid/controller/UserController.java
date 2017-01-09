@@ -11,7 +11,9 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ public class UserController extends AbstractController {
      */
     @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
     public CompletableFuture<UserLoginDetails> signInUser(@RequestBody UserLoginInfo userLoginInfo)
-            throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+            throws GeneralSecurityException, IOException {
         validateRequest(userLoginInfo);
         return userService.signIn(userLoginInfo);
     }

@@ -12,8 +12,9 @@ import javax.persistence.Table;
 public class AuthenticationType {
 
     static final String FACEBOOK = "facebook";
-    static final String PHONE = "phone";
+    public static final String PHONE = "phone";
     static final String EMAIL = "email";
+    public static final String GOOGLE = "google";
 
     @Id
     private Integer id;
@@ -42,8 +43,10 @@ public class AuthenticationType {
                 return new AuthenticationType(1, FACEBOOK);
             case PHONE:
                 return new AuthenticationType(2, PHONE);
+            case GOOGLE:
+                return new AuthenticationType(3, GOOGLE);
             case EMAIL:
-                return new AuthenticationType(3, EMAIL);
+                return new AuthenticationType(4, EMAIL);
         }
         throw new IllegalArgumentException("invalid authentication type");
     }

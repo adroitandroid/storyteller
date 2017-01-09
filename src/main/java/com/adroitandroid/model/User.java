@@ -30,6 +30,15 @@ public class User {
         setCreatedAndLastActiveTime();
     }
 
+    public User(String authenticationType, String authUserId, String name, String photoUrl, String emailId) {
+        this.authType = AuthenticationType.getByType(authenticationType);
+        this.authUserId = authUserId;
+        this.username = name;
+        this.photoUrl = photoUrl;
+        this.emailId = emailId;
+        setCreatedAndLastActiveTime();
+    }
+
     private Long id;
 
     @Access(AccessType.FIELD)
@@ -47,6 +56,14 @@ public class User {
     @Column(name = "auth_user_id")
     @Access(AccessType.FIELD)
     private String authUserId;
+
+    @Column(name = "photo_url")
+    @Access(AccessType.FIELD)
+    private String photoUrl;
+
+    @Column(name = "email_id")
+    @Access(AccessType.FIELD)
+    private String emailId;
 
     @Column(name = "last_active")
     @Access(AccessType.FIELD)

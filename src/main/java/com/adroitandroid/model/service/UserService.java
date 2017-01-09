@@ -4,6 +4,7 @@ import com.adroitandroid.model.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -37,7 +38,7 @@ public interface UserService {
     List<UserChapterRelation> getUserBookmarksSortedByRecentFirst(Long userId);
 
     CompletableFuture<UserLoginDetails> signIn(UserLoginInfo userLoginInfo)
-            throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
+            throws GeneralSecurityException, IOException;
 
     UserSession getUserSessionForAuthToken(String xAuth) throws IOException;
 
