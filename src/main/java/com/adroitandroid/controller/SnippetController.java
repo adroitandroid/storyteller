@@ -24,9 +24,8 @@ public class SnippetController extends AbstractController {
      * Defining popular as those having the favour of most => vote sum > num votes / 2 => 75%+ users liked it, <- most recent created first
      */
     @RequestMapping(value = "/feed", method = RequestMethod.GET)
-    public List<SnippetListItem> getSnippetsForFeed(
-            @RequestParam(name = "user_id", required = false, defaultValue = "0") Long userId) {
-        List<SnippetListItem> snippetsForFeed = new ArrayList<>(snippetService.getSnippetsForFeed(userId));
+    public List<SnippetListItem> getSnippetsForFeed() {
+        List<SnippetListItem> snippetsForFeed = new ArrayList<>(snippetService.getSnippetsForFeed(getUserIdFromRequest()));
         snippetsForFeed.sort((o1, o2) -> {
             if (SnippetListItem.CATEGORY_NEW.equals(o1.getCategory())
                     && SnippetListItem.CATEGORY_NEW.equals(o2.getCategory())) {
