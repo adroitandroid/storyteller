@@ -38,7 +38,7 @@ public interface UserService {
     List<UserChapterRelation> getUserBookmarksSortedByRecentFirst(Long userId);
 
     CompletableFuture<UserLoginDetails> signIn(UserLoginInfo userLoginInfo)
-            throws GeneralSecurityException, IOException;
+            throws GeneralSecurityException, IOException, InterruptedException;
 
     UserSession getUserSessionForAuthToken(String xAuth) throws IOException;
 

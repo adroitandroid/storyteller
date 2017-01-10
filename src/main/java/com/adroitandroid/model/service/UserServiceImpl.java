@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
@@ -22,11 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -35,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by pv on 02/12/16.
@@ -62,6 +61,8 @@ public class UserServiceImpl extends AbstractService implements UserService {
     private String FACEBOOK_APPSECRET;
     @Value("${google.oauth.clientid.web}")
     private String GOOGLE_OAUTH_WEB_CLIENT_ID;
+    @Value("${firebase.database.url}")
+    private String FIREBASE_DATABASE_URL;
 
     private static final RestTemplate restTemplate;
 
@@ -98,6 +99,16 @@ public class UserServiceImpl extends AbstractService implements UserService {
         this.userSnippetVoteRepository = userSnippetVoteRepository;
         this.userStatsRepository = userStatsRepository;
         this.userStatusRepository = userStatusRepository;
+    }
+
+    @PostConstruct
+    public void init() throws FileNotFoundException {
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setServiceAccount(new FileInputStream("src/main/resources/weave-bc0fd-firebase-adminsdk-2q0fc-f473110538.json"))
+                .setDatabaseUrl(FIREBASE_DATABASE_URL)
+                .build();
+
+        FirebaseApp.initializeApp(options);
     }
 
     @Override
@@ -167,7 +178,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
 
     @Override
     public CompletableFuture<UserLoginDetails> signIn(UserLoginInfo userLoginInfo)
-            throws GeneralSecurityException, IOException {
+            throws GeneralSecurityException, IOException, InterruptedException {
         Date currentTime = new Date();
         UserSession userSession = userSessionRepository.findByAuthTypeAndAuthUserIdAndAccessToken(
                 userLoginInfo.getAuthenticationType(), userLoginInfo.getAuthUserId(), userLoginInfo.getAccessToken());
@@ -192,38 +203,23 @@ public class UserServiceImpl extends AbstractService implements UserService {
                         -> validateAndRespondWithUserDetails(facebookResponse.getId(), userLoginInfo,
                         new User(userLoginInfo.getAuthenticationType(), userLoginInfo.getAuthUserId())));
             } else if (AuthenticationType.GOOGLE.equals(userLoginInfo.getAuthenticationType())) {
-                GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
-                        .setAudience(Collections.singletonList(GOOGLE_OAUTH_WEB_CLIENT_ID))
-                        .build();
 
-                CompletableFuture<GoogleIdToken.Payload> payloadCompletableFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        GoogleIdToken idToken = verifier.verify(userLoginInfo.getAccessToken());
-                        if (idToken == null) {
-                            return null;
-                        } else {
-                            return idToken.getPayload();
-                        }
-                    } catch (GeneralSecurityException | IOException e) {
-                        return null;
-                    }
-                });
+                final UserLoginDetails[] userLoginDetails = {null};
+                CountDownLatch countDownLatch = new CountDownLatch(1);
+                FirebaseAuth.getInstance().verifyIdToken(userLoginInfo.getAccessToken())
+                        .addOnSuccessListener(decodedToken -> {
+                            userLoginDetails[0]
+                                    = getUserLoginDetails(userLoginInfo, new User(userLoginInfo.getAuthenticationType(),
+                                            userLoginInfo.getAuthUserId(), decodedToken.getName(), decodedToken.getPicture(),
+                                            decodedToken.getEmail()));
+                            countDownLatch.countDown();
+                        })
+                        .addOnFailureListener(e -> {
+                            throw new IllegalArgumentException("incorrect login details " + e.getLocalizedMessage());
+                        });
+                countDownLatch.await();
 
-                return payloadCompletableFuture.thenApplyAsync(payload -> {
-                    String photoUrl = null;
-                    String authUserId = null;
-                    String email = null;
-                    String name = null;
-                    if (payload != null) {
-                        authUserId = payload.getSubject();
-                        email = payload.getEmail();
-                        name = (String) payload.get("name");
-                        photoUrl = (String) payload.get("picture");
-                    }
-
-                    return validateAndRespondWithUserDetails(authUserId, userLoginInfo,
-                            new User(userLoginInfo.getAuthenticationType(), authUserId, name, photoUrl, email));
-                });
+                return CompletableFuture.supplyAsync(() -> userLoginDetails[0]);
             }
         }
         throw new IllegalArgumentException("incorrect login details");
@@ -412,26 +408,31 @@ public class UserServiceImpl extends AbstractService implements UserService {
         if (userIdFromValidationOnServer == null || !userIdFromValidationOnServer.equals(authUserId)) {
             throw new IllegalArgumentException("incorrect login details");
         } else {
-            User user = userRepository.findByAuthTypeAndAuthUserId(AuthenticationType.getByType(userLoginInfo.getAuthenticationType()), authUserId);
-            boolean isNewUser = user == null;
-            Timestamp currentTime = new Timestamp((new Date()).getTime());
-            if (isNewUser) {
-                user = userRepository.save(newUser);
-                userStatusRepository.save(UserStatus.getInitialSnippetsStatus(user.getId(), currentTime));
-                userStatusRepository.save(UserStatus.getEligibleToAddSnippetsStatus(user.getId(), currentTime));
-            } else {
-                userRepository.updateLastActiveTime(user.getId(), currentTime);
-            }
-            try {
-                UserSession userSession = userSessionRepository.save(new UserSession(user.getId(), userLoginInfo.getAuthenticationType(),
-                        userLoginInfo.getAuthUserId(), userLoginInfo.getAccessToken(), new Date(currentTime.getTime())));
-                String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());
-                return new UserLoginDetails(user.getId(), token, user.getUsername());
-            } catch (NoSuchAlgorithmException | JsonProcessingException e) {
-                e.printStackTrace();
-            }
+            return getUserLoginDetails(userLoginInfo, newUser);
         }
-        return null;
+    }
+
+    private UserLoginDetails getUserLoginDetails(UserLoginInfo userLoginInfo, User newUser) {
+        User user = userRepository.findByAuthTypeAndAuthUserId(
+                AuthenticationType.getByType(userLoginInfo.getAuthenticationType()), userLoginInfo.getAuthUserId());
+        boolean isNewUser = user == null;
+        Timestamp currentTime = new Timestamp((new Date()).getTime());
+        if (isNewUser) {
+            user = userRepository.save(newUser);
+            userStatusRepository.save(UserStatus.getInitialSnippetsStatus(user.getId(), currentTime));
+            userStatusRepository.save(UserStatus.getEligibleToAddSnippetsStatus(user.getId(), currentTime));
+        } else {
+            userRepository.updateLastActiveTime(user.getId(), currentTime);
+        }
+        try {
+            UserSession userSession = userSessionRepository.save(new UserSession(user.getId(), userLoginInfo.getAuthenticationType(),
+                    userLoginInfo.getAuthUserId(), userLoginInfo.getAccessToken(), new Date(currentTime.getTime())));
+            String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());
+            return new UserLoginDetails(user.getId(), token, user.getUsername());
+        } catch (NoSuchAlgorithmException | JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private FacebookTokenValidationResponse validateFacebookToken(URI url) {

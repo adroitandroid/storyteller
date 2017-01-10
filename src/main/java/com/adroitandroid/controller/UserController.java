@@ -40,7 +40,7 @@ public class UserController extends AbstractController {
      */
     @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
     public CompletableFuture<UserLoginDetails> signInUser(@RequestBody UserLoginInfo userLoginInfo)
-            throws GeneralSecurityException, IOException {
+            throws GeneralSecurityException, IOException, InterruptedException {
         validateRequest(userLoginInfo);
         return userService.signIn(userLoginInfo);
     }
