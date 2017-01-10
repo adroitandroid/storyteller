@@ -44,10 +44,10 @@ public class SnippetListItemForUpdate extends SnippetListItem {
 
     private void setCategoryText() {
         if (isStoryStarter()) {
-            setCategory("New story from people you follow");
+            setCategory("new story from people you follow");
         } else {
 //            TODO: check if end and set category accordingly
-            setCategory("New snippet from people you follow");
+            setCategory("new snippet from people you follow");
         }
     }
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,15 +28,23 @@ public class SnippetController extends AbstractController {
     public List<SnippetListItem> getSnippetsForFeed() {
         List<SnippetListItem> snippetsForFeed = new ArrayList<>(snippetService.getSnippetsForFeed(getUserIdFromRequest()));
         snippetsForFeed.sort((o1, o2) -> {
+            Timestamp time1;
             if (SnippetListItem.CATEGORY_NEW.equals(o1.getCategory())
-                    && SnippetListItem.CATEGORY_NEW.equals(o2.getCategory())) {
-                return o1.getSnippetCreationTime().compareTo(o2.getSnippetCreationTime());
+                    || SnippetListItem.CATEGORY_POPULAR.equals(o1.getCategory())) {
+                time1 = o1.getSnippetCreationTime();
+            } else {
+                time1 = o1.getSnippetStats().getUpdatedAt();
             }
-            if (SnippetListItem.CATEGORY_POPULAR.equals(o1.getCategory())
-                    && SnippetListItem.CATEGORY_POPULAR.equals(o2.getCategory())) {
-                return o2.getSnippetCreationTime().compareTo(o1.getSnippetCreationTime());
+
+            Timestamp time2;
+            if (SnippetListItem.CATEGORY_NEW.equals(o2.getCategory())
+                    || SnippetListItem.CATEGORY_POPULAR.equals(o2.getCategory())) {
+                time2 = o2.getSnippetCreationTime();
+            } else {
+                time2 = o2.getSnippetStats().getUpdatedAt();
             }
-            return o2.getSnippetStats().getUpdatedAt().compareTo(o1.getSnippetStats().getUpdatedAt());
+
+            return time2.compareTo(time1);
         });
         return snippetsForFeed;
     }
@@ -50,19 +59,26 @@ public class SnippetController extends AbstractController {
      * Definition of New, Trending and Popular same as that for snippets
      */
     @RequestMapping(value = "/end/feed", method = RequestMethod.GET)
-    public List<StoryListItem> getStoriesForFeed(
-            @RequestParam(name = "user_id", required = false, defaultValue = "0") Long userId) {
-        List<StoryListItem> snippetsForFeed = new ArrayList<>(snippetService.getStoriesForFeed(userId));
+    public List<StoryListItem> getStoriesForFeed() {
+        List<StoryListItem> snippetsForFeed = new ArrayList<>(snippetService.getStoriesForFeed(getUserIdFromRequest()));
         snippetsForFeed.sort((o1, o2) -> {
+            Timestamp time1;
             if (SnippetListItem.CATEGORY_NEW.equals(o1.getCategory())
-                    && SnippetListItem.CATEGORY_NEW.equals(o2.getCategory())) {
-                return o1.getSnippetCreationTime().compareTo(o2.getSnippetCreationTime());
+                    || SnippetListItem.CATEGORY_POPULAR.equals(o1.getCategory())) {
+                time1 = o1.getSnippetCreationTime();
+            } else {
+                time1 = o1.getEndSnippetUpdateTime();
             }
-            if (SnippetListItem.CATEGORY_POPULAR.equals(o1.getCategory())
-                    && SnippetListItem.CATEGORY_POPULAR.equals(o2.getCategory())) {
-                return o2.getSnippetCreationTime().compareTo(o1.getSnippetCreationTime());
+
+            Timestamp time2;
+            if (SnippetListItem.CATEGORY_NEW.equals(o2.getCategory())
+                    || SnippetListItem.CATEGORY_POPULAR.equals(o2.getCategory())) {
+                time2 = o2.getSnippetCreationTime();
+            } else {
+                time2 = o2.getEndSnippetUpdateTime();
             }
-            return o2.getEndSnippetUpdateTime().compareTo(o1.getEndSnippetUpdateTime());
+
+            return time2.compareTo(time1);
         });
         return snippetsForFeed;
     }

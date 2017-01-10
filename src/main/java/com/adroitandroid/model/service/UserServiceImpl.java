@@ -313,7 +313,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
         for (ContributionUpdate contributionUpdate : contributionUpdateList) {
             Long snippetId = contributionUpdate.getSnippet().getId();
             SnippetListItemForUpdate snippetListItemForUpdate = itemForUpdateMap.get(snippetId);
-            if (snippetListItemForUpdate == null) { // not adding those that are already added as of interested
+            if (snippetListItemForUpdate == null) { // not adding those that are already added as of interest
                 snippetListItemForUpdate = new SnippetListItemForUpdate(contributionUpdate.getSnippet(),
                         contributionUpdate.getParentSnippet(), contributionUpdate.getSnippetStats(),
                         contributionUpdate.getUser(), contributionUpdate.getCreatedTime(), true);
