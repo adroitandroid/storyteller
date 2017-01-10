@@ -365,11 +365,13 @@ public class UserServiceImpl extends AbstractService implements UserService {
         JsonElement jsonElement = prepareResponseFrom(snippetRepository.getContributionsBy(userId));
         List<SnippetListItem> contributions = new Gson().fromJson(jsonElement, listType);
 
+        UserRelation relation = null;
         if (requestingUserId != null) {
             updateBookmarkAndVoteStatusFor(requestingUserId, contributions, userId.equals(requestingUserId));
+            relation = userRelationsRepository.findByUserIdAndFollowerUserIdAndSoftDeletedFalse(userId, requestingUserId);
         }
         User userWithFetch = new Gson().fromJson(prepareResponseFrom(user, User.USER_STATS_IN_USER), User.class);
-        return new UserProfile(userWithFetch, contributions);
+        return new UserProfile(userWithFetch, contributions, relation != null);
     }
 
     @Override

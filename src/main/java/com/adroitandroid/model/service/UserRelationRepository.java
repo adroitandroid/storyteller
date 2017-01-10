@@ -14,4 +14,6 @@ public interface UserRelationRepository extends CrudRepository<UserRelation, Lon
     @Modifying
     @Query(nativeQuery = true, value = "insert into user_relations(user_id, follower_user_id, updated_at, soft_deleted) values(?1, ?2, ?4, ?3) on duplicate key update soft_deleted = ?3, updated_at = ?4")
     void updateFollow(Long followedUserId, Long followerUserId, boolean unfollow, Timestamp currentTime);
+
+    UserRelation findByUserIdAndFollowerUserIdAndSoftDeletedFalse(Long userId, Long requestingUserId);
 }

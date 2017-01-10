@@ -213,9 +213,8 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/profile/", method = RequestMethod.GET, produces = "application/json")
-    public UserProfile getProfileFor(@RequestParam(value = "user_id") Long userId,
-                                          @RequestParam(value = "requesting_user_id", required = false) Long requestingUserId) {
-        return userService.getProfileFor(userId, requestingUserId);
+    public UserProfile getProfileFor(@RequestParam(value = "user_id") Long userId) {
+        return userService.getProfileFor(userId, getUserIdFromRequest());
     }
 
     /**
