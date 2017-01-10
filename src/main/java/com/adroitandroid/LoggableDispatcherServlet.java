@@ -44,7 +44,7 @@ public class LoggableDispatcherServlet extends DispatcherServlet {
             try {
                 requestBody = requestToCache.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
             } catch (IOException e) {
-                e.printStackTrace();
+                requestBody = null;
             }
             jsonObject.addProperty("requestBody", requestBody);
             jsonObject.addProperty("requestParams", requestToCache.getQueryString());

@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -184,8 +181,8 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/bookmark/all/", method = RequestMethod.GET, produces = "application/json")
-    public List<SnippetListItem> updateUserBookmark(@RequestParam(value = "user_id") Long userId) {
-        return userService.getAllBookmarksOf(userId);
+    public List<SnippetListItem> updateUserBookmark() {
+        return userService.getAllBookmarksOf(getUserIdFromRequest());
     }
 
     /**
@@ -195,8 +192,8 @@ public class UserController extends AbstractController {
      * SINCE last login time OR within last day, whichever is earlier
      */
     @RequestMapping(value = "/updates/", method = RequestMethod.GET, produces = "application/json")
-    public List<SnippetListItemForUpdate> getUpdatesFor(@RequestParam(value = "user_id") Long userId) {
-        return userService.getUpdatesFor(userId);
+    public List<SnippetListItemForUpdate> getUpdatesFor() {
+        return userService.getUpdatesFor(getUserIdFromRequest());
     }
 
     @RequestMapping(value = "/status/", method = RequestMethod.GET, produces = "application/json")
