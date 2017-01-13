@@ -95,9 +95,7 @@ public class SnippetController extends AbstractController {
     }
 
     @RequestMapping(value = "/{id}/tree/", method = RequestMethod.GET, produces = "application/json")
-    public List<SnippetListItem> getSnippetTreeFor(@PathVariable long id,
-                                                   @RequestParam(name = "user_id", required = false, defaultValue = "0")
-                                                           Long userId) {
-        return snippetService.getSnippetTreeWithRootId(id, userId);
+    public List<SnippetListItem> getSnippetTreeFor(@PathVariable long id) {
+        return snippetService.getSnippetTreeWithRootId(id, getUserIdFromRequest());
     }
 }
