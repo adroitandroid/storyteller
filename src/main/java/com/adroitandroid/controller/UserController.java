@@ -177,7 +177,11 @@ public class UserController extends AbstractController {
     //#####################TODO: vver starts from here #######################
     @RequestMapping(value = "/bookmark/", method = RequestMethod.PUT, produces = "application/json")
     public void updateUserBookmark(@RequestBody UserBookmark userBookmark) {
-        if (!userBookmark.getUserId().equals(getUserIdFromRequest())) {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        if (!userBookmark.getUserId().equals(userIdFromRequest)) {
             throw new IllegalArgumentException("invalid user");
         }
         userService.updateUserBookmark(userBookmark);
@@ -185,7 +189,11 @@ public class UserController extends AbstractController {
 
     @RequestMapping(value = "/bookmark/all/", method = RequestMethod.GET, produces = "application/json")
     public List<SnippetListItem> updateUserBookmark() {
-        return userService.getAllBookmarksOf(getUserIdFromRequest());
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        return userService.getAllBookmarksOf(userIdFromRequest);
     }
 
     /**
@@ -196,17 +204,29 @@ public class UserController extends AbstractController {
      */
     @RequestMapping(value = "/updates/", method = RequestMethod.GET, produces = "application/json")
     public List<SnippetListItemForUpdate> getUpdatesFor() {
-        return userService.getUpdatesFor(getUserIdFromRequest());
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        return userService.getUpdatesFor(userIdFromRequest);
     }
 
     @RequestMapping(value = "/status/", method = RequestMethod.GET, produces = "application/json")
     public List<UserStatus> getStatusFor() {
-        return userService.getStatusFor(getUserIdFromRequest());
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        return userService.getStatusFor(userIdFromRequest);
     }
 
     @RequestMapping(value = "/status/", method = RequestMethod.PUT, produces = "application/json")
     public void updateStatusFor(@RequestBody UserStatus userStatus) {
-        if (!userStatus.getUserId().equals(getUserIdFromRequest())) {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        if (!userStatus.getUserId().equals(userIdFromRequest)) {
             throw new IllegalArgumentException("invalid user");
         }
         userService.updateStatus(userStatus);
@@ -214,7 +234,11 @@ public class UserController extends AbstractController {
 
     @RequestMapping(value = "/follow/", method = RequestMethod.PUT, produces = "application/json")
     public void updateFollowed(@RequestBody UserRelation userRelation) {
-        if (!userRelation.getFollowerUserId().equals(getUserIdFromRequest())) {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        if (!userRelation.getFollowerUserId().equals(userIdFromRequest)) {
             throw new IllegalArgumentException("invalid user");
         }
         userService.updateFollowRelationship(
@@ -223,7 +247,11 @@ public class UserController extends AbstractController {
 
     @RequestMapping(value = "/profile/", method = RequestMethod.GET, produces = "application/json")
     public UserProfile getProfileFor(@RequestParam(value = "user_id") Long userId) {
-        return userService.getProfileFor(userId, getUserIdFromRequest());
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        return userService.getProfileFor(userId, userIdFromRequest);
     }
 
     /**
@@ -231,7 +259,11 @@ public class UserController extends AbstractController {
      */
     @RequestMapping(value = "/profile/", method = RequestMethod.PUT, produces = "application/json")
     public void updateProfile(@RequestBody User user) {
-        if (!user.getId().equals(getUserIdFromRequest())) {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        if (!user.getId().equals(userIdFromRequest)) {
             throw new IllegalArgumentException("invalid user");
         }
         userService.update(user);

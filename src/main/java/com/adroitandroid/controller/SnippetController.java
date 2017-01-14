@@ -26,7 +26,11 @@ public class SnippetController extends AbstractController {
      */
     @RequestMapping(value = "/feed", method = RequestMethod.GET)
     public List<SnippetListItem> getSnippetsForFeed() {
-        List<SnippetListItem> snippetsForFeed = new ArrayList<>(snippetService.getSnippetsForFeed(getUserIdFromRequest()));
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        List<SnippetListItem> snippetsForFeed = new ArrayList<>(snippetService.getSnippetsForFeed(userIdFromRequest));
         snippetsForFeed.sort((o1, o2) -> {
             Timestamp time1;
             if (SnippetListItem.CATEGORY_NEW.equals(o1.getCategory())
@@ -51,7 +55,11 @@ public class SnippetController extends AbstractController {
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public JsonElement addNewSnippet(@RequestBody Snippet snippet) {
-        if (!snippet.getAuthorUser().getId().equals(getUserIdFromRequest())) {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        if (!snippet.getAuthorUser().getId().equals(userIdFromRequest)) {
             throw new IllegalArgumentException("invalid user");
         }
         Snippet addedSnippet = snippetService.addNewSnippet(snippet);
@@ -63,7 +71,11 @@ public class SnippetController extends AbstractController {
      */
     @RequestMapping(value = "/end/feed", method = RequestMethod.GET)
     public List<StoryListItem> getStoriesForFeed() {
-        List<StoryListItem> snippetsForFeed = new ArrayList<>(snippetService.getStoriesForFeed(getUserIdFromRequest()));
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        List<StoryListItem> snippetsForFeed = new ArrayList<>(snippetService.getStoriesForFeed(userIdFromRequest));
         snippetsForFeed.sort((o1, o2) -> {
             Timestamp time1;
             if (SnippetListItem.CATEGORY_NEW.equals(o1.getCategory())
@@ -88,7 +100,11 @@ public class SnippetController extends AbstractController {
 
     @RequestMapping(value = "/end/", method = RequestMethod.POST)
     public JsonElement addNewEnd(@RequestBody Story story) {
-        if (!story.getEndSnippet().getAuthorUser().getId().equals(getUserIdFromRequest())) {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        if (!story.getEndSnippet().getAuthorUser().getId().equals(userIdFromRequest)) {
             throw new IllegalArgumentException("invalid user");
         }
         Story addedStory = snippetService.addNewEnd(story);
@@ -97,7 +113,11 @@ public class SnippetController extends AbstractController {
 
     @RequestMapping(value = "/vote/", method = RequestMethod.PUT, produces = "application/json")
     public UserSnippetVote addUserVoteForSnippet(@RequestBody UserSnippetVote userSnippetVote) {
-        if (!userSnippetVote.getUser().getId().equals(getUserIdFromRequest())) {
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        if (!userSnippetVote.getUser().getId().equals(userIdFromRequest)) {
             throw new IllegalArgumentException("invalid user");
         }
         return snippetService.addUserVote(userSnippetVote);
@@ -105,6 +125,10 @@ public class SnippetController extends AbstractController {
 
     @RequestMapping(value = "/{id}/tree/", method = RequestMethod.GET, produces = "application/json")
     public List<SnippetListItem> getSnippetTreeFor(@PathVariable long id) {
-        return snippetService.getSnippetTreeWithRootId(id, getUserIdFromRequest());
+        Long userIdFromRequest = getUserIdFromRequest();
+        if (userIdFromRequest < 0) {
+            throw new IllegalArgumentException("invalid user");
+        }
+        return snippetService.getSnippetTreeWithRootId(id, userIdFromRequest);
     }
 }
