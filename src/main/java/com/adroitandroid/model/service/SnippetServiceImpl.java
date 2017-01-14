@@ -175,15 +175,16 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         User user = userRepository.findOne(snippet.getAuthorUser().getId());
         snippet.setAuthorUser(user);
         snippet.init(false);
-        if (snippet.getParentSnippetId() == null) {
+        if (snippet.getParentSnippetId() == null || snippet.getParentSnippetId() <= 0) {
             snippet.setParentSnippetId(-1L);
         }
         Snippet snippetInDb = snippetRepository.save(snippet);
-        if (snippet.getRootSnippetId() == null) {
+        if (snippet.getRootSnippetId() == null || snippet.getRootSnippetId() <= 0) {
             snippetInDb.setRootSnippetId(snippetInDb.getId());
             snippetInDb = snippetRepository.save(snippetInDb);
         }
         if (snippet.getParentSnippetId() > 0) {
+//            TODO: send parent's author push notification
             snippetStatsRepository.incrementChildren(snippet.getParentSnippetId(), snippet.createdAt);
         }
 
@@ -264,9 +265,11 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         story.getEndSnippet().init(true);
         Timestamp currentTime = story.getEndSnippet().createdAt;
         story.setCreatedAt(currentTime);
+        story.setId(null);
         Story storyInDb = storyRepository.save(story);
 
         if (storyInDb.getEndSnippet().getParentSnippetId() > 0) {
+//            TODO: send parent's author push notification
             snippetStatsRepository.incrementChildren(storyInDb.getEndSnippet().getParentSnippetId(), currentTime);
         }
 

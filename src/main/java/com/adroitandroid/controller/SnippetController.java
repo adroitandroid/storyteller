@@ -51,6 +51,9 @@ public class SnippetController extends AbstractController {
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public JsonElement addNewSnippet(@RequestBody Snippet snippet) {
+        if (!snippet.getAuthorUser().getId().equals(getUserIdFromRequest())) {
+            throw new IllegalArgumentException("invalid user");
+        }
         Snippet addedSnippet = snippetService.addNewSnippet(snippet);
         return prepareResponseFrom(addedSnippet);
     }
@@ -85,12 +88,18 @@ public class SnippetController extends AbstractController {
 
     @RequestMapping(value = "/end/", method = RequestMethod.POST)
     public JsonElement addNewEnd(@RequestBody Story story) {
+        if (!story.getEndSnippet().getAuthorUser().getId().equals(getUserIdFromRequest())) {
+            throw new IllegalArgumentException("invalid user");
+        }
         Story addedStory = snippetService.addNewEnd(story);
         return prepareResponseFrom(addedStory);
     }
 
     @RequestMapping(value = "/vote/", method = RequestMethod.PUT, produces = "application/json")
     public UserSnippetVote addUserVoteForSnippet(@RequestBody UserSnippetVote userSnippetVote) {
+        if (!userSnippetVote.getUser().getId().equals(getUserIdFromRequest())) {
+            throw new IllegalArgumentException("invalid user");
+        }
         return snippetService.addUserVote(userSnippetVote);
     }
 

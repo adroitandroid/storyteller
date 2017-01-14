@@ -177,6 +177,9 @@ public class UserController extends AbstractController {
     //#####################TODO: vver starts from here #######################
     @RequestMapping(value = "/bookmark/", method = RequestMethod.PUT, produces = "application/json")
     public void updateUserBookmark(@RequestBody UserBookmark userBookmark) {
+        if (!userBookmark.getUserId().equals(getUserIdFromRequest())) {
+            throw new IllegalArgumentException("invalid user");
+        }
         userService.updateUserBookmark(userBookmark);
     }
 
@@ -197,17 +200,23 @@ public class UserController extends AbstractController {
     }
 
     @RequestMapping(value = "/status/", method = RequestMethod.GET, produces = "application/json")
-    public List<UserStatus> getStatusFor(@RequestParam(value = "user_id") Long userId) {
-        return userService.getStatusFor(userId);
+    public List<UserStatus> getStatusFor() {
+        return userService.getStatusFor(getUserIdFromRequest());
     }
 
     @RequestMapping(value = "/status/", method = RequestMethod.PUT, produces = "application/json")
     public void updateStatusFor(@RequestBody UserStatus userStatus) {
+        if (!userStatus.getUserId().equals(getUserIdFromRequest())) {
+            throw new IllegalArgumentException("invalid user");
+        }
         userService.updateStatus(userStatus);
     }
 
     @RequestMapping(value = "/follow/", method = RequestMethod.PUT, produces = "application/json")
     public void updateFollowed(@RequestBody UserRelation userRelation) {
+        if (!userRelation.getFollowerUserId().equals(getUserIdFromRequest())) {
+            throw new IllegalArgumentException("invalid user");
+        }
         userService.updateFollowRelationship(
                 userRelation.getUserId(), userRelation.getFollowerUserId(), userRelation.isSoftDeleted());
     }
@@ -222,6 +231,9 @@ public class UserController extends AbstractController {
      */
     @RequestMapping(value = "/profile/", method = RequestMethod.PUT, produces = "application/json")
     public void updateProfile(@RequestBody User user) {
+        if (!user.getId().equals(getUserIdFromRequest())) {
+            throw new IllegalArgumentException("invalid user");
+        }
         userService.update(user);
     }
 }
