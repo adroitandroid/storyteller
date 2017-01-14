@@ -427,6 +427,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
             userRepository.updateLastActiveTime(user.getId(), currentTime);
         }
         try {
+            userSessionRepository.removeByUserId(user.getId());
             UserSession userSession = userSessionRepository.save(new UserSession(user.getId(), userLoginInfo.getAuthenticationType(),
                     userLoginInfo.getAuthUserId(), userLoginInfo.getAccessToken(), new Date(currentTime.getTime())));
             String token = encodeAuthToken(userSession.getCreationTime(), userSession.getSessionId());

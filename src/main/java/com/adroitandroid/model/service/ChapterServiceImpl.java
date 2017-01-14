@@ -119,35 +119,36 @@ public class ChapterServiceImpl implements ChapterService {
         Long userId = notification.receiverUser.getId();
         UserDetail userDetail = userDetailRepository.findByUserId(userId);
         if (userDetail != null && userDetail.fcmToken != null) {
-            ServiceGenerator.getFcmService().sendPush(new FcmPushBody(userDetail.fcmToken, isApprovalRequest, approvalResponse))
-                    .enqueue(new Callback<FcmResponse>() {
-                        @Override
-                        public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
-                            if (response.isSuccessful()) {
-                                List<FcmResponse.FcmResult> fcmResults = response.body().getResults();
-                                FcmResponse.FcmResult fcmResult = fcmResults.get(0);
-                                if (fcmResult.isSuccess()) {
-                                    updateNotificationStatus(notification, Notification.STATUS_SENT);
-                                    String newToken = fcmResult.getRegistrationId();
-                                    if (newToken != null) {
-                                        userDetailRepository.updateToken(userId, newToken, getCurrentTime());
-                                    }
-                                } else if (fcmResult.shouldRemove()) {
-                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_BAD_DETAILS);
-                                    userDetailRepository.updateToken(userId, null, getCurrentTime());
-                                } else if (fcmResult.shouldResend()) {
-                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_QUEUED);
-                                } else if (fcmResult.isUnrecoverableError()) {
-                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_FCM_UNRECOVERABLE_FAILURE);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<FcmResponse> call, Throwable throwable) {
-                            updateNotificationStatus(notification, Notification.STATUS_UNSENT_FCM_FAILURE);
-                        }
-                    });
+//            TODO: commented since code has changed in vver
+//            ServiceGenerator.getFcmService().sendPush(new FcmPushBody(userDetail.fcmToken, forStory, isUpdate))
+//                    .enqueue(new Callback<FcmResponse>() {
+//                        @Override
+//                        public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
+//                            if (response.isSuccessful()) {
+//                                List<FcmResponse.FcmResult> fcmResults = response.body().getResults();
+//                                FcmResponse.FcmResult fcmResult = fcmResults.get(0);
+//                                if (fcmResult.isSuccess()) {
+//                                    updateNotificationStatus(notification, Notification.STATUS_SENT);
+//                                    String newToken = fcmResult.getRegistrationId();
+//                                    if (newToken != null) {
+//                                        userDetailRepository.updateToken(userId, newToken, getCurrentTime());
+//                                    }
+//                                } else if (fcmResult.shouldRemove()) {
+//                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_BAD_DETAILS);
+//                                    userDetailRepository.updateToken(userId, null, getCurrentTime());
+//                                } else if (fcmResult.shouldResend()) {
+//                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_QUEUED);
+//                                } else if (fcmResult.isUnrecoverableError()) {
+//                                    updateNotificationStatus(notification, Notification.STATUS_UNSENT_FCM_UNRECOVERABLE_FAILURE);
+//                                }
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<FcmResponse> call, Throwable throwable) {
+//                            updateNotificationStatus(notification, Notification.STATUS_UNSENT_FCM_FAILURE);
+//                        }
+//                    });
         } else {
             updateNotificationStatus(notification, Notification.STATUS_UNSENT_BAD_DETAILS);
         }

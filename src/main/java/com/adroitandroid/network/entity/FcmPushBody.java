@@ -8,20 +8,18 @@ public class FcmPushBody {
     private final FcmPushData data;
     private final String to;
 
-    public FcmPushBody(String fcmToken, boolean isApprovalRequest, boolean approvedResponse) {
+    public FcmPushBody(String fcmToken, boolean forStory, boolean isUpdate) {
         this.to = fcmToken;
-        if (isApprovalRequest) {
-            this.data = FcmPushData.getApprovalRequestData();
-        } else if (approvedResponse) {
-            this.data = FcmPushData.getApprovedResponseData();
+        if (isUpdate) {
+            this.data = FcmPushData.getUpdateData();
         } else {
-            this.data = FcmPushData.getRejectedResponseData();
+            this.data = FcmPushData.getEligibilityChangeData(forStory);
         }
     }
 
     private static class FcmPushData {
-        static final int TYPE_APPROVAL_RESPONSE = 1;
-        static final int TYPE_APPROVAL_REQUEST = 2;
+        private static final int TYPE_ELIGIBILITY_CHANGE = 1;
+        private static final int TYPE_UPDATE = 2;
 
         private final String title;
         private final String body;
@@ -33,16 +31,16 @@ public class FcmPushBody {
             this.type = type;
         }
 
-        static FcmPushData getApprovalRequestData() {
-            return new FcmPushData("Next next chapter request", "Click to approve so they can get started", TYPE_APPROVAL_REQUEST);
+        static FcmPushData getUpdateData() {
+            return new FcmPushData("What happens next??", "Someone added a snippet over yours, check it out...", TYPE_UPDATE);
         }
 
-        static FcmPushData getApprovedResponseData() {
-            return new FcmPushData("Congratulations!", "Your chapter proposal has been accepted. Start writing now!", TYPE_APPROVAL_RESPONSE);
-        }
-
-        static FcmPushData getRejectedResponseData() {
-            return new FcmPushData("Oops", "Your chapter proposal has been rejected.", TYPE_APPROVAL_RESPONSE);
+        static FcmPushData getEligibilityChangeData(boolean forStory) {
+            if (forStory) {
+                return new FcmPushData("Congratulations!", "You've won the privilege to start a new story. Give it a go.", TYPE_ELIGIBILITY_CHANGE);
+            } else {
+                return new FcmPushData("Good going!", "You are now eligible to add more snippets.", TYPE_ELIGIBILITY_CHANGE);
+            }
         }
     }
 }

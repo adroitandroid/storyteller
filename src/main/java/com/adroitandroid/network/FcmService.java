@@ -14,7 +14,7 @@ public interface FcmService {
     @POST("/fcm/send")
     @Headers({
             "Accept: application/json",
-            "Authorization: key=AAAAatGOMVQ:APA91bH9Tw8MfSsuL2HUW2XtflC8vy55rKDjtkgKQFH67G1lj4CA-rngARd68LkasN0Y-e8tLPtroqsRfUlgAWeUvsvN3Va4mND-i8_azUvWL99wgUgBo8Z-HmtRrVuCgKh04h5KmO69mw-hj32upz5UxG3hPE5IAw"
+            "Authorization: key=AAAA8irIdMQ:APA91bGekfF6QKfgG00vzjs6F2vtG1qZ_h_vhNm8jCjE-11Tp9T_1fQUwcWlNx9DJoOsGoGmvgOApWKgqqcR_j7FFn6R5wjsZO9DBq8MklOgVU4iLQZADIEZeYGhU5tcTI25xdll5Gww"
     })
     Call<FcmResponse> sendPush(@Body FcmPushBody fcmPushBody);
 }

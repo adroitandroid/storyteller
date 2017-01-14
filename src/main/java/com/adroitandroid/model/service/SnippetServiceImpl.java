@@ -1,6 +1,9 @@
 package com.adroitandroid.model.service;
 
 import com.adroitandroid.model.*;
+import com.adroitandroid.network.ServiceGenerator;
+import com.adroitandroid.network.entity.FcmPushBody;
+import com.adroitandroid.network.entity.FcmResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
@@ -8,6 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
@@ -33,6 +39,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
     private UserBookmarkRepository userBookmarkRepository;
     private UserStatsRepository userStatsRepository;
     private UserStatusRepository userStatusRepository;
+    private UserDetailRepository userDetailRepository;
 
     public SnippetServiceImpl(SnippetRepository snippetRepository,
                               UserRepository userRepository,
@@ -43,7 +50,8 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
                               StoryRecentVoteRepository storyRecentVoteRepository,
                               UserBookmarkRepository userBookmarkRepository,
                               UserStatsRepository userStatsRepository,
-                              UserStatusRepository userStatusRepository) {
+                              UserStatusRepository userStatusRepository,
+                              UserDetailRepository userDetailRepository) {
         this.snippetRepository = snippetRepository;
         this.userRepository = userRepository;
         this.userSnippetVoteRepository = userSnippetVoteRepository;
@@ -54,6 +62,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         this.userBookmarkRepository = userBookmarkRepository;
         this.userStatsRepository = userStatsRepository;
         this.userStatusRepository = userStatusRepository;
+        this.userDetailRepository = userDetailRepository;
     }
 
     public Set<SnippetListItem> getSnippetsForFeed(long userId) {
@@ -183,14 +192,33 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
             snippetInDb.setRootSnippetId(snippetInDb.getId());
             snippetInDb = snippetRepository.save(snippetInDb);
         }
-        if (snippet.getParentSnippetId() > 0) {
-//            TODO: send parent's author push notification
+        Long parentSnippetId = snippet.getParentSnippetId();
+        if (parentSnippetId > 0) {
+            sendNotificationToParentSnippetAuthor(parentSnippetId);
+
             snippetStatsRepository.incrementChildren(snippet.getParentSnippetId(), snippet.createdAt);
         }
 
         updateUserStatusAndStatsOnAdd(user, snippet.createdAt, snippet.getParentSnippetId() == -1L);
 
         return snippetInDb;
+    }
+
+    private void sendNotificationToParentSnippetAuthor(Long parentSnippetId) {
+        Snippet parentSnippet = snippetRepository.findOne(parentSnippetId);
+        JsonElement jsonElement = prepareResponseFrom(parentSnippet, Snippet.AUTHOR_USER_IN_SNIPPET);
+        Snippet snippetWithUser = new Gson().fromJson(jsonElement, Snippet.class);
+        UserDetail parentAuthorDetail = userDetailRepository.findByUserId(snippetWithUser.getAuthorUser().getId());
+        ServiceGenerator.getFcmService().sendPush(new FcmPushBody(parentAuthorDetail.fcmToken, false, true))
+                .enqueue(new Callback<FcmResponse>() {
+                    @Override
+                    public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
+                    }
+
+                    @Override
+                    public void onFailure(Call<FcmResponse> call, Throwable throwable) {
+                    }
+                });
     }
 
     @Override
@@ -234,16 +262,39 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         UserSnippetVote savedVote = userSnippetVoteRepository.save(userSnippetVote);
         Long authorUserId = snippetRepository.findOne(snippetId).getAuthorUser().getId();
         userStatsRepository.updateNetVotes(authorUserId, deltaVote);
+        UserStatus status = userStatusRepository.findByUserIdAndEvent(authorUserId, UserStatus.EVENT_ELIGIBLE_TO_ADD_SNIPPET);
+        if (status.getStatus() <= 0 && deltaVote > 0) {
+                sendNotificationForEligibility(authorUserId, false);
+        } else if (status.getStatus() <= 5 && deltaVote > 0) {
+            UserStatus initialSnippets = userStatusRepository.findByUserIdAndEvent(authorUserId, UserStatus.EVENT_INITIAL_SNIPPETS_USED);
+            if (initialSnippets.getStatus() == 0) {
+                sendNotificationForEligibility(authorUserId, true);
+            }
+        }
         userStatusRepository.updateEligibleSnippets(authorUserId, deltaVote,
                 UserStatus.EVENT_ELIGIBLE_TO_ADD_SNIPPET, currentTime);
 
         JsonElement jsonElement
                 = prepareResponseFrom(savedVote, UserSnippetVote.SNIPPET_IN_USER_VOTES, Snippet.SNIPPET_STATS_IN_SNIPPET);
         UserSnippetVote snippetVote = new Gson().fromJson(jsonElement, UserSnippetVote.class);
-//        TODO: snippet stats is being retrieved from within transaction
+//        snippet stats is being retrieved from within transaction, change unreflected
         snippetVote.getSnippet().getSnippetStats().setVoteSum(
                 snippetVote.getSnippet().getSnippetStats().getVoteSum() + deltaVote);
         return snippetVote;
+    }
+
+    private void sendNotificationForEligibility(Long userId, boolean isForStory) {
+        UserDetail parentAuthorDetail = userDetailRepository.findByUserId(userId);
+        ServiceGenerator.getFcmService().sendPush(new FcmPushBody(parentAuthorDetail.fcmToken, isForStory, true))
+                .enqueue(new Callback<FcmResponse>() {
+                    @Override
+                    public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
+                    }
+
+                    @Override
+                    public void onFailure(Call<FcmResponse> call, Throwable throwable) {
+                    }
+                });
     }
 
     @Override
@@ -268,9 +319,11 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         story.setId(null);
         Story storyInDb = storyRepository.save(story);
 
-        if (storyInDb.getEndSnippet().getParentSnippetId() > 0) {
-//            TODO: send parent's author push notification
-            snippetStatsRepository.incrementChildren(storyInDb.getEndSnippet().getParentSnippetId(), currentTime);
+        Long parentSnippetId = storyInDb.getEndSnippet().getParentSnippetId();
+        if (parentSnippetId > 0) {
+            sendNotificationToParentSnippetAuthor(parentSnippetId);
+
+            snippetStatsRepository.incrementChildren(parentSnippetId, currentTime);
         }
 
         updateUserStatusAndStatsOnAdd(user, currentTime, false);
