@@ -112,7 +112,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         }
         if (recentSnippets.size() > 0) {
             Set<Long> snippetIdSet = recentSnippets.stream().map(RecentSnippet::getSnippetId).collect(Collectors.toSet());
-            List<SnippetListItemForTrending> trendingSnippetListItems = snippetRepository.findSnippetsWithIds(snippetIdSet);
+            List<SnippetListItemForTrending> trendingSnippetListItems = snippetRepository.findSnippetsWithIdsForTrending(snippetIdSet);
 
             Type listType = new TypeToken<ArrayList<SnippetListItemForTrending>>() {
             }.getType();
@@ -135,7 +135,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         }
         if (recentStories.size() > 0) {
             Set<Long> snippetIdSet = recentStories.stream().map(RecentSnippet::getSnippetId).collect(Collectors.toSet());
-            List<StoryListItemForTrending> trendingStoryListItems = storyRepository.findWithEndSnippetIdIn(snippetIdSet);
+            List<StoryListItemForTrending> trendingStoryListItems = storyRepository.findWithEndSnippetIdInForTrending(snippetIdSet);
 
             Type listType = new TypeToken<ArrayList<StoryListItemForTrending>>() {
             }.getType();

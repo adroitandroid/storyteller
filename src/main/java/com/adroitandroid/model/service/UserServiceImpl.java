@@ -92,7 +92,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     @PostConstruct
     public void init() throws FileNotFoundException {
         FirebaseOptions options = new FirebaseOptions.Builder()
-                .setServiceAccount(new FileInputStream("src/main/resources/weave-bc0fd-firebase-adminsdk-2q0fc-f473110538.json"))
+                .setServiceAccount(new FileInputStream("weave-bc0fd-firebase-adminsdk-2q0fc-f473110538.json"))
                 .setDatabaseUrl(FIREBASE_DATABASE_URL)
                 .build();
 

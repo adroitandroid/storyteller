@@ -24,11 +24,11 @@ public interface SnippetRepository extends PagingAndSortingRepository<Snippet, L
     @Query(value = "select new com.adroitandroid.model.SnippetListItemForPopular(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE (ss.voteSum > ss.numVotes/2) AND s.endsStory = false AND s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au")
     List<SnippetListItemForPopular> findSnippetsForPopularFeed();
 
-    @Query(value = "select new com.adroitandroid.model.SnippetListItem(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND s.endsStory = false AND ss.snippetId = s.id AND s.authorUser = au")
+    @Query(value = "select new com.adroitandroid.model.SnippetListItem(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND s.endsStory = false AND ss.snippetId = s.id AND s.authorUser = au AND ss.voteSum > 0")
     Page<SnippetListItem> findRecentlyCreatedStoriesOrSnippets(Pageable pageable);
 
-    @Query(value = "select new com.adroitandroid.model.SnippetListItemForTrending(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND s.id IN :ids")
-    List<SnippetListItemForTrending> findSnippetsWithIds(@Param("ids") Set<Long> snippetIds);
+    @Query(value = "select new com.adroitandroid.model.SnippetListItemForTrending(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND s.id IN :ids AND ss.voteSum > 0")
+    List<SnippetListItemForTrending> findSnippetsWithIdsForTrending(@Param("ids") Set<Long> snippetIds);
 
     @Query(value = "select new com.adroitandroid.model.SnippetListItem(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND s.rootSnippetId = ?1")
     List<SnippetListItem> findByRootSnippetId(long id);
@@ -54,7 +54,7 @@ public interface SnippetRepository extends PagingAndSortingRepository<Snippet, L
     @Query(value = "select new com.adroitandroid.model.StoryListItemForPopular(s) from Story s, Snippet es, SnippetStats ss WHERE (ss.voteSum > ss.numVotes/2) AND es.endsStory = true AND ss.snippetId = es.id AND s.endSnippet = es")
     List<StoryListItemForPopular> findStoriesForPopularFeed();
 
-    @Query(value = "select new com.adroitandroid.model.StoryListItem(s) from Story s, Snippet es, SnippetStats ss WHERE es.endsStory = true AND ss.snippetId = es.id AND s.endSnippet = es")
+    @Query(value = "select new com.adroitandroid.model.StoryListItem(s) from Story s, Snippet es, SnippetStats ss WHERE es.endsStory = true AND ss.snippetId = es.id AND s.endSnippet = es AND ss.voteSum > 0")
     Page<StoryListItem> findRecentlyCompletedStories(Pageable pageable);
 
     @Query(value = "select new com.adroitandroid.model.SnippetListItem(s, ps, ss, au) from Snippet s, Snippet ps, SnippetStats ss, User au WHERE s.parentSnippetId = ps.id AND ss.snippetId = s.id AND s.authorUser = au AND au.id = ?1 ORDER BY s.createdAt DESC")
