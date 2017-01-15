@@ -40,13 +40,14 @@ public class LoggableDispatcherServlet extends DispatcherServlet {
         jsonObject.addProperty("timeTakenMs", timeTaken);
         jsonObject.addProperty("clientIP", requestToCache.getRemoteAddr());
         if (status > 299) {
-            String requestBody = null;
-            try {
-                requestBody = requestToCache.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            } catch (IOException e) {
-                requestBody = null;
-            }
-            jsonObject.addProperty("requestBody", requestBody);
+//            TODO: uncomment once IOException isn't raised
+//            String requestBody = null;
+//            try {
+//                requestBody = requestToCache.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+//            } catch (IOException e) {
+//                requestBody = null;
+//            }
+//            jsonObject.addProperty("requestBody", requestBody);
             jsonObject.addProperty("requestParams", requestToCache.getQueryString());
             jsonObject.addProperty("tokenExpiringHeader",
                     responseToCache.getHeader(ResponseHeaderModifierInterceptor.HEADER_TOKEN_EXPIRING));
