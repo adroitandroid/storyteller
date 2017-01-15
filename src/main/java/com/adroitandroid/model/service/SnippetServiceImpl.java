@@ -194,7 +194,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         }
         Long parentSnippetId = snippet.getParentSnippetId();
         if (parentSnippetId > 0) {
-            sendNotificationToParentSnippetAuthor(parentSnippetId);
+            sendNotificationToParentSnippetAuthor(parentSnippetId, user.getId());
 
             snippetStatsRepository.incrementChildren(snippet.getParentSnippetId(), snippet.createdAt);
         }
@@ -204,21 +204,23 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         return snippetInDb;
     }
 
-    private void sendNotificationToParentSnippetAuthor(Long parentSnippetId) {
+    private void sendNotificationToParentSnippetAuthor(Long parentSnippetId, Long currentAuthorId) {
         Snippet parentSnippet = snippetRepository.findOne(parentSnippetId);
         JsonElement jsonElement = prepareResponseFrom(parentSnippet, Snippet.AUTHOR_USER_IN_SNIPPET);
         Snippet snippetWithUser = new Gson().fromJson(jsonElement, Snippet.class);
-        UserDetail parentAuthorDetail = userDetailRepository.findByUserId(snippetWithUser.getAuthorUser().getId());
-        ServiceGenerator.getFcmService().sendPush(new FcmPushBody(parentAuthorDetail.fcmToken, false, true))
-                .enqueue(new Callback<FcmResponse>() {
-                    @Override
-                    public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
-                    }
+        if (!snippetWithUser.getAuthorUser().getId().equals(currentAuthorId)) {
+            UserDetail parentAuthorDetail = userDetailRepository.findByUserId(snippetWithUser.getAuthorUser().getId());
+            ServiceGenerator.getFcmService().sendPush(new FcmPushBody(parentAuthorDetail.fcmToken, false, true))
+                    .enqueue(new Callback<FcmResponse>() {
+                        @Override
+                        public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
+                        }
 
-                    @Override
-                    public void onFailure(Call<FcmResponse> call, Throwable throwable) {
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<FcmResponse> call, Throwable throwable) {
+                        }
+                    });
+        }
     }
 
     @Override
@@ -321,7 +323,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
 
         Long parentSnippetId = storyInDb.getEndSnippet().getParentSnippetId();
         if (parentSnippetId > 0) {
-            sendNotificationToParentSnippetAuthor(parentSnippetId);
+            sendNotificationToParentSnippetAuthor(parentSnippetId, user.getId());
 
             snippetStatsRepository.incrementChildren(parentSnippetId, currentTime);
         }

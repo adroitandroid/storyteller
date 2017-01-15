@@ -397,6 +397,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
                 snippetListItemForUpdate = new SnippetListItemForUpdate();
             }
             snippetListItemForUpdate.setChildInfo(childUpdate);
+            itemForUpdateMap.put(snippetListItemForUpdate.getSnippetId(), snippetListItemForUpdate);
         }
         return itemForUpdateMap;
     }
