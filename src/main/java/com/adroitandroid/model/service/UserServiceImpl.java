@@ -42,10 +42,6 @@ import java.util.concurrent.CountDownLatch;
 @Transactional
 public class UserServiceImpl extends AbstractService implements UserService {
     private final UserRepository userRepository;
-    private final UserStoryRelationRepository userStoryRelationRepository;
-    private final StoryStatsRepository storyStatsRepository;
-    private final UserChapterRelationRepository userChapterRelationRepository;
-    private final ChapterStatsRepository chapterStatsRepository;
     private final UserSessionRepository userSessionRepository;
     private final UserDetailRepository userDetailsRepository;
     private final UserBookmarkRepository userBookmarkRepository;
@@ -74,10 +70,6 @@ public class UserServiceImpl extends AbstractService implements UserService {
     }
 
     public UserServiceImpl(UserRepository userRepository,
-                           UserStoryRelationRepository userStoryRelationRepository,
-                           StoryStatsRepository storyStatsRepository,
-                           UserChapterRelationRepository userChapterRelationRepository,
-                           ChapterStatsRepository chapterStatsRepository,
                            UserSessionRepository userSessionRepository,
                            UserDetailRepository userDetailsRepository,
                            UserBookmarkRepository userBookmarkRepository,
@@ -87,10 +79,6 @@ public class UserServiceImpl extends AbstractService implements UserService {
                            UserStatsRepository userStatsRepository,
                            UserStatusRepository userStatusRepository) {
         this.userRepository = userRepository;
-        this.userStoryRelationRepository = userStoryRelationRepository;
-        this.storyStatsRepository = storyStatsRepository;
-        this.userChapterRelationRepository = userChapterRelationRepository;
-        this.chapterStatsRepository = chapterStatsRepository;
         this.userSessionRepository = userSessionRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.userBookmarkRepository = userBookmarkRepository;
@@ -109,71 +97,6 @@ public class UserServiceImpl extends AbstractService implements UserService {
                 .build();
 
         FirebaseApp.initializeApp(options);
-    }
-
-    @Override
-    public int setUsername(Long userId, String username) {
-        return userRepository.setUsername(userId, username);
-    }
-
-    @Override
-    public int setLiked(Long userId, Long storyId) {
-        int result = userStoryRelationRepository.insertOnDuplicateKeyUpdateSoftDeletedToFalse(
-                userId, storyId, UserStoryRelation.RELATION_ID_LIKE, getCurrentTime());
-        storyStatsRepository.incrementLikes(storyId);
-        return result;
-    }
-
-    @Override
-    public int unsetLiked(Long userId, Long storyId) {
-        int result = userStoryRelationRepository.softDelete(userId, storyId, UserStoryRelation.RELATION_ID_LIKE, getCurrentTime());
-        storyStatsRepository.decrementLikes(storyId);
-        return result;
-    }
-
-    @Override
-    public List<UserStoryRelation> getUserLikesSortedByRecentFirst(Long userId) {
-        return userStoryRelationRepository.findByUserIdAndRelationIdAndSoftDeletedFalseOrderByUpdatedAtDesc(
-                userId, UserStoryRelation.RELATION_ID_LIKE);
-    }
-
-    @Override
-    public int setToReadLater(Long userId, Long storyId) {
-        return userStoryRelationRepository.insertOnDuplicateKeyUpdateSoftDeletedToFalse(
-                userId, storyId, UserStoryRelation.RELATION_ID_READ_LATER, getCurrentTime());
-    }
-
-    @Override
-    public int removeFromReadLater(Long userId, Long storyId) {
-        return userStoryRelationRepository.softDelete(userId, storyId, UserStoryRelation.RELATION_ID_READ_LATER, getCurrentTime());
-    }
-
-    @Override
-    public List<UserStoryRelation> getUserReadLaterSortedByRecentFirst(Long userId) {
-        return userStoryRelationRepository.findByUserIdAndRelationIdAndSoftDeletedFalseOrderByUpdatedAtDesc(
-                userId, UserStoryRelation.RELATION_ID_READ_LATER);
-    }
-
-    @Override
-    public int setBookmark(Long userId, Long chapterId) {
-        int result = userChapterRelationRepository.insertOnDuplicateKeyUpdateSoftDeletedToFalse(
-                userId, chapterId, UserChapterRelation.RELATION_ID_BOOKMARK, getCurrentTime());
-        chapterStatsRepository.incrementBookmarks(chapterId);
-        return result;
-    }
-
-    @Override
-    public int removeBookmark(Long userId, Long chapterId) {
-        int result = userChapterRelationRepository.softDelete(
-                userId, chapterId, UserChapterRelation.RELATION_ID_BOOKMARK, getCurrentTime());
-        chapterStatsRepository.decrementBookmarks(chapterId);
-        return result;
-    }
-
-    @Override
-    public List<UserChapterRelation> getUserBookmarksSortedByRecentFirst(Long userId) {
-        return userChapterRelationRepository.findByUserIdAndRelationIdAndSoftDeletedFalseOrderByUpdatedAtDesc(
-                userId, UserStoryRelation.RELATION_ID_LIKE);
     }
 
     @Override
@@ -236,28 +159,6 @@ public class UserServiceImpl extends AbstractService implements UserService {
     }
 
     @Override
-    public List<UserChapterRelation> getUserBookmarksFromChapters(Long userId, List<Chapter> chapters) {
-        ArrayList<Long> chapterIdList = new ArrayList<>();
-        for (Chapter chapter : chapters) {
-            chapterIdList.add(chapter.getId());
-        }
-        if (!chapterIdList.isEmpty()) {
-            return userChapterRelationRepository.findByUserIdAndChapterIdInAndRelationIdAndSoftDeletedFalse(
-                    userId, chapterIdList, UserChapterRelation.RELATION_ID_BOOKMARK);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean hasUserLikedStory(Long userId, Long storyId) {
-        UserStoryRelation userStoryRelation
-                = userStoryRelationRepository.findByUserIdAndStoryIdAndRelationIdAndSoftDeletedFalse(
-                        userId, storyId, UserStoryRelation.RELATION_ID_LIKE);
-        return userStoryRelation != null;
-    }
-
-    @Override
     public int updateToken(Long userId, String fcmToken) {
         if (userId > 0) {
             return userDetailsRepository.updateToken(userId, fcmToken, getCurrentTime());
@@ -266,7 +167,6 @@ public class UserServiceImpl extends AbstractService implements UserService {
         }
     }
 
-//    TODO:----------------------------- vver methods start ---------------------
     @Override
     public void updateUserBookmark(UserBookmark userBookmark) {
          userBookmarkRepository.update(userBookmark.getUserId(),
