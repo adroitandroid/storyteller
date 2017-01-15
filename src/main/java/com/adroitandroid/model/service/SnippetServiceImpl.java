@@ -287,7 +287,7 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
 
     private void sendNotificationForEligibility(Long userId, boolean isForStory) {
         UserDetail parentAuthorDetail = userDetailRepository.findByUserId(userId);
-        ServiceGenerator.getFcmService().sendPush(new FcmPushBody(parentAuthorDetail.fcmToken, isForStory, true))
+        ServiceGenerator.getFcmService().sendPush(new FcmPushBody(parentAuthorDetail.fcmToken, isForStory, false))
                 .enqueue(new Callback<FcmResponse>() {
                     @Override
                     public void onResponse(Call<FcmResponse> call, Response<FcmResponse> response) {
