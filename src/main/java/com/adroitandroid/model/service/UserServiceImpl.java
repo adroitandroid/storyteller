@@ -194,10 +194,15 @@ public class UserServiceImpl extends AbstractService implements UserService {
         childUpdateList = snippetRepository.getChildUpdatesOnBookmarksFor(userId, updatesSince);
         itemForUpdateMap.putAll(getSnippetsMapFor(voteUpdateList, childUpdateList));
 
+        Set<SnippetListItemForUpdate> itemsWithoutRealUpdate = new HashSet<>();
         for (SnippetListItemForUpdate update : itemForUpdateMap.values()) {
-            update.setCategoryFromUpdate();
+            if (!update.setCategoryFromUpdate()) {
+                itemsWithoutRealUpdate.add(update);
+            }
         }
-        ArrayList<SnippetListItemForUpdate> updates = new ArrayList<>(itemForUpdateMap.values());
+        Set<SnippetListItemForUpdate> itemsForUpdate = new HashSet<>(itemForUpdateMap.values());
+        itemsForUpdate.removeAll(itemsWithoutRealUpdate);
+        ArrayList<SnippetListItemForUpdate> updates = new ArrayList<>(itemsForUpdate);
         updates.sort((o1, o2) -> o2.getLastUpdateAt().compareTo(o1.getLastUpdateAt()));
 
         ArrayList<SnippetListItem> updateListItems = new ArrayList<>(updates);

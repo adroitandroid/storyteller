@@ -265,11 +265,11 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         Long authorUserId = snippetRepository.findOne(snippetId).getAuthorUser().getId();
         userStatsRepository.updateNetVotes(authorUserId, deltaVote);
         UserStatus status = userStatusRepository.findByUserIdAndEvent(authorUserId, UserStatus.EVENT_ELIGIBLE_TO_ADD_SNIPPET);
-        if (status.getStatus() <= 0 && deltaVote > 0) {
+        if (status.getStatus() == 0 && deltaVote > 0) {
                 sendNotificationForEligibility(authorUserId, false);
-        } else if (status.getStatus() <= 5 && deltaVote > 0) {
+        } else if (status.getStatus() == 5 && deltaVote > 0) {
             UserStatus initialSnippets = userStatusRepository.findByUserIdAndEvent(authorUserId, UserStatus.EVENT_INITIAL_SNIPPETS_USED);
-            if (initialSnippets.getStatus() == 0) {
+            if (initialSnippets.getStatus() == 1) {
                 sendNotificationForEligibility(authorUserId, true);
             }
         }

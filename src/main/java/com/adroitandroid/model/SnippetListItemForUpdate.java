@@ -28,6 +28,7 @@ public class SnippetListItemForUpdate extends SnippetListItem {
         this.lastUpdateAt = lastUpdateTime;
     }
 
+//    isContributionOfFollowed is being used to identify the otherwise overloaded method (Timestamp extends Date)
     public SnippetListItemForUpdate(Snippet snippet, Snippet parentSnippet, SnippetStats snippetStats, User authorUser,
                                     Date lastUpdateTime, boolean isContributionOfFollowed) {
         super(snippet, parentSnippet, snippetStats, authorUser);
@@ -51,15 +52,23 @@ public class SnippetListItemForUpdate extends SnippetListItem {
         }
     }
 
-    public void setCategoryFromUpdate() {
+    /**
+     * @return True if there was a real update, e.g. there could be two votes cancelling out each other, thereby remaining null category
+     */
+    public boolean setCategoryFromUpdate() {
+        boolean isUpdated = false;
         int updateCount = updateList.size();
         if (updateCount == 1) {
             setCategory(updateList.get(0));
+            isUpdated = true;
         } else if (updateCount == 2) {
             setCategory(updateList.get(0) + " and " + updateList.get(1));
+            isUpdated = true;
         } else if (updateCount == 3) { //when votes, snippets and ends are there on top of interesting snippet
             setCategory(updateList.get(0) + ", " + updateList.get(1) + " and " + updateList.get(2));
+            isUpdated = true;
         }
+        return isUpdated;
     }
 
     public SnippetListItemForUpdate setVotes(VoteUpdate voteUpdate) {
