@@ -12,7 +12,7 @@ public class UserStatus {
 
     public static final String EVENT_ELIGIBLE_TO_ADD_SNIPPET = "eligibleToAddSnippet";
     public static final String EVENT_INITIAL_SNIPPETS_USED = "initialSnippets";
-    private static final int INITIAL_SNIPPET_COUNT = 10;
+    public static final int INITIAL_SNIPPET_COUNT = 5;
     private static final int STATUS_TRUE = 1;
     private static final int STATUS_FALSE = 0;
 
