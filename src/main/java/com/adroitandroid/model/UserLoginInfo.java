@@ -3,11 +3,11 @@ package com.adroitandroid.model;
 import java.io.Serializable;
 
 /**
- * Created by pv on 29/10/16.
+ * Created by pv on 02/12/16.
  */
 public class UserLoginInfo implements Serializable {
 
-    private String userId;
+    private String authUserId;
     private String authenticationType;
     private String accessToken;
 
@@ -15,17 +15,17 @@ public class UserLoginInfo implements Serializable {
     }
 
     public UserLoginInfo(String authType, String authUserId, String accessToken) {
-        this.userId = authUserId;
+        this.authUserId = authUserId;
         this.authenticationType = authType;
         this.accessToken = accessToken;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getAuthUserId() {
+        return authUserId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAuthUserId(String authUserId) {
+        this.authUserId = authUserId;
     }
 
     public String getAuthenticationType() {

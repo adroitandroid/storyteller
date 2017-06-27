@@ -2,6 +2,7 @@ package com.adroitandroid.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 /**
- * Created by pv on 30/10/16.
+ * Created by pv on 02/12/16.
  */
 @Configuration
 @EnableWebSecurity
@@ -24,10 +25,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-                .antMatchers("/users/sign_in").permitAll()
-                .antMatchers("/users", "/stories", "/snippets", "/bookmarks", "/prompts").permitAll().anyRequest().authenticated()
+                .antMatchers(HttpMethod.GET, "/app/version/", "/story/**", "/prompt/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/user/sign_in/").permitAll()
+                .anyRequest().authenticated()
                 .and()
-            .addFilterBefore(new DemoAuthenticationFilter(), BasicAuthenticationFilter.class);
+                .addFilterBefore(new DemoAuthenticationFilter(), BasicAuthenticationFilter.class);
         http.csrf().disable();
     }
 

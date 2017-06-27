@@ -9,7 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by pv on 30/10/16.
+ * Created by pv on 02/12/16.
  */
 @Component
 public class DemoAuthenticationProvider implements AuthenticationProvider {
@@ -24,14 +24,14 @@ public class DemoAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+//        Seems unnecessary now
 
-        DemoAuthenticationToken demoAuthentication = (DemoAuthenticationToken) authentication;
-        User user = userRepository.findOne((Long) demoAuthentication.getPrincipal());
-
-        if (user == null) {
-            throw new UnknownUserException("Could not find user with ID: " + demoAuthentication.getPrincipal());
-        }
-
+//        DemoAuthenticationToken demoAuthentication = (DemoAuthenticationToken) authentication;
+//        User user = userRepository.findOne((Long) demoAuthentication.getPrincipal());
+//
+//        if (user == null) {
+//            throw new UnknownUserException("Could not find user with ID: " + demoAuthentication.getPrincipal());
+//        }
         return authentication;
     }
 

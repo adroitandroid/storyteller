@@ -1,123 +1,77 @@
 package com.adroitandroid.model;
 
-import com.google.gson.Gson;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Created by pv on 27/10/16.
+ * Created by pv on 07/01/17.
  */
 @Entity
 @Table(name = "story")
-public class Story {
+public class Story implements Serializable {
+    private Long id;
 
-    @Id
-    @Column(name = "end_snippet_id", nullable = false)
-    private Long endSnippetId;
+    private String title;
 
-    @Column(name = "story_prompt_id")
-    private Long storyPromptId;
+    private String summary;
 
-//    TODO: to change later to embedded Id, end snipped id + content type id
-//    @Column(name = "content_type_id")
-//    private Long contentTypeId;
+    private String tags;
 
-    private String story;
-
-    private String traversal;
-
-    private Long likes;
+    private Snippet endSnippet;
 
     @Column(name = "created_at")
-    private Timestamp createdTime;
+    private Timestamp createdAt;
 
-    @Column(name = "updated_at")
-    private Timestamp updatedTime;
-
-    public Story() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long getId() {
+        return id;
     }
 
-    public Story(List<StorySnippet> storySnippets) {
-        StorySnippet endSnippet = storySnippets.get(storySnippets.size() - 1);
-        this.endSnippetId = endSnippet.getId();
-        this.storyPromptId = storySnippets.get(0).getPrompt().getId();
-        this.createdTime = new Timestamp((new Date()).getTime());
-        this.updatedTime = getCreatedTime();
-
-        Gson gson = new Gson();
-        List<String> snippetContentList = storySnippets.stream().map(StorySnippet::getSnippetText).collect(Collectors.toList());
-        this.story = gson.toJson(snippetContentList);
-
-        String[] traversal = endSnippet.getTraversal().split("-");
-        List<Long> traversalList = new ArrayList<>();
-        for (int i = 1; i < traversal.length; i++) {
-            traversalList.add(Long.parseLong(traversal[i]));
-        }
-        traversalList.add(endSnippetId);
-        this.traversal = gson.toJson(traversalList);
+    public String getTitle() {
+        return title;
     }
 
-    public Long getEndSnippetId() {
-        return endSnippetId;
+    public String getSummary() {
+        return summary;
     }
 
-    public void setEndSnippetId(Long endSnippetId) {
-        this.endSnippetId = endSnippetId;
+    public String getTags() {
+        return tags;
     }
 
-    public Long getStoryPromptId() {
-        return storyPromptId;
+    @OneToOne(cascade=CascadeType.ALL)
+    @JoinColumn(name = "end_snippet_id")
+    public Snippet getEndSnippet() {
+        return endSnippet;
     }
 
-    public void setStoryPromptId(Long storyPromptId) {
-        this.storyPromptId = storyPromptId;
+    public void setEndSnippet(Snippet endSnippet) {
+        this.endSnippet = endSnippet;
     }
 
-    public String getStory() {
-        return story;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setStory(String story) {
-        this.story = story;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getTraversal() {
-        return traversal;
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
-    public void setTraversal(String traversal) {
-        this.traversal = traversal;
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
-    public Long getLikes() {
-        return likes;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public void setLikes(Long likes) {
-        this.likes = likes;
-    }
-
-    public Timestamp getCreatedTime() {
-        return createdTime;
-    }
-
-    public void setCreatedTime(Timestamp createdTime) {
-        this.createdTime = createdTime;
-    }
-
-    public Timestamp getUpdatedTime() {
-        return updatedTime;
-    }
-
-    public void setUpdatedTime(Timestamp updatedTime) {
-        this.updatedTime = updatedTime;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }

@@ -5,15 +5,16 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Created by pv on 30/10/16.
+ * Created by pv on 02/12/16.
  */
 @Entity
-@Table(name = "user_auth_type")
+@Table(name = "auth_type")
 public class AuthenticationType {
 
     static final String FACEBOOK = "facebook";
-    static final String PHONE = "phone";
+    public static final String PHONE = "phone";
     static final String EMAIL = "email";
+    public static final String GOOGLE = "google";
 
     @Id
     private Integer id;
@@ -25,6 +26,7 @@ public class AuthenticationType {
     }
 
     public AuthenticationType() {
+//        empty required by hibernate
     }
 
     public Integer getId() {
@@ -41,8 +43,10 @@ public class AuthenticationType {
                 return new AuthenticationType(1, FACEBOOK);
             case PHONE:
                 return new AuthenticationType(2, PHONE);
+            case GOOGLE:
+                return new AuthenticationType(3, GOOGLE);
             case EMAIL:
-                return new AuthenticationType(3, EMAIL);
+                return new AuthenticationType(4, EMAIL);
         }
         throw new IllegalArgumentException("invalid authentication type");
     }

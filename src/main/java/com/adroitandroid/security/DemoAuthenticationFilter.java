@@ -18,14 +18,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by pv on 30/10/16.
+ * Created by pv on 02/12/16.
  */
 public class DemoAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String SIGN_IN = "/users/sign_in/";
-    private static final String APP_ENDPOINT_PREFIX = "/app";
-    private static final String X_AUTHORIZATION_TOKEN_KEY = "X-Authorization";
-    private static final String UNAUTHORIZED_EXCEPTION_MESSAGE = "invalid access";
+    public static final String X_AUTHORIZATION_TOKEN_KEY = "X-Authorization";
+
     @Autowired
     private UserService userService;
 
@@ -40,30 +38,35 @@ public class DemoAuthenticationFilter extends OncePerRequestFilter {
             userService = webApplicationContext.getBean(UserService.class);
         }
 
-        DemoAuthenticationToken auth;
-        if (!request.getRequestURI().equals(SIGN_IN) && !request.getRequestURI().startsWith(APP_ENDPOINT_PREFIX)) {
-            String xAuth = request.getHeader(X_AUTHORIZATION_TOKEN_KEY);
-            if (xAuth == null) {
-                throw new SecurityException(UNAUTHORIZED_EXCEPTION_MESSAGE);
-            }
-
-            UserSession userSession;
-            try {
-                userSession = userService.getUserSessionForAuthToken(xAuth);
-            } catch (IOException e) {
-                throw new SecurityException(UNAUTHORIZED_EXCEPTION_MESSAGE);
-            }
-            if (userSession == null) {
-                throw new SecurityException(UNAUTHORIZED_EXCEPTION_MESSAGE);
-            }
-
-            auth = new DemoAuthenticationToken(userSession.getUserId(), new UserLoginInfo(userSession.getAuthType(),
-                    userSession.getAuthUserId(), userSession.getAccessToken()), new ArrayList<>());
-        } else {
-            // Create dummy Authentication
-            auth = new DemoAuthenticationToken(null, new UserLoginInfo(null, null, null), new ArrayList<>());
-        }
+        DemoAuthenticationToken auth = getDemoAuthenticationToken(request);
         SecurityContextHolder.getContext().setAuthentication(auth);
         filterChain.doFilter(request, response);
     }
+
+    private DemoAuthenticationToken getDemoAuthenticationToken(HttpServletRequest request) {
+        DemoAuthenticationToken auth;
+        String xAuth = request.getHeader(X_AUTHORIZATION_TOKEN_KEY);
+        if (xAuth == null) {
+            return new DemoAuthenticationToken();
+        }
+
+        UserSession userSession;
+        try {
+            userSession = userService.getUserSessionForAuthToken(xAuth);
+        } catch (IOException e) {
+            return getUnverifiedAuthenticationToken(xAuth);
+        }
+        if (userSession == null) {
+            return getUnverifiedAuthenticationToken(xAuth);
+        }
+
+        auth = new DemoAuthenticationToken(userSession.getUserId(), new UserLoginInfo(userSession.getAuthType(),
+                userSession.getAuthUserId(), userSession.getAccessToken()), new ArrayList<>());
+        return auth;
+    }
+
+    private DemoAuthenticationToken getUnverifiedAuthenticationToken(String xAuth) {
+        return new DemoAuthenticationToken(xAuth);
+    }
+
 }

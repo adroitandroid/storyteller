@@ -13,7 +13,7 @@ import java.util.Base64;
 import java.util.Date;
 
 /**
- * Created by pv on 29/10/16.
+ * Created by pv on 02/12/16.
  */
 @Document(collection = "userSessions")
 public class UserSession implements Serializable {
