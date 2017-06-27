@@ -37,7 +37,7 @@ public class FcmPushBody {
 
         static FcmPushData getEligibilityChangeData(boolean forStory) {
             if (forStory) {
-                return new FcmPushData("Congratulations!", "You've won the privilege to start a new story. Give it a go.", TYPE_ELIGIBILITY_CHANGE);
+                return new FcmPushData("Congratulations!", "Now you can start a new story. Give it a go.", TYPE_ELIGIBILITY_CHANGE);
             } else {
                 return new FcmPushData("Good going!", "You are eligible to add more snippets.", TYPE_ELIGIBILITY_CHANGE);
             }

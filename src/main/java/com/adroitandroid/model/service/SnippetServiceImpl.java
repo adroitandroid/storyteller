@@ -26,9 +26,10 @@ import java.util.stream.Collectors;
 @Component("snippetService")
 @Transactional
 public class SnippetServiceImpl extends AbstractService implements SnippetService {
-    private static final long MIN_VOTES_FOR_NOT_NEW = 6L;
-    public static final int MIN_SNIPPET_LIST_SIZE = 40;
-    private static final int MIN_FREQUENCY_FOR_TRENDING = 10;
+    private static final long MIN_VOTES_FOR_NOT_NEW = 3L;
+    private static final int MIN_SNIPPET_LIST_SIZE = 40;
+    private static final int MIN_FREQUENCY_FOR_TRENDING = 5;
+    private static final int SNIPPET_COST_FOR_NEW_STORY = 3;
     private SnippetRepository snippetRepository;
     private UserRepository userRepository;
     private UserSnippetVoteRepository userSnippetVoteRepository;
@@ -347,10 +348,10 @@ public class SnippetServiceImpl extends AbstractService implements SnippetServic
         UserStats userStats = userStatsRepository.findOne(userId);
         if (userStats == null) {
             userStats = new UserStats(user);
-        } else if (userStats.getNumSnippets() == 9) {
+        } else if (userStats.getNumSnippets() + 1 == UserStatus.INITIAL_SNIPPET_COUNT) {
             userStatusRepository.updateInitialSnippetsToUsed(userId, UserStatus.EVENT_INITIAL_SNIPPETS_USED, currentTime);
         }
-        userStatusRepository.updateEligibleSnippets(userId, isNewStory ? -5 : -1, UserStatus.EVENT_ELIGIBLE_TO_ADD_SNIPPET, currentTime);
+        userStatusRepository.updateEligibleSnippets(userId, isNewStory ? -SNIPPET_COST_FOR_NEW_STORY : -1, UserStatus.EVENT_ELIGIBLE_TO_ADD_SNIPPET, currentTime);
         userStats.setNumSnippets(userStats.getNumSnippets() + 1);
         userStatsRepository.save(userStats);
     }
